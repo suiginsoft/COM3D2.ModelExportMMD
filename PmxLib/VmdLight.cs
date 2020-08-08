@@ -1,22 +1,13 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace PmxLib
 {
-	public class VmdLight : VmdFrameBase, IBytesConvert, ICloneable
+	internal class VmdLight : VmdFrameBase, IBytesConvert, ICloneable
 	{
-		public Color Color;
-
+		public Vector3 Color;
 		public Vector3 Direction;
-
-		public int ByteCount
-		{
-			get
-			{
-				return 28;
-			}
-		}
+		public int ByteCount => 28;
 
 		public VmdLight()
 		{
@@ -25,39 +16,33 @@ namespace PmxLib
 		public VmdLight(VmdLight light)
 			: this()
 		{
-			base.FrameIndex = light.FrameIndex;
-			this.Color = light.Color;
-			this.Direction = light.Direction;
+			FrameIndex = light.FrameIndex;
+			Color = light.Color;
+			Direction = light.Direction;
 		}
 
 		public byte[] ToBytes()
 		{
 			List<byte> list = new List<byte>();
-			list.AddRange(BitConverter.GetBytes(base.FrameIndex));
-			list.AddRange(BitConverter.GetBytes(this.Color.r));
-			list.AddRange(BitConverter.GetBytes(this.Color.g));
-			list.AddRange(BitConverter.GetBytes(this.Color.b));
-			list.AddRange(BitConverter.GetBytes(this.Direction.x));
-			list.AddRange(BitConverter.GetBytes(this.Direction.y));
-			list.AddRange(BitConverter.GetBytes(this.Direction.z));
+			list.AddRange(BitConverter.GetBytes(FrameIndex));
+			list.AddRange(BitConverter.GetBytes(Color.Red));
+			list.AddRange(BitConverter.GetBytes(Color.Green));
+			list.AddRange(BitConverter.GetBytes(Color.Blue));
+			list.AddRange(BitConverter.GetBytes(Direction.X));
+			list.AddRange(BitConverter.GetBytes(Direction.Y));
+			list.AddRange(BitConverter.GetBytes(Direction.Z));
 			return list.ToArray();
 		}
 
 		public void FromBytes(byte[] bytes, int startIndex)
 		{
-			base.FrameIndex = BitConverter.ToInt32(bytes, startIndex);
-			int num = startIndex + 4;
-			this.Color.r = BitConverter.ToSingle(bytes, num);
-			num += 4;
-			this.Color.g = BitConverter.ToSingle(bytes, num);
-			num += 4;
-			this.Color.b = BitConverter.ToSingle(bytes, num);
-			num += 4;
-			this.Direction.x = BitConverter.ToSingle(bytes, num);
-			num += 4;
-			this.Direction.y = BitConverter.ToSingle(bytes, num);
-			num += 4;
-			this.Direction.z = BitConverter.ToSingle(bytes, num);
+			FrameIndex = BitConverter.ToInt32(bytes, startIndex + 0);
+			Color.Red = BitConverter.ToSingle(bytes, startIndex + 4);
+			Color.Green = BitConverter.ToSingle(bytes, startIndex + 8);
+			Color.Blue = BitConverter.ToSingle(bytes, startIndex + 12);
+			Direction.X = BitConverter.ToSingle(bytes, startIndex + 16);
+			Direction.Y = BitConverter.ToSingle(bytes, startIndex + 20);
+			Direction.Z = BitConverter.ToSingle(bytes, startIndex + 24);
 		}
 
 		public object Clone()

@@ -31,7 +31,7 @@ namespace PmxLib
 
 		public const string DlgFilter_Pmd = "PMDファイル (*.pmd)|*.pmd|すべてのファイル (*.*)|*.*";
 
-		public const string DlgFilter_Vmd = "MMDモ\u30fcションファイル (*.vmd)|*.vmd|すべてのファイル (*.*)|*.*";
+		public const string DlgFilter_Vmd = "MMDモーションファイル (*.vmd)|*.vmd|すべてのファイル (*.*)|*.*";
 
 		public const string DlgFilter_Txt = "txtファイル (*.txt)|*.txt|すべてのファイル (*.*)|*.*";
 
@@ -51,7 +51,7 @@ namespace PmxLib
 
 		public const string DlgFilter0_PmxPmdXPsk = "PMX／PMD／X／PSK (*.pmx;*.pmd;*.x;*.psk)|*.pmx;*.pmd;*.x;*.psk";
 
-		public const string DlgFilter_Vpd = "MMDポ\u30fcズファイル (*.vpd)|*.vpd|すべてのファイル (*.*)|*.*";
+		public const string DlgFilter_Vpd = "MMDポーズファイル (*.vpd)|*.vpd|すべてのファイル (*.*)|*.*";
 
 		public const string DlgFilter_Psk = "PSKファイル (*.psk)|*.psk|すべてのファイル (*.*)|*.*";
 
@@ -65,20 +65,20 @@ namespace PmxLib
 		{
 			get
 			{
-				if (CExt.m_scriptExtTable == null)
+				if (m_scriptExtTable == null)
 				{
-					CExt.m_scriptExtTable = new Dictionary<string, int>();
-					CExt.m_scriptExtTable.Add(".exe", 0);
-					CExt.m_scriptExtTable.Add(".bat", 1);
-					CExt.m_scriptExtTable.Add(".asp", 2);
-					CExt.m_scriptExtTable.Add(".js", 3);
-					CExt.m_scriptExtTable.Add(".vbs", 4);
-					CExt.m_scriptExtTable.Add(".wsf", 5);
-					CExt.m_scriptExtTable.Add(".wsh", 6);
-					CExt.m_scriptExtTable.Add(".cmd", 7);
-					CExt.m_scriptExtTable.Add(".url", 8);
+					m_scriptExtTable = new Dictionary<string, int>();
+					m_scriptExtTable.Add(".exe", 0);
+					m_scriptExtTable.Add(".bat", 1);
+					m_scriptExtTable.Add(".asp", 2);
+					m_scriptExtTable.Add(".js", 3);
+					m_scriptExtTable.Add(".vbs", 4);
+					m_scriptExtTable.Add(".wsf", 5);
+					m_scriptExtTable.Add(".wsh", 6);
+					m_scriptExtTable.Add(".cmd", 7);
+					m_scriptExtTable.Add(".url", 8);
 				}
-				return CExt.m_scriptExtTable;
+				return m_scriptExtTable;
 			}
 		}
 
@@ -89,27 +89,31 @@ namespace PmxLib
 
 		public static bool IsExtPath(string path, string ext)
 		{
-			return !string.IsNullOrEmpty(path) && Path.GetExtension(path).ToLower() == ext;
+			if (!string.IsNullOrEmpty(path))
+			{
+				return Path.GetExtension(path).ToLower() == ext;
+			}
+			return false;
 		}
 
 		public static bool IsPmxPath(string path)
 		{
-			return CExt.IsExtPath(path, ".pmx");
+			return IsExtPath(path, ".pmx");
 		}
 
 		public static bool IsPmdPath(string path)
 		{
-			return CExt.IsExtPath(path, ".pmd");
+			return IsExtPath(path, ".pmd");
 		}
 
 		public static bool IsXPath(string path)
 		{
-			return CExt.IsExtPath(path, ".x");
+			return IsExtPath(path, ".x");
 		}
 
 		public static bool IsCSVPath(string path)
 		{
-			return CExt.IsExtPath(path, ".csv");
+			return IsExtPath(path, ".csv");
 		}
 	}
 }

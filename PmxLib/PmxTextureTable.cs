@@ -4,15 +4,9 @@ using System.IO;
 
 namespace PmxLib
 {
-	public class PmxTextureTable : IPmxObjectKey, IPmxStreamIO, ICloneable
+	internal class PmxTextureTable : IPmxObjectKey, IPmxStreamIO, ICloneable
 	{
-		PmxObject IPmxObjectKey.ObjectKey
-		{
-			get
-			{
-				return PmxObject.TexTable;
-			}
-		}
+		PmxObjectType IPmxObjectKey.ObjectKey => PmxObjectType.TexTable;
 
 		public Dictionary<string, int> NameToIndex
 		{
@@ -26,20 +20,14 @@ namespace PmxLib
 			private set;
 		}
 
-		public int Count
-		{
-			get
-			{
-				return this.NameToIndex.Count;
-			}
-		}
+		public int Count => NameToIndex.Count;
 
 		public int GetIndex(string name)
 		{
 			int result = -1;
-			if (this.NameToIndex.ContainsKey(name))
+			if (NameToIndex.ContainsKey(name))
 			{
-				result = this.NameToIndex[name];
+				result = NameToIndex[name];
 			}
 			return result;
 		}
@@ -47,61 +35,61 @@ namespace PmxLib
 		public string GetName(int ix)
 		{
 			string result = "";
-			if (this.IndexToName.ContainsKey(ix))
+			if (IndexToName.ContainsKey(ix))
 			{
-				result = this.IndexToName[ix];
+				result = IndexToName[ix];
 			}
 			return result;
 		}
 
 		public PmxTextureTable()
 		{
-			this.NameToIndex = new Dictionary<string, int>();
-			this.IndexToName = new Dictionary<int, string>();
+			NameToIndex = new Dictionary<string, int>();
+			IndexToName = new Dictionary<int, string>();
 		}
 
 		public PmxTextureTable(PmxTextureTable tx)
 		{
-			this.FromPmxTextureTable(tx);
+			FromPmxTextureTable(tx);
 		}
 
 		public void FromPmxTextureTable(PmxTextureTable tx)
 		{
 			string[] array = new string[tx.Count];
 			tx.NameToIndex.Keys.CopyTo(array, 0);
-			this.CreateTable(array);
+			CreateTable(array);
 		}
 
 		public PmxTextureTable(List<PmxMaterial> ml)
 			: this()
 		{
-			this.CreateTable(ml);
+			CreateTable(ml);
 		}
 
 		public void CreateTable(List<PmxMaterial> ml)
 		{
-			this.NameToIndex.Clear();
-			this.IndexToName.Clear();
+			NameToIndex.Clear();
+			IndexToName.Clear();
 			int num = 0;
 			for (int i = 0; i < ml.Count; i++)
 			{
 				PmxMaterial pmxMaterial = ml[i];
-				if (!string.IsNullOrEmpty(pmxMaterial.Tex) && !this.NameToIndex.ContainsKey(pmxMaterial.Tex))
+				if (!string.IsNullOrEmpty(pmxMaterial.Tex) && !NameToIndex.ContainsKey(pmxMaterial.Tex))
 				{
-					this.NameToIndex.Add(pmxMaterial.Tex, num);
-					this.IndexToName.Add(num, pmxMaterial.Tex);
+					NameToIndex.Add(pmxMaterial.Tex, num);
+					IndexToName.Add(num, pmxMaterial.Tex);
 					num++;
 				}
-				if (!string.IsNullOrEmpty(pmxMaterial.Sphere) && !this.NameToIndex.ContainsKey(pmxMaterial.Sphere))
+				if (!string.IsNullOrEmpty(pmxMaterial.Sphere) && !NameToIndex.ContainsKey(pmxMaterial.Sphere))
 				{
-					this.NameToIndex.Add(pmxMaterial.Sphere, num);
-					this.IndexToName.Add(num, pmxMaterial.Sphere);
+					NameToIndex.Add(pmxMaterial.Sphere, num);
+					IndexToName.Add(num, pmxMaterial.Sphere);
 					num++;
 				}
-				if (!string.IsNullOrEmpty(pmxMaterial.Toon) && !this.NameToIndex.ContainsKey(pmxMaterial.Toon) && !SystemToon.IsSystemToon(pmxMaterial.Toon))
+				if (!string.IsNullOrEmpty(pmxMaterial.Toon) && !NameToIndex.ContainsKey(pmxMaterial.Toon) && !SystemToon.IsSystemToon(pmxMaterial.Toon))
 				{
-					this.NameToIndex.Add(pmxMaterial.Toon, num);
-					this.IndexToName.Add(num, pmxMaterial.Toon);
+					NameToIndex.Add(pmxMaterial.Toon, num);
+					IndexToName.Add(num, pmxMaterial.Toon);
 					num++;
 				}
 			}
@@ -109,33 +97,36 @@ namespace PmxLib
 
 		public void CreateTable(string[] names)
 		{
-			this.NameToIndex.Clear();
-			this.IndexToName.Clear();
+			NameToIndex.Clear();
+			IndexToName.Clear();
 			for (int i = 0; i < names.Length; i++)
 			{
-				this.NameToIndex.Add(names[i], i);
-				this.IndexToName.Add(i, names[i]);
+				if (!NameToIndex.ContainsKey(names[i]))
+				{
+					NameToIndex.Add(names[i], i);
+				}
+				IndexToName.Add(i, names[i]);
 			}
 		}
 
 		public void FromStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			int num = PmxStreamHelper.ReadElement_Int32(s, 4, true);
+			int num = PmxStreamHelper.ReadElement_Int32(s);
 			string[] array = new string[num];
 			for (int i = 0; i < num; i++)
 			{
 				array[i] = PmxStreamHelper.ReadString(s, f);
 			}
-			this.CreateTable(array);
+			CreateTable(array);
 		}
 
 		public void ToStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			int count = this.Count;
-			PmxStreamHelper.WriteElement_Int32(s, count, 4, true);
+			int count = Count;
+			PmxStreamHelper.WriteElement_Int32(s, count);
 			for (int i = 0; i < count; i++)
 			{
-				PmxStreamHelper.WriteString(s, this.IndexToName[i], f);
+				PmxStreamHelper.WriteString(s, IndexToName[i], f);
 			}
 		}
 

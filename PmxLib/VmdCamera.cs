@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace PmxLib
 {
-	public class VmdCamera : VmdFrameBase, IBytesConvert, ICloneable
+	internal class VmdCamera : VmdFrameBase, IBytesConvert, ICloneable
 	{
 		public float Distance;
 
@@ -17,13 +17,7 @@ namespace PmxLib
 
 		public byte Pers;
 
-		public int ByteCount
-		{
-			get
-			{
-				return 32 + this.IPL.ByteCount + 1 + 4;
-			}
-		}
+		public int ByteCount => 32 + IPL.ByteCount + 1 + 4;
 
 		public VmdCamera()
 		{
@@ -31,55 +25,56 @@ namespace PmxLib
 
 		public VmdCamera(VmdCamera camera)
 		{
-			base.FrameIndex = camera.FrameIndex;
-			this.Distance = camera.Distance;
-			this.Position = camera.Position;
-			this.Rotate = camera.Rotate;
-			this.IPL = (VmdCameraIPL)camera.IPL.Clone();
-			this.Angle = camera.Angle;
-			this.Pers = camera.Pers;
+			FrameIndex = camera.FrameIndex;
+			Distance = camera.Distance;
+			Position = camera.Position;
+			Rotate = camera.Rotate;
+			IPL = (VmdCameraIPL)camera.IPL.Clone();
+			Angle = camera.Angle;
+			Pers = camera.Pers;
 		}
 
 		public byte[] ToBytes()
 		{
 			List<byte> list = new List<byte>();
-			list.AddRange(BitConverter.GetBytes(base.FrameIndex));
-			list.AddRange(BitConverter.GetBytes(this.Distance));
-			list.AddRange(BitConverter.GetBytes(this.Position.x));
-			list.AddRange(BitConverter.GetBytes(this.Position.y));
-			list.AddRange(BitConverter.GetBytes(this.Position.z));
-			list.AddRange(BitConverter.GetBytes(this.Rotate.x));
-			list.AddRange(BitConverter.GetBytes(this.Rotate.y));
-			list.AddRange(BitConverter.GetBytes(this.Rotate.z));
-			list.AddRange(this.IPL.ToBytes());
-			list.AddRange(BitConverter.GetBytes((int)this.Angle));
-			list.Add(this.Pers);
+			list.AddRange(BitConverter.GetBytes(FrameIndex));
+			list.AddRange(BitConverter.GetBytes(Distance));
+			list.AddRange(BitConverter.GetBytes(Position.X));
+			list.AddRange(BitConverter.GetBytes(Position.Y));
+			list.AddRange(BitConverter.GetBytes(Position.Z));
+			list.AddRange(BitConverter.GetBytes(Rotate.X));
+			list.AddRange(BitConverter.GetBytes(Rotate.Y));
+			list.AddRange(BitConverter.GetBytes(Rotate.Z));
+			list.AddRange(IPL.ToBytes());
+			list.AddRange(BitConverter.GetBytes((int)Angle));
+			list.Add(Pers);
 			return list.ToArray();
 		}
 
 		public void FromBytes(byte[] bytes, int startIndex)
 		{
-			base.FrameIndex = BitConverter.ToInt32(bytes, startIndex);
-			int num = startIndex + 4;
-			this.Distance = BitConverter.ToSingle(bytes, num);
+			int num = startIndex;
+			FrameIndex = BitConverter.ToInt32(bytes, num);
 			num += 4;
-			this.Position.x = BitConverter.ToSingle(bytes, num);
+			Distance = BitConverter.ToSingle(bytes, num);
 			num += 4;
-			this.Position.y = BitConverter.ToSingle(bytes, num);
+			Position.X = BitConverter.ToSingle(bytes, num);
 			num += 4;
-			this.Position.z = BitConverter.ToSingle(bytes, num);
+			Position.Y = BitConverter.ToSingle(bytes, num);
 			num += 4;
-			this.Rotate.x = BitConverter.ToSingle(bytes, num);
+			Position.Z = BitConverter.ToSingle(bytes, num);
 			num += 4;
-			this.Rotate.y = BitConverter.ToSingle(bytes, num);
+			Rotate.X = BitConverter.ToSingle(bytes, num);
 			num += 4;
-			this.Rotate.z = BitConverter.ToSingle(bytes, num);
+			Rotate.Y = BitConverter.ToSingle(bytes, num);
 			num += 4;
-			this.IPL.FromBytes(bytes, num);
-			num += this.IPL.ByteCount;
-			this.Angle = (float)BitConverter.ToInt32(bytes, num);
+			Rotate.Z = BitConverter.ToSingle(bytes, num);
 			num += 4;
-			this.Pers = bytes[num];
+			IPL.FromBytes(bytes, num);
+			num += IPL.ByteCount;
+			Angle = BitConverter.ToInt32(bytes, num);
+			num += 4;
+			Pers = bytes[num];
 		}
 
 		public object Clone()

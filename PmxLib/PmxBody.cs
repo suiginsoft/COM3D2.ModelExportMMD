@@ -3,7 +3,7 @@ using System.IO;
 
 namespace PmxLib
 {
-	public class PmxBody : IPmxObjectKey, IPmxStreamIO, ICloneable, INXName
+	internal class PmxBody : PmxIDObject, IPmxObjectKey, IPmxStreamIO, ICloneable, INXName
 	{
 		public enum BoxKind
 		{
@@ -43,13 +43,7 @@ namespace PmxLib
 
 		public float Friction;
 
-		PmxObject IPmxObjectKey.ObjectKey
-		{
-			get
-			{
-				return PmxObject.Body;
-			}
-		}
+		PmxObjectType IPmxObjectKey.ObjectKey => PmxObjectType.Body;
 
 		public string Name
 		{
@@ -85,104 +79,115 @@ namespace PmxLib
 		{
 			get
 			{
-				return this.Name;
+				return Name;
 			}
 			set
 			{
-				this.Name = value;
+				Name = value;
 			}
 		}
 
 		public PmxBody()
 		{
-			this.Name = "";
-			this.NameE = "";
-			this.PassGroup = new PmxBodyPassGroup();
-			this.InitializeParameter();
-			this.BoxSize = new Vector3(2f, 2f, 2f);
+			Name = "";
+			NameE = "";
+			PassGroup = new PmxBodyPassGroup();
+			InitializeParameter();
+			BoxSize = new Vector3(2f, 2f, 2f);
 		}
 
 		public PmxBody(PmxBody body, bool nonStr = false)
 		{
-			this.FromPmxBody(body, nonStr);
+			FromPmxBody(body, nonStr);
 		}
 
 		public void FromPmxBody(PmxBody body, bool nonStr = false)
 		{
 			if (!nonStr)
 			{
-				this.Name = body.Name;
-				this.NameE = body.NameE;
+				Name = body.Name;
+				NameE = body.NameE;
 			}
-			this.Bone = body.Bone;
-			this.Group = body.Group;
-			this.PassGroup = body.PassGroup.Clone();
-			this.BoxType = body.BoxType;
-			this.BoxSize = body.BoxSize;
-			this.Position = body.Position;
-			this.Rotation = body.Rotation;
-			this.Mass = body.Mass;
-			this.PositionDamping = body.PositionDamping;
-			this.RotationDamping = body.RotationDamping;
-			this.Restitution = body.Restitution;
-			this.Friction = body.Friction;
-			this.Mode = body.Mode;
+			Bone = body.Bone;
+			Group = body.Group;
+			PassGroup = body.PassGroup.Clone();
+			BoxType = body.BoxType;
+			BoxSize = body.BoxSize;
+			Position = body.Position;
+			Rotation = body.Rotation;
+			Mass = body.Mass;
+			PositionDamping = body.PositionDamping;
+			RotationDamping = body.RotationDamping;
+			Restitution = body.Restitution;
+			Friction = body.Friction;
+			Mode = body.Mode;
+			FromID(body);
 		}
 
 		public void InitializeParameter()
 		{
-			this.Mass = 1f;
-			this.PositionDamping = 0.5f;
-			this.RotationDamping = 0.5f;
-			this.Restitution = 0f;
-			this.Friction = 0.5f;
+			Mass = 1f;
+			PositionDamping = 0.5f;
+			RotationDamping = 0.5f;
+			Restitution = 0f;
+			Friction = 0.5f;
 		}
 
 		public void FromStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			this.Name = PmxStreamHelper.ReadString(s, f);
-			this.NameE = PmxStreamHelper.ReadString(s, f);
-			this.Bone = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize, true);
-			this.Group = PmxStreamHelper.ReadElement_Int32(s, 1, true);
-			ushort bits = (ushort)PmxStreamHelper.ReadElement_Int32(s, 2, false);
-			this.PassGroup.FromFlagBits(bits);
-			this.BoxType = (BoxKind)s.ReadByte();
-			this.BoxSize = V3_BytesConvert.FromStream(s);
-			this.Position = V3_BytesConvert.FromStream(s);
-			this.Rotation = V3_BytesConvert.FromStream(s);
-			this.Mass = PmxStreamHelper.ReadElement_Float(s);
+			Name = PmxStreamHelper.ReadString(s, f);
+			NameE = PmxStreamHelper.ReadString(s, f);
+			Bone = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize);
+			Group = PmxStreamHelper.ReadElement_Int32(s, 1);
+			ushort bits = (ushort)PmxStreamHelper.ReadElement_Int32(s, 2, signed: false);
+			PassGroup.FromFlagBits(bits);
+			BoxType = (BoxKind)s.ReadByte();
+			BoxSize = V3_BytesConvert.FromStream(s);
+			Position = V3_BytesConvert.FromStream(s);
+			Rotation = V3_BytesConvert.FromStream(s);
+			Mass = PmxStreamHelper.ReadElement_Float(s);
 			Vector4 vector = V4_BytesConvert.FromStream(s);
-			this.PositionDamping = vector.x;
-			this.RotationDamping = vector.y;
-			this.Restitution = vector.z;
-			this.Friction = vector.w;
-			this.Mode = (ModeType)s.ReadByte();
+			PositionDamping = vector.X;
+			RotationDamping = vector.Y;
+			Restitution = vector.Z;
+			Friction = vector.W;
+			Mode = (ModeType)s.ReadByte();
+			if (f.WithID)
+			{
+				base.UID = PmxStreamHelper.ReadElement_UInt(s);
+				base.CID = PmxStreamHelper.ReadElement_UInt(s);
+			}
 		}
 
 		public void ToStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			PmxStreamHelper.WriteString(s, this.Name, f);
-			PmxStreamHelper.WriteString(s, this.NameE, f);
-			PmxStreamHelper.WriteElement_Int32(s, this.Bone, f.BoneSize, true);
-			PmxStreamHelper.WriteElement_Int32(s, this.Group, 1, true);
-			PmxStreamHelper.WriteElement_Int32(s, this.PassGroup.ToFlagBits(), 2, false);
-			s.WriteByte((byte)this.BoxType);
-			V3_BytesConvert.ToStream(s, this.BoxSize);
-			V3_BytesConvert.ToStream(s, this.Position);
-			V3_BytesConvert.ToStream(s, this.Rotation);
-			PmxStreamHelper.WriteElement_Float(s, this.Mass);
-			V4_BytesConvert.ToStream(s, new Vector4(this.PositionDamping, this.RotationDamping, this.Restitution, this.Friction));
-			s.WriteByte((byte)this.Mode);
+			PmxStreamHelper.WriteString(s, Name, f);
+			PmxStreamHelper.WriteString(s, NameE, f);
+			PmxStreamHelper.WriteElement_Int32(s, Bone, f.BoneSize);
+			PmxStreamHelper.WriteElement_Int32(s, Group, 1);
+			PmxStreamHelper.WriteElement_Int32(s, PassGroup.ToFlagBits(), 2, signed: false);
+			s.WriteByte((byte)BoxType);
+			V3_BytesConvert.ToStream(s, BoxSize);
+			V3_BytesConvert.ToStream(s, Position);
+			V3_BytesConvert.ToStream(s, Rotation);
+			PmxStreamHelper.WriteElement_Float(s, Mass);
+			V4_BytesConvert.ToStream(s, new Vector4(PositionDamping, RotationDamping, Restitution, Friction));
+			s.WriteByte((byte)Mode);
+			if (f.WithID)
+			{
+				PmxStreamHelper.WriteElement_UInt(s, base.UID);
+				PmxStreamHelper.WriteElement_UInt(s, base.CID);
+			}
 		}
 
 		object ICloneable.Clone()
 		{
-			return new PmxBody(this, false);
+			return new PmxBody(this);
 		}
 
 		public PmxBody Clone()
 		{
-			return new PmxBody(this, false);
+			return new PmxBody(this);
 		}
 	}
 }

@@ -3,15 +3,9 @@ using System.IO;
 
 namespace PmxLib
 {
-	public class PmxModelInfo : IPmxObjectKey, IPmxStreamIO, ICloneable
+	internal class PmxModelInfo : IPmxObjectKey, IPmxStreamIO, ICloneable
 	{
-		PmxObject IPmxObjectKey.ObjectKey
-		{
-			get
-			{
-				return PmxObject.ModelInfo;
-			}
-		}
+		PmxObjectType IPmxObjectKey.ObjectKey => PmxObjectType.ModelInfo;
 
 		public string ModelName
 		{
@@ -39,44 +33,44 @@ namespace PmxLib
 
 		public PmxModelInfo()
 		{
-			this.Clear();
+			Clear();
 		}
 
 		public PmxModelInfo(PmxModelInfo info)
 		{
-			this.FromModelInfo(info);
+			FromModelInfo(info);
 		}
 
 		public void FromModelInfo(PmxModelInfo info)
 		{
-			this.ModelName = info.ModelName;
-			this.Comment = info.Comment;
-			this.ModelNameE = info.ModelNameE;
-			this.CommentE = info.CommentE;
+			ModelName = info.ModelName;
+			Comment = info.Comment;
+			ModelNameE = info.ModelNameE;
+			CommentE = info.CommentE;
 		}
 
 		public void Clear()
 		{
-			this.ModelName = "";
-			this.Comment = "";
-			this.ModelNameE = "";
-			this.CommentE = "";
+			ModelName = "";
+			Comment = "";
+			ModelNameE = "";
+			CommentE = "";
 		}
 
 		public void FromStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			this.ModelName = PmxStreamHelper.ReadString(s, f);
-			this.ModelNameE = PmxStreamHelper.ReadString(s, f);
-			this.Comment = PmxStreamHelper.ReadString(s, f);
-			this.CommentE = PmxStreamHelper.ReadString(s, f);
+			ModelName = PmxStreamHelper.ReadString(s, f);
+			ModelNameE = PmxStreamHelper.ReadString(s, f);
+			Comment = PmxStreamHelper.ReadString(s, f);
+			CommentE = PmxStreamHelper.ReadString(s, f);
 		}
 
 		public void ToStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			PmxStreamHelper.WriteString(s, this.ModelName, f);
-			PmxStreamHelper.WriteString(s, this.ModelNameE, f);
-			PmxStreamHelper.WriteString(s, this.Comment, f);
-			PmxStreamHelper.WriteString(s, this.CommentE, f);
+			PmxStreamHelper.WriteString(s, ModelName, f);
+			PmxStreamHelper.WriteString(s, ModelNameE, f);
+			PmxStreamHelper.WriteString(s, Comment, f);
+			PmxStreamHelper.WriteString(s, CommentE, f);
 		}
 
 		object ICloneable.Clone()

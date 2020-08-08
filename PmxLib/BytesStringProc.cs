@@ -10,13 +10,13 @@ namespace PmxLib
 
 		static BytesStringProc()
 		{
-			BytesStringProc.m_sjis = Encoding.GetEncoding("shift_jis");
+			m_sjis = Encoding.GetEncoding("shift_jis");
 		}
 
 		public static void SetString(byte[] buf, string s, byte fix = 0, byte fill = 253)
 		{
 			s = s.Replace("\r\n", "\n");
-			List<byte> list = new List<byte>(BytesStringProc.m_sjis.GetBytes(s));
+			List<byte> list = new List<byte>(m_sjis.GetBytes(s));
 			list.Add(fix);
 			if (list.Count > buf.Length)
 			{
@@ -35,18 +35,15 @@ namespace PmxLib
 		{
 			int num = buf.Length;
 			int count = buf.Length;
-			int num2 = 0;
-			while (num2 < num)
+			for (int i = 0; i < num; i++)
 			{
-				if (buf[num2] != fix)
+				if (buf[i] == fix)
 				{
-					num2++;
-					continue;
+					count = i;
+					break;
 				}
-				count = num2;
-				break;
 			}
-			string @string = BytesStringProc.m_sjis.GetString(buf, 0, count);
+			string @string = m_sjis.GetString(buf, 0, count);
 			if (@string == null)
 			{
 				return "";
@@ -60,16 +57,16 @@ namespace PmxLib
 			{
 				return new byte[0];
 			}
-			return BytesStringProc.m_sjis.GetBytes(s);
+			return m_sjis.GetBytes(s);
 		}
 
 		public static string BufToString_SJIS(byte[] buf)
 		{
-			if (buf.Length <= 0)
+			if (buf.Length == 0)
 			{
 				return "";
 			}
-			return BytesStringProc.m_sjis.GetString(buf, 0, buf.Length);
+			return m_sjis.GetString(buf, 0, buf.Length);
 		}
 	}
 }

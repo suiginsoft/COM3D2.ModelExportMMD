@@ -3,21 +3,21 @@ using System.Collections.Generic;
 
 namespace PmxLib
 {
-	public class VmdMotion : VmdFrameBase, IBytesConvert, ICloneable
+	internal class VmdMotion : VmdFrameBase, IBytesConvert, ICloneable
 	{
-		private const int NameBytes = 15;
-
-		private const ushort PhysicsOffNum = 3939;
-
 		public string Name = "";
+
+		private const int NameBytes = 15;
 
 		public Vector3 Position;
 
-		public Quaternion Rotate = Quaternion.identity;
+		public Quaternion Rotate = Quaternion.Identity;
 
 		public VmdMotionIPL IPL = new VmdMotionIPL();
 
 		protected int NoDataCount = 48;
+
+		private const ushort PhysicsOffNum = 3939;
 
 		public bool PhysicsOff
 		{
@@ -25,54 +25,48 @@ namespace PmxLib
 			set;
 		}
 
-		public int ByteCount
-		{
-			get
-			{
-				return 47 + this.IPL.ByteCount + this.NoDataCount;
-			}
-		}
+		public int ByteCount => 47 + IPL.ByteCount + NoDataCount;
 
 		public VmdMotion()
 		{
-			this.PhysicsOff = false;
+			PhysicsOff = false;
 		}
 
 		public VmdMotion(VmdMotion motion)
 			: this()
 		{
-			this.Name = motion.Name;
-			base.FrameIndex = motion.FrameIndex;
-			this.Position = motion.Position;
-			this.Rotate = motion.Rotate;
-			this.IPL = (VmdMotionIPL)motion.IPL.Clone();
-			this.PhysicsOff = motion.PhysicsOff;
+			Name = motion.Name;
+			FrameIndex = motion.FrameIndex;
+			Position = motion.Position;
+			Rotate = motion.Rotate;
+			IPL = (VmdMotionIPL)motion.IPL.Clone();
+			PhysicsOff = motion.PhysicsOff;
 		}
 
 		public byte[] ToBytes()
 		{
 			List<byte> list = new List<byte>();
 			byte[] array = new byte[15];
-			BytesStringProc.SetString(array, this.Name, 0, 253);
+			BytesStringProc.SetString(array, Name, 0, 253);
 			list.AddRange(array);
-			list.AddRange(BitConverter.GetBytes(base.FrameIndex));
-			list.AddRange(BitConverter.GetBytes(this.Position.x));
-			list.AddRange(BitConverter.GetBytes(this.Position.y));
-			list.AddRange(BitConverter.GetBytes(this.Position.z));
-			list.AddRange(BitConverter.GetBytes(this.Rotate.x));
-			list.AddRange(BitConverter.GetBytes(this.Rotate.y));
-			list.AddRange(BitConverter.GetBytes(this.Rotate.z));
-			list.AddRange(BitConverter.GetBytes(this.Rotate.w));
-			byte[] array2 = new byte[this.IPL.ByteCount * 4];
-			byte[] array3 = this.IPL.ToBytes();
+			list.AddRange(BitConverter.GetBytes(FrameIndex));
+			list.AddRange(BitConverter.GetBytes(Position.X));
+			list.AddRange(BitConverter.GetBytes(Position.Y));
+			list.AddRange(BitConverter.GetBytes(Position.Z));
+			list.AddRange(BitConverter.GetBytes(Rotate.X));
+			list.AddRange(BitConverter.GetBytes(Rotate.Y));
+			list.AddRange(BitConverter.GetBytes(Rotate.Z));
+			list.AddRange(BitConverter.GetBytes(Rotate.W));
+			byte[] array2 = new byte[IPL.ByteCount * 4];
+			byte[] array3 = IPL.ToBytes();
 			int num = array3.Length;
 			for (int i = 0; i < num; i++)
 			{
 				array2[i * 4] = array3[i];
 			}
-			if (this.PhysicsOff)
+			if (PhysicsOff)
 			{
-				byte[] bytes = BitConverter.GetBytes(3939);
+				byte[] bytes = BitConverter.GetBytes((ushort)3939);
 				array2[2] = bytes[0];
 				array2[3] = bytes[1];
 			}
@@ -82,37 +76,38 @@ namespace PmxLib
 
 		public void FromBytes(byte[] bytes, int startIndex)
 		{
+			int num = startIndex;
 			byte[] array = new byte[15];
-			Array.Copy(bytes, startIndex, array, 0, 15);
-			this.Name = BytesStringProc.GetString(array, 0);
-			int num = startIndex + 15;
-			base.FrameIndex = BitConverter.ToInt32(bytes, num);
+			Array.Copy(bytes, num, array, 0, 15);
+			Name = BytesStringProc.GetString(array, 0);
+			num += 15;
+			FrameIndex = BitConverter.ToInt32(bytes, num);
 			num += 4;
-			this.Position.x = BitConverter.ToSingle(bytes, num);
+			Position.X = BitConverter.ToSingle(bytes, num);
 			num += 4;
-			this.Position.y = BitConverter.ToSingle(bytes, num);
+			Position.Y = BitConverter.ToSingle(bytes, num);
 			num += 4;
-			this.Position.z = BitConverter.ToSingle(bytes, num);
+			Position.Z = BitConverter.ToSingle(bytes, num);
 			num += 4;
-			this.Rotate.x = BitConverter.ToSingle(bytes, num);
+			Rotate.X = BitConverter.ToSingle(bytes, num);
 			num += 4;
-			this.Rotate.y = BitConverter.ToSingle(bytes, num);
+			Rotate.Y = BitConverter.ToSingle(bytes, num);
 			num += 4;
-			this.Rotate.z = BitConverter.ToSingle(bytes, num);
+			Rotate.Z = BitConverter.ToSingle(bytes, num);
 			num += 4;
-			this.Rotate.w = BitConverter.ToSingle(bytes, num);
+			Rotate.W = BitConverter.ToSingle(bytes, num);
 			num += 4;
-			int byteCount = this.IPL.ByteCount;
+			int byteCount = IPL.ByteCount;
 			byte[] array2 = new byte[byteCount * 4];
-			byte[] array3 = new byte[this.IPL.ByteCount];
+			byte[] array3 = new byte[IPL.ByteCount];
 			Array.Copy(bytes, num, array2, 0, array2.Length);
 			ushort num2 = BitConverter.ToUInt16(array2, 2);
-			this.PhysicsOff = (num2 == 3939);
+			PhysicsOff = (num2 == 3939);
 			for (int i = 0; i < byteCount; i++)
 			{
 				array3[i] = array2[i * 4];
 			}
-			this.IPL.FromBytes(array3, 0);
+			IPL.FromBytes(array3, 0);
 		}
 
 		public object Clone()

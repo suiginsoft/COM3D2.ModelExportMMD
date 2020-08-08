@@ -2,7 +2,7 @@ using System;
 
 namespace PmxLib
 {
-	public class PmxMaterialAttribute : ICloneable
+	internal class PmxMaterialAttribute : ICloneable
 	{
 		public enum UVTarget
 		{
@@ -85,33 +85,33 @@ namespace PmxLib
 
 		public PmxMaterialAttribute()
 		{
-			this.Clear();
+			Clear();
 		}
 
 		public PmxMaterialAttribute(string text)
 			: this()
 		{
-			this.SetFromText(text);
+			SetFromText(text);
 		}
 
 		public PmxMaterialAttribute(PmxMaterialAttribute att)
 		{
-			this.BumpMapTexture = att.BumpMapTexture;
-			this.NormalMapTexture = att.NormalMapTexture;
-			this.CubeMapTexture = att.CubeMapTexture;
-			this.BumpMapUV = att.BumpMapUV;
-			this.NormalMapUV = att.NormalMapUV;
-			this.CubeMapUV = att.CubeMapUV;
+			BumpMapTexture = att.BumpMapTexture;
+			NormalMapTexture = att.NormalMapTexture;
+			CubeMapTexture = att.CubeMapTexture;
+			BumpMapUV = att.BumpMapUV;
+			NormalMapUV = att.NormalMapUV;
+			CubeMapUV = att.CubeMapUV;
 		}
 
 		public void Clear()
 		{
-			this.BumpMapTexture = null;
-			this.NormalMapTexture = null;
-			this.CubeMapTexture = null;
-			this.BumpMapUV = UVTarget.UV;
-			this.NormalMapUV = UVTarget.UV;
-			this.CubeMapUV = UVTarget.UV;
+			BumpMapTexture = null;
+			NormalMapTexture = null;
+			CubeMapTexture = null;
+			BumpMapUV = UVTarget.UV;
+			NormalMapUV = UVTarget.UV;
+			CubeMapUV = UVTarget.UV;
 		}
 
 		private static UVTarget TextToUVTarget(string text)
@@ -149,38 +149,38 @@ namespace PmxLib
 
 		public void SetFromText(string text)
 		{
-			this.Clear();
+			Clear();
 			if (!string.IsNullOrEmpty(text))
 			{
 				string[] tag = PmxTag.GetTag("BumpMap", text);
-				if (tag != null && tag.Length > 0)
+				if (tag != null && tag.Length != 0)
 				{
-					this.BumpMapTexture = tag[0];
+					BumpMapTexture = tag[0];
 				}
 				string[] tag2 = PmxTag.GetTag("BumpMapUV", text);
-				if (tag2 != null && tag2.Length > 0)
+				if (tag2 != null && tag2.Length != 0)
 				{
-					this.BumpMapUV = PmxMaterialAttribute.TextToUVTarget(tag2[0]);
+					BumpMapUV = TextToUVTarget(tag2[0]);
 				}
 				string[] tag3 = PmxTag.GetTag("NormalMap", text);
-				if (tag3 != null && tag3.Length > 0)
+				if (tag3 != null && tag3.Length != 0)
 				{
-					this.NormalMapTexture = tag3[0];
+					NormalMapTexture = tag3[0];
 				}
 				string[] tag4 = PmxTag.GetTag("NormalMapUV", text);
-				if (tag4 != null && tag4.Length > 0)
+				if (tag4 != null && tag4.Length != 0)
 				{
-					this.NormalMapUV = PmxMaterialAttribute.TextToUVTarget(tag4[0]);
+					NormalMapUV = TextToUVTarget(tag4[0]);
 				}
 				string[] tag5 = PmxTag.GetTag("CubeMap", text);
-				if (tag5 != null && tag5.Length > 0)
+				if (tag5 != null && tag5.Length != 0)
 				{
-					this.CubeMapTexture = tag5[0];
+					CubeMapTexture = tag5[0];
 				}
 				string[] tag6 = PmxTag.GetTag("CubeMapUV", text);
-				if (tag6 != null && tag6.Length > 0)
+				if (tag6 != null && tag6.Length != 0)
 				{
-					this.CubeMapUV = PmxMaterialAttribute.TextToUVTarget(tag6[0]);
+					CubeMapUV = TextToUVTarget(tag6[0]);
 				}
 			}
 		}

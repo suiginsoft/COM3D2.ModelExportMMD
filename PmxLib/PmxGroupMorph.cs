@@ -9,23 +9,17 @@ namespace PmxLib
 
 		public float Ratio;
 
-		PmxObject IPmxObjectKey.ObjectKey
-		{
-			get
-			{
-				return PmxObject.GroupMorph;
-			}
-		}
+		PmxObjectType IPmxObjectKey.ObjectKey => PmxObjectType.GroupMorph;
 
 		public override int BaseIndex
 		{
 			get
 			{
-				return this.Index;
+				return Index;
 			}
 			set
 			{
-				this.Index = value;
+				Index = value;
 			}
 		}
 
@@ -37,38 +31,40 @@ namespace PmxLib
 
 		public PmxGroupMorph()
 		{
-			this.Ratio = 1f;
+			Ratio = 1f;
 		}
 
 		public PmxGroupMorph(int index, float r)
 			: this()
 		{
-			this.Index = index;
-			this.Ratio = r;
+			Index = index;
+			Ratio = r;
 		}
 
 		public PmxGroupMorph(PmxGroupMorph sv)
 			: this()
 		{
-			this.FromPmxGroupMorph(sv);
+			FromPmxGroupMorph(sv);
 		}
 
 		public void FromPmxGroupMorph(PmxGroupMorph sv)
 		{
-			this.Index = sv.Index;
-			this.Ratio = sv.Ratio;
+			FromPmxBaseMorph(sv);
+			Ratio = sv.Ratio;
 		}
 
-		public override void FromStreamEx(Stream s, PmxElementFormat size = null)
+		public override void FromStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			this.Index = PmxStreamHelper.ReadElement_Int32(s, size.MorphSize, true);
-			this.Ratio = PmxStreamHelper.ReadElement_Float(s);
+			base.FromStreamEx(s, f);
+			Index = PmxStreamHelper.ReadElement_Int32(s, f.MorphSize);
+			Ratio = PmxStreamHelper.ReadElement_Float(s);
 		}
 
-		public override void ToStreamEx(Stream s, PmxElementFormat size = null)
+		public override void ToStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			PmxStreamHelper.WriteElement_Int32(s, this.Index, size.MorphSize, true);
-			PmxStreamHelper.WriteElement_Float(s, this.Ratio);
+			base.ToStreamEx(s, f);
+			PmxStreamHelper.WriteElement_Int32(s, Index, f.MorphSize);
+			PmxStreamHelper.WriteElement_Float(s, Ratio);
 		}
 
 		object ICloneable.Clone()

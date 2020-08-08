@@ -26,15 +26,15 @@ namespace PmxLib
 
 			public ToonInfo(int count)
 			{
-				this.ToonNames = SystemToon.GetToonNames();
-				this.MaterialToon = new int[count];
-				this.IsRejection = false;
+				ToonNames = GetToonNames();
+				MaterialToon = new int[count];
+				IsRejection = false;
 			}
 		}
 
-		public const int EnableToonCount = 10;
-
 		private static Dictionary<string, int> m_nametable;
+
+		public const int EnableToonCount = 10;
 
 		public static string GetToonName(int n)
 		{
@@ -50,7 +50,7 @@ namespace PmxLib
 			string[] array = new string[10];
 			for (int i = 0; i < array.Length; i++)
 			{
-				array[i] = SystemToon.GetToonName(i);
+				array[i] = GetToonName(i);
 			}
 			return array;
 		}
@@ -58,31 +58,35 @@ namespace PmxLib
 		private static void CreateNameTable()
 		{
 			int num = 10;
-			SystemToon.m_nametable = new Dictionary<string, int>(num + 1);
+			m_nametable = new Dictionary<string, int>(num + 1);
 			for (int i = -1; i < num; i++)
 			{
-				SystemToon.m_nametable.Add(SystemToon.GetToonName(i), i);
+				m_nametable.Add(GetToonName(i), i);
 			}
 		}
 
 		public static bool IsSystemToon(string name)
 		{
-			if (SystemToon.m_nametable == null)
+			if (m_nametable == null)
 			{
-				SystemToon.CreateNameTable();
+				CreateNameTable();
 			}
-			return !string.IsNullOrEmpty(name) && SystemToon.m_nametable.ContainsKey(name);
+			if (!string.IsNullOrEmpty(name))
+			{
+				return m_nametable.ContainsKey(name);
+			}
+			return false;
 		}
 
 		public static int GetToonIndex(string name)
 		{
-			if (SystemToon.m_nametable == null)
+			if (m_nametable == null)
 			{
-				SystemToon.CreateNameTable();
+				CreateNameTable();
 			}
-			if (!string.IsNullOrEmpty(name) && SystemToon.m_nametable.ContainsKey(name))
+			if (!string.IsNullOrEmpty(name) && m_nametable.ContainsKey(name))
 			{
-				return SystemToon.m_nametable[name];
+				return m_nametable[name];
 			}
 			return -2;
 		}
@@ -104,23 +108,21 @@ namespace PmxLib
 				if (string.IsNullOrEmpty(pmxMaterial.Toon))
 				{
 					toonInfo.MaterialToon[i] = -1;
+					continue;
 				}
-				else
+				int toonIndex = GetToonIndex(pmxMaterial.Toon);
+				toonInfo.MaterialToon[i] = toonIndex;
+				if (-1 <= toonIndex && toonIndex < 10)
 				{
-					int toonIndex = SystemToon.GetToonIndex(pmxMaterial.Toon);
-					toonInfo.MaterialToon[i] = toonIndex;
-					if (-1 <= toonIndex && toonIndex < 10)
+					if (toonIndex >= 0)
 					{
-						if (toonIndex >= 0)
-						{
-							array[toonIndex] = true;
-						}
+						array[toonIndex] = true;
 					}
-					else if (!dictionary.ContainsKey(pmxMaterial.Toon))
-					{
-						list2.Add(pmxMaterial.Toon);
-						dictionary.Add(pmxMaterial.Toon, 0);
-					}
+				}
+				else if (!dictionary.ContainsKey(pmxMaterial.Toon))
+				{
+					list2.Add(pmxMaterial.Toon);
+					dictionary.Add(pmxMaterial.Toon, 0);
 				}
 			}
 			if (list2.Count > 0)
@@ -129,35 +131,30 @@ namespace PmxLib
 				int num = 0;
 				for (int j = 0; j < list2.Count; j++)
 				{
-					int num2 = num;
-					while (num2 < array.Length)
+					for (int k = num; k < array.Length; k++)
 					{
-						if (array[num2])
+						if (!array[k])
 						{
-							num2++;
-							continue;
+							toonInfo.ToonNames[k] = list2[j];
+							dictionary2.Add(list2[j], k);
+							array[k] = true;
+							num = k + 1;
+							break;
 						}
-						toonInfo.ToonNames[num2] = list2[j];
-						dictionary2.Add(list2[j], num2);
-						array[num2] = true;
-						num = num2 + 1;
-						break;
 					}
 				}
-				for (int k = 0; k < count; k++)
+				for (int l = 0; l < count; l++)
 				{
-					if (toonInfo.MaterialToon[k] < -1)
+					if (toonInfo.MaterialToon[l] < -1)
 					{
-						PmxMaterial pmxMaterial2 = list[k];
+						PmxMaterial pmxMaterial2 = list[l];
 						if (dictionary2.ContainsKey(pmxMaterial2.Toon))
 						{
-							toonInfo.MaterialToon[k] = dictionary2[pmxMaterial2.Toon];
+							toonInfo.MaterialToon[l] = dictionary2[pmxMaterial2.Toon];
+							continue;
 						}
-						else
-						{
-							toonInfo.MaterialToon[k] = -1;
-							toonInfo.IsRejection = true;
-						}
+						toonInfo.MaterialToon[l] = -1;
+						toonInfo.IsRejection = true;
 					}
 				}
 			}

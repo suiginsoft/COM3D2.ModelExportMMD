@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace PmxLib
 {
-	public abstract class VmdFrameBase : IComparer<VmdFrameBase>
+	internal abstract class VmdFrameBase : IComparer<VmdFrameBase>
 	{
 		public int FrameIndex;
 
@@ -13,7 +13,7 @@ namespace PmxLib
 
 		int IComparer<VmdFrameBase>.Compare(VmdFrameBase x, VmdFrameBase y)
 		{
-			return VmdFrameBase.Compare(x, y);
+			return Compare(x, y);
 		}
 	}
 }

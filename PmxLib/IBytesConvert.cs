@@ -1,6 +1,6 @@
 namespace PmxLib
 {
-	public interface IBytesConvert
+	internal interface IBytesConvert
 	{
 		int ByteCount
 		{

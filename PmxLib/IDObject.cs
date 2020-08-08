@@ -10,27 +10,15 @@ namespace PmxLib
 
 		private uint m_lastID;
 
-		public int Count
-		{
-			get
-			{
-				return this.m_table.Keys.Count;
-			}
-		}
+		public int Count => m_table.Keys.Count;
 
-		public T this[uint i]
-		{
-			get
-			{
-				return this.Get(i);
-			}
-		}
+		public T this[uint i] => Get(i);
 
 		public IEnumerable<uint> IDs
 		{
 			get
 			{
-				foreach (uint key in this.m_table.Keys)
+				foreach (uint key in m_table.Keys)
 				{
 					if (key != 0)
 					{
@@ -46,64 +34,64 @@ namespace PmxLib
 			private set;
 		}
 
-		public IDObject(uint limit = 4294967295u)
+		public IDObject(uint limit = uint.MaxValue)
 		{
-			this.m_limit = limit;
-			this.Clear();
+			m_limit = limit;
+			Clear();
 		}
 
 		public void Clear()
 		{
-			if (this.m_table != null)
+			if (m_table != null)
 			{
-				this.m_table.Clear();
-				this.m_table = null;
+				m_table.Clear();
+				m_table = null;
 			}
-			this.m_table = new Dictionary<uint, T>();
-			this.m_table.Add(0u, default(T));
-			this.m_lastID = 0u;
-			this.IsIDOverflow = false;
+			m_table = new Dictionary<uint, T>();
+			m_table.Add(0u, default(T));
+			m_lastID = 0u;
+			IsIDOverflow = false;
 		}
 
 		public uint NewObject(T obj)
 		{
-			uint num;
-			if (this.IsIDOverflow)
+			uint num = 0u;
+			if (IsIDOverflow)
 			{
-				num = this.SearchNextID(this.m_lastID + 1);
+				num = SearchNextID(m_lastID + 1);
 				if (num == 0)
 				{
-					num = this.SearchNextID(1u);
+					num = SearchNextID(1u);
 					if (num == 0)
 					{
-						this.m_lastID = 0u;
+						m_lastID = 0u;
 						throw new IDOverflowException();
 					}
 				}
 			}
 			else
 			{
-				num = (this.m_lastID += 1u);
-				if (num >= this.m_limit)
+				num = ++m_lastID;
+				if (num >= m_limit)
 				{
-					this.IsIDOverflow = true;
-					this.m_lastID = 0u;
-					return this.NewObject(obj);
+					IsIDOverflow = true;
+					m_lastID = 0u;
+					return NewObject(obj);
 				}
 			}
 			if (num != 0)
 			{
-				this.m_table.Add(num, obj);
-				this.m_lastID = num;
+				m_table.Add(num, obj);
+				m_lastID = num;
 			}
 			return num;
 		}
 
 		private uint SearchNextID(uint st)
 		{
-			for (uint num = st; num < this.m_limit; num++)
+			for (uint num = st; num < m_limit; num++)
 			{
-				if (!this.m_table.ContainsKey(num))
+				if (!m_table.ContainsKey(num))
 				{
 					return num;
 				}
@@ -113,7 +101,15 @@ namespace PmxLib
 
 		public bool ContainsID(uint id)
 		{
-			return id != 0 && this.m_table.ContainsKey(id);
+			if (id == 0)
+			{
+				return false;
+			}
+			if (m_table.ContainsKey(id))
+			{
+				return true;
+			}
+			return false;
 		}
 
 		public T Get(uint id)
@@ -122,26 +118,26 @@ namespace PmxLib
 			{
 				return default(T);
 			}
-			if (this.m_table.ContainsKey(id))
+			if (m_table.ContainsKey(id))
 			{
-				return this.m_table[id];
+				return m_table[id];
 			}
 			return default(T);
 		}
 
 		public void Remove(uint id)
 		{
-			if (id != 0 && this.m_table.ContainsKey(id))
+			if (id != 0 && m_table.ContainsKey(id))
 			{
-				this.m_table.Remove(id);
+				m_table.Remove(id);
 			}
 		}
 
 		public IEnumerator<T> GetEnumerator()
 		{
-			foreach (uint iD in this.IDs)
+			foreach (uint iD in IDs)
 			{
-				yield return this.m_table[iD];
+				yield return m_table[iD];
 			}
 		}
 	}

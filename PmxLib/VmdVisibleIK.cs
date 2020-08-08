@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace PmxLib
 {
-	public class VmdVisibleIK : VmdFrameBase, IBytesConvert, ICloneable
+	internal class VmdVisibleIK : VmdFrameBase, IBytesConvert, ICloneable
 	{
 		public class IK : ICloneable
 		{
@@ -17,14 +17,14 @@ namespace PmxLib
 
 			public IK()
 			{
-				this.IKName = "";
-				this.Enable = true;
+				IKName = "";
+				Enable = true;
 			}
 
 			public IK(IK ik)
 			{
-				this.IKName = ik.IKName;
-				this.Enable = ik.Enable;
+				IKName = ik.IKName;
+				Enable = ik.Enable;
 			}
 
 			object ICloneable.Clone()
@@ -43,58 +43,53 @@ namespace PmxLib
 			set;
 		}
 
-		public int ByteCount
-		{
-			get
-			{
-				return 9 + 21 * this.IKList.Count;
-			}
-		}
+		public int ByteCount => 9 + 21 * IKList.Count;
 
 		public VmdVisibleIK()
 		{
-			this.Visible = true;
-			this.IKList = new List<IK>();
+			Visible = true;
+			IKList = new List<IK>();
 		}
 
 		public VmdVisibleIK(VmdVisibleIK vik)
 		{
-			this.Visible = vik.Visible;
-			this.IKList = CP.CloneList(vik.IKList);
+			Visible = vik.Visible;
+			IKList = CP.CloneList(vik.IKList);
 		}
 
 		public byte[] ToBytes()
 		{
 			List<byte> list = new List<byte>();
-			list.AddRange(BitConverter.GetBytes(base.FrameIndex));
-			list.Add((byte)(this.Visible ? 1 : 0));
-			list.AddRange(BitConverter.GetBytes(this.IKList.Count));
-			for (int i = 0; i < this.IKList.Count; i++)
+			list.AddRange(BitConverter.GetBytes(FrameIndex));
+			list.Add((byte)(Visible ? 1u : 0u));
+			list.AddRange(BitConverter.GetBytes(IKList.Count));
+			for (int i = 0; i < IKList.Count; i++)
 			{
 				byte[] array = new byte[20];
-				BytesStringProc.SetString(array, this.IKList[i].IKName, 0, 253);
+				BytesStringProc.SetString(array, IKList[i].IKName, 0, 253);
 				list.AddRange(array);
-				list.Add((byte)(this.IKList[i].Enable ? 1 : 0));
+				list.Add((byte)(IKList[i].Enable ? 1u : 0u));
 			}
 			return list.ToArray();
 		}
 
 		public void FromBytes(byte[] bytes, int startIndex)
 		{
-			base.FrameIndex = BitConverter.ToInt32(bytes, startIndex);
-			int num = startIndex + 4;
-			this.Visible = (bytes[num++] != 0);
-			int num3 = BitConverter.ToInt32(bytes, num);
+			int num = startIndex;
+			FrameIndex = BitConverter.ToInt32(bytes, num);
+			num += 4;
+			Visible = (bytes[num++] != 0);
+			int num2 = BitConverter.ToInt32(bytes, num);
 			num += 4;
 			byte[] array = new byte[20];
-			for (int i = 0; i < num3; i++)
+			for (int i = 0; i < num2; i++)
 			{
 				IK iK = new IK();
 				Array.Copy(bytes, num, array, 0, 20);
 				iK.IKName = BytesStringProc.GetString(array, 0);
 				num += 20;
 				iK.Enable = (bytes[num++] != 0);
-				this.IKList.Add(iK);
+				IKList.Add(iK);
 			}
 		}
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace PmxLib
 {
@@ -19,21 +20,39 @@ namespace PmxLib
 			list[ix2] = value;
 		}
 
+		public static void _SafeAdd<TKey, TValue>(this Dictionary<TKey, TValue> dic, TKey key, TValue val)
+		{
+			if (!dic.ContainsKey(key))
+			{
+				dic.Add(key, val);
+			}
+		}
+
+		public static bool _SafeAddR<TKey, TValue>(this Dictionary<TKey, TValue> dic, TKey key, TValue val)
+		{
+			bool result = false;
+			if (!dic.ContainsKey(key))
+			{
+				dic.Add(key, val);
+				result = true;
+			}
+			return result;
+		}
+
 		public static List<T> CloneList<T>(List<T> list) where T : ICloneable
 		{
 			List<T> list2 = new List<T>();
 			int count = list.Count;
 			for (int i = 0; i < count; i++)
 			{
-				List<T> list3 = list2;
-				list3.Add((T)list[i].Clone());
+				list2.Add((T)list[i].Clone());
 			}
 			return list2;
 		}
 
 		public static List<T> CloneList_ValueType<T>(List<T> list) where T : struct
 		{
-			return new List<T>((IEnumerable<T>)list.ToArray());
+			return new List<T>(list.ToArray());
 		}
 
 		public static T[] CloneArray<T>(T[] src) where T : ICloneable
@@ -111,27 +130,43 @@ namespace PmxLib
 
 		public static bool InRange<T>(T[] arr, int index)
 		{
-			return 0 <= index && index < arr.Length;
+			if (0 <= index)
+			{
+				return index < arr.Length;
+			}
+			return false;
 		}
 
 		public static bool InRange<T>(List<T> list, int index)
 		{
-			return 0 <= index && index < list.Count;
+			if (0 <= index)
+			{
+				return index < list.Count;
+			}
+			return false;
 		}
 
 		public static bool InRange<T>(IList<T> list, int index)
 		{
-			return 0 <= index && index < ((ICollection<T>)list).Count;
+			if (0 <= index)
+			{
+				return index < list.Count;
+			}
+			return false;
 		}
 
 		public static bool InRange(int min, int max, int val)
 		{
-			return min <= val && val <= max;
+			if (min <= val)
+			{
+				return val <= max;
+			}
+			return false;
 		}
 
 		public static T SafeGet<T>(T[] arr, int index) where T : class
 		{
-			if (arr != null && CP.InRange(arr, index))
+			if (arr != null && InRange(arr, index))
 			{
 				return arr[index];
 			}
@@ -140,7 +175,7 @@ namespace PmxLib
 
 		public static T SafeGet<T>(IList<T> arr, int index) where T : class
 		{
-			if (arr != null && CP.InRange(arr, index))
+			if (arr != null && InRange(arr, index))
 			{
 				return arr[index];
 			}
@@ -149,7 +184,7 @@ namespace PmxLib
 
 		public static T SafeGetV<T>(T[] arr, int index) where T : struct
 		{
-			if (arr != null && CP.InRange(arr, index))
+			if (arr != null && InRange(arr, index))
 			{
 				return arr[index];
 			}
@@ -159,7 +194,7 @@ namespace PmxLib
 		public static T SafeGetV<T>(T[] arr, int index, out bool flag) where T : struct
 		{
 			flag = false;
-			if (arr != null && CP.InRange(arr, index))
+			if (arr != null && InRange(arr, index))
 			{
 				flag = true;
 				return arr[index];
@@ -169,7 +204,7 @@ namespace PmxLib
 
 		public static T SafeGetV<T>(IList<T> arr, int index) where T : struct
 		{
-			if (arr != null && CP.InRange(arr, index))
+			if (arr != null && InRange(arr, index))
 			{
 				return arr[index];
 			}
@@ -179,7 +214,7 @@ namespace PmxLib
 		public static T SafeGetV<T>(IList<T> arr, int index, out bool flag) where T : struct
 		{
 			flag = false;
-			if (arr != null && CP.InRange(arr, index))
+			if (arr != null && InRange(arr, index))
 			{
 				flag = true;
 				return arr[index];
@@ -201,7 +236,7 @@ namespace PmxLib
 			{
 				list2.Add(new KeyValuePair<int, T>(i, list[i]));
 			}
-			list2.Sort((Comparison<KeyValuePair<int, T>>)delegate(KeyValuePair<int, T> x, KeyValuePair<int, T> y)
+			list2.Sort(delegate(KeyValuePair<int, T> x, KeyValuePair<int, T> y)
 			{
 				int num = comp(x.Value, y.Value);
 				if (num == 0)
@@ -268,6 +303,116 @@ namespace PmxLib
 				}
 			}
 			return true;
+		}
+
+		public static IEnumerable<T> RotateArray<T>(T[] arr, int st, bool right = true)
+		{
+			if (right)
+			{
+				for (int l = st; l < arr.Length; l++)
+				{
+					yield return arr[l];
+				}
+				for (int k = 0; k < st; k++)
+				{
+					yield return arr[k];
+				}
+				yield break;
+			}
+			for (int j = st; j >= 0; j--)
+			{
+				yield return arr[j];
+			}
+			for (int i = arr.Length - 1; i > st; i--)
+			{
+				yield return arr[i];
+			}
+		}
+
+		public static IEnumerable<int> RotateArrayIndex<T>(T[] arr, int st, bool right = true)
+		{
+			if (right)
+			{
+				for (int l = st; l < arr.Length; l++)
+				{
+					yield return l;
+				}
+				for (int k = 0; k < st; k++)
+				{
+					yield return k;
+				}
+				yield break;
+			}
+			for (int j = st; j >= 0; j--)
+			{
+				yield return j;
+			}
+			for (int i = arr.Length - 1; i > st; i--)
+			{
+				yield return i;
+			}
+		}
+
+		public static IEnumerable<T> RotateList<T>(IList<T> list, int st, bool right = true)
+		{
+			if (right)
+			{
+				for (int l = st; l < list.Count; l++)
+				{
+					yield return list[l];
+				}
+				for (int k = 0; k < st; k++)
+				{
+					yield return list[k];
+				}
+				yield break;
+			}
+			for (int j = st; j >= 0; j--)
+			{
+				yield return list[j];
+			}
+			for (int i = list.Count - 1; i > st; i--)
+			{
+				yield return list[i];
+			}
+		}
+
+		public static IEnumerable<int> RotateListIndex<T>(IList<T> list, int st, bool right = true)
+		{
+			if (right)
+			{
+				for (int l = st; l < list.Count; l++)
+				{
+					yield return l;
+				}
+				for (int k = 0; k < st; k++)
+				{
+					yield return k;
+				}
+				yield break;
+			}
+			for (int j = st; j >= 0; j--)
+			{
+				yield return j;
+			}
+			for (int i = list.Count - 1; i > st; i--)
+			{
+				yield return i;
+			}
+		}
+
+		public static T[] NormalizeArray<T>(T[] arr)
+		{
+			T[] array = arr.Distinct().ToArray();
+			Array.Sort(array);
+			return array;
+		}
+
+		public static T[] NormalizeArray<T>(IEnumerable<T> arr)
+		{
+			T[] array = arr.Distinct().ToArray();
+			Array.Sort(array);
+			return array;
 		}
 	}
 }

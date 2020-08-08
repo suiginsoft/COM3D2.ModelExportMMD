@@ -13,23 +13,17 @@ namespace PmxLib
 
 		public Vector3 Torque;
 
-		PmxObject IPmxObjectKey.ObjectKey
-		{
-			get
-			{
-				return PmxObject.ImpulseMorph;
-			}
-		}
+		PmxObjectType IPmxObjectKey.ObjectKey => PmxObjectType.ImpulseMorph;
 
 		public override int BaseIndex
 		{
 			get
 			{
-				return this.Index;
+				return Index;
 			}
 			set
 			{
-				this.Index = value;
+				Index = value;
 			}
 		}
 
@@ -47,60 +41,62 @@ namespace PmxLib
 
 		public PmxImpulseMorph()
 		{
-			this.Local = false;
-			this.Velocity = Vector3.zero;
-			this.Torque = Vector3.zero;
+			Local = false;
+			Velocity = Vector3.Zero;
+			Torque = Vector3.Zero;
 		}
 
 		public PmxImpulseMorph(int index, bool local, Vector3 t, Vector3 r)
 		{
-			this.Index = index;
-			this.Local = local;
-			this.Velocity = t;
-			this.Torque = r;
+			Index = index;
+			Local = local;
+			Velocity = t;
+			Torque = r;
 		}
 
 		public PmxImpulseMorph(PmxImpulseMorph sv)
 			: this()
 		{
-			this.FromPmxImpulseMorph(sv);
+			FromPmxImpulseMorph(sv);
 		}
 
 		public void FromPmxImpulseMorph(PmxImpulseMorph sv)
 		{
-			this.Index = sv.Index;
-			this.Local = sv.Local;
-			this.Velocity = sv.Velocity;
-			this.Torque = sv.Torque;
-			this.ZeroFlag = sv.ZeroFlag;
+			FromPmxBaseMorph(sv);
+			Local = sv.Local;
+			Velocity = sv.Velocity;
+			Torque = sv.Torque;
+			ZeroFlag = sv.ZeroFlag;
 		}
 
 		public bool UpdateZeroFlag()
 		{
-			this.ZeroFlag = (this.Velocity == Vector3.zero && this.Torque == Vector3.zero);
-			return this.ZeroFlag;
+			ZeroFlag = (Velocity == Vector3.Zero && Torque == Vector3.Zero);
+			return ZeroFlag;
 		}
 
 		public void Clear()
 		{
-			this.Velocity = Vector3.zero;
-			this.Torque = Vector3.zero;
+			Velocity = Vector3.Zero;
+			Torque = Vector3.Zero;
 		}
 
-		public override void FromStreamEx(Stream s, PmxElementFormat size = null)
+		public override void FromStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			this.Index = PmxStreamHelper.ReadElement_Int32(s, size.BodySize, true);
-			this.Local = (s.ReadByte() != 0);
-			this.Velocity = V3_BytesConvert.FromStream(s);
-			this.Torque = V3_BytesConvert.FromStream(s);
+			base.FromStreamEx(s, f);
+			Index = PmxStreamHelper.ReadElement_Int32(s, f.BodySize);
+			Local = (s.ReadByte() != 0);
+			Velocity = V3_BytesConvert.FromStream(s);
+			Torque = V3_BytesConvert.FromStream(s);
 		}
 
-		public override void ToStreamEx(Stream s, PmxElementFormat size = null)
+		public override void ToStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			PmxStreamHelper.WriteElement_Int32(s, this.Index, size.BodySize, true);
-			s.WriteByte((byte)(this.Local ? 1 : 0));
-			V3_BytesConvert.ToStream(s, this.Velocity);
-			V3_BytesConvert.ToStream(s, this.Torque);
+			base.ToStreamEx(s, f);
+			PmxStreamHelper.WriteElement_Int32(s, Index, f.BodySize);
+			s.WriteByte((byte)(Local ? 1u : 0u));
+			V3_BytesConvert.ToStream(s, Velocity);
+			V3_BytesConvert.ToStream(s, Torque);
 		}
 
 		object ICloneable.Clone()

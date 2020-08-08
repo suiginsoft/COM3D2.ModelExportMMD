@@ -3,21 +3,21 @@ using System.IO;
 
 namespace PmxLib
 {
-	public class PmxBone : IPmxObjectKey, IPmxStreamIO, ICloneable, INXName
+	internal class PmxBone : PmxIDObject, IPmxObjectKey, IPmxStreamIO, ICloneable, INXName
 	{
 		[Flags]
 		public enum BoneFlags
 		{
-			None = 0,
-			ToBone = 1,
-			Rotation = 2,
-			Translation = 4,
-			Visible = 8,
+			None = 0x0,
+			ToBone = 0x1,
+			Rotation = 0x2,
+			Translation = 0x4,
+			Visible = 0x8,
 			Enable = 0x10,
 			IK = 0x20,
-			AppendLocal = 0x80,
-			AppendRotation = 0x100,
-			AppendTranslation = 0x200,
+			AddLocal = 0x80,
+			AddRotation = 0x100,
+			AddTranslation = 0x200,
 			FixAxis = 0x400,
 			LocalFrame = 0x800,
 			AfterPhysics = 0x1000,
@@ -44,9 +44,9 @@ namespace PmxLib
 
 		public int Level;
 
-		public int AppendParent;
+		public int AddParent;
 
-		public float AppendRatio;
+		public float AddRatio;
 
 		public Vector3 Axis;
 
@@ -58,13 +58,7 @@ namespace PmxLib
 
 		public int ExtKey;
 
-		PmxObject IPmxObjectKey.ObjectKey
-		{
-			get
-			{
-				return PmxObject.Bone;
-			}
-		}
+		PmxObjectType IPmxObjectKey.ObjectKey => PmxObjectType.Bone;
 
 		public string Name
 		{
@@ -78,6 +72,10 @@ namespace PmxLib
 			set;
 		}
 
+		public bool IsFixAxis => GetFlag(BoneFlags.FixAxis);
+
+		public bool IsLocal => GetFlag(BoneFlags.LocalFrame);
+
 		public PmxBone RefParent
 		{
 			get;
@@ -90,7 +88,7 @@ namespace PmxLib
 			set;
 		}
 
-		public PmxBone RefAppendParent
+		public PmxBone RefAddParent
 		{
 			get;
 			set;
@@ -112,188 +110,206 @@ namespace PmxLib
 		{
 			get
 			{
-				return this.Name;
+				return Name;
 			}
 			set
 			{
-				this.Name = value;
+				Name = value;
 			}
 		}
 
 		public void ClearFlags()
 		{
-			this.Flags = (BoneFlags.Rotation | BoneFlags.Visible | BoneFlags.Enable);
+			Flags = (BoneFlags.Rotation | BoneFlags.Visible | BoneFlags.Enable);
 		}
 
 		public bool GetFlag(BoneFlags f)
 		{
-			return (f & this.Flags) == f;
+			return (f & Flags) == f;
 		}
 
 		public void SetFlag(BoneFlags f, bool val)
 		{
 			if (val)
 			{
-				this.Flags |= f;
+				Flags |= f;
 			}
 			else
 			{
-				this.Flags &= ~f;
+				Flags &= ~f;
 			}
 		}
 
 		public void ClearLocal()
 		{
-			this.LocalX = new Vector3(1f, 0f, 0f);
-			this.LocalY = new Vector3(0f, 1f, 0f);
-			this.LocalZ = new Vector3(0f, 0f, 1f);
+			LocalX = Vector3.UnitX;
+			LocalY = Vector3.UnitY;
+			LocalZ = Vector3.UnitZ;
 		}
 
 		public void NormalizeLocal()
 		{
-			this.LocalZ.Normalize();
-			this.LocalX.Normalize();
-			this.LocalY = Vector3.Cross(this.LocalZ, this.LocalX);
-			this.LocalZ = Vector3.Cross(this.LocalX, this.LocalY);
-			this.LocalY.Normalize();
-			this.LocalZ.Normalize();
+			LocalZ.Normalize();
+			LocalX.Normalize();
+			LocalY = Vector3.Cross(LocalZ, LocalX);
+			LocalZ = Vector3.Cross(LocalX, LocalY);
+			LocalY.Normalize();
+			LocalZ.Normalize();
 		}
 
 		public PmxBone()
 		{
-			this.Name = "";
-			this.NameE = "";
-			this.ClearFlags();
-			this.Parent = -1;
-			this.To_Bone = -1;
-			this.To_Offset = Vector3.zero;
-			this.AppendParent = -1;
-			this.AppendRatio = 1f;
-			this.Level = 0;
-			this.ClearLocal();
-			this.IK = new PmxIK();
-			this.IKKind = IKKindType.None;
+			Name = "";
+			NameE = "";
+			ClearFlags();
+			Parent = -1;
+			To_Bone = -1;
+			To_Offset = Vector3.Zero;
+			AddParent = -1;
+			AddRatio = 1f;
+			Level = 0;
+			ClearLocal();
+			IK = new PmxIK();
+			IKKind = IKKindType.None;
 		}
 
 		public PmxBone(PmxBone bone, bool nonStr = false)
+			: this()
 		{
-			this.FromPmxBone(bone, nonStr);
+			FromPmxBone(bone, nonStr);
 		}
 
 		public void FromPmxBone(PmxBone bone, bool nonStr = false)
 		{
 			if (!nonStr)
 			{
-				this.Name = bone.Name;
-				this.NameE = bone.NameE;
+				Name = bone.Name;
+				NameE = bone.NameE;
 			}
-			this.Flags = bone.Flags;
-			this.Parent = bone.Parent;
-			this.To_Bone = bone.To_Bone;
-			this.To_Offset = bone.To_Offset;
-			this.Position = bone.Position;
-			this.Level = bone.Level;
-			this.AppendParent = bone.AppendParent;
-			this.AppendRatio = bone.AppendRatio;
-			this.Axis = bone.Axis;
-			this.LocalX = bone.LocalX;
-			this.LocalY = bone.LocalY;
-			this.LocalZ = bone.LocalZ;
-			this.ExtKey = bone.ExtKey;
-			this.IK = bone.IK.Clone();
-			this.IKKind = bone.IKKind;
+			Flags = bone.Flags;
+			Parent = bone.Parent;
+			To_Bone = bone.To_Bone;
+			To_Offset = bone.To_Offset;
+			Position = bone.Position;
+			Level = bone.Level;
+			AddParent = bone.AddParent;
+			AddRatio = bone.AddRatio;
+			Axis = bone.Axis;
+			LocalX = bone.LocalX;
+			LocalY = bone.LocalY;
+			LocalZ = bone.LocalZ;
+			ExtKey = bone.ExtKey;
+			IK = bone.IK.Clone();
+			IKKind = bone.IKKind;
+			FromID(bone);
 		}
 
 		public void FromStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			this.Name = PmxStreamHelper.ReadString(s, f);
-			this.NameE = PmxStreamHelper.ReadString(s, f);
-			this.Position = V3_BytesConvert.FromStream(s);
-			this.Parent = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize, true);
-			this.Level = PmxStreamHelper.ReadElement_Int32(s, 4, true);
-			this.Flags = (BoneFlags)PmxStreamHelper.ReadElement_Int32(s, 2, false);
-			if (this.GetFlag(BoneFlags.ToBone))
+			Name = PmxStreamHelper.ReadString(s, f);
+			NameE = PmxStreamHelper.ReadString(s, f);
+			Position = V3_BytesConvert.FromStream(s);
+			Parent = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize);
+			Level = PmxStreamHelper.ReadElement_Int32(s);
+			Flags = (BoneFlags)PmxStreamHelper.ReadElement_Int32(s, 2, signed: false);
+			if (GetFlag(BoneFlags.ToBone))
 			{
-				this.To_Bone = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize, true);
+				To_Bone = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize);
 			}
 			else
 			{
-				this.To_Offset = V3_BytesConvert.FromStream(s);
+				To_Offset = V3_BytesConvert.FromStream(s);
 			}
-			if (this.GetFlag(BoneFlags.AppendRotation) || this.GetFlag(BoneFlags.AppendTranslation))
+			if (GetFlag(BoneFlags.AddRotation) || GetFlag(BoneFlags.AddTranslation))
 			{
-				this.AppendParent = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize, true);
-				this.AppendRatio = PmxStreamHelper.ReadElement_Float(s);
+				AddParent = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize);
+				AddRatio = PmxStreamHelper.ReadElement_Float(s);
 			}
-			if (this.GetFlag(BoneFlags.FixAxis))
+			if (GetFlag(BoneFlags.FixAxis))
 			{
-				this.Axis = V3_BytesConvert.FromStream(s);
+				Axis = V3_BytesConvert.FromStream(s);
 			}
-			if (this.GetFlag(BoneFlags.LocalFrame))
+			if (GetFlag(BoneFlags.LocalFrame))
 			{
-				this.LocalX = V3_BytesConvert.FromStream(s);
-				this.LocalZ = V3_BytesConvert.FromStream(s);
-				this.NormalizeLocal();
+				LocalX = V3_BytesConvert.FromStream(s);
+				LocalZ = V3_BytesConvert.FromStream(s);
+				if (!f.WithID)
+				{
+					NormalizeLocal();
+				}
 			}
-			if (this.GetFlag(BoneFlags.ExtParent))
+			if (GetFlag(BoneFlags.ExtParent))
 			{
-				this.ExtKey = PmxStreamHelper.ReadElement_Int32(s, 4, true);
+				ExtKey = PmxStreamHelper.ReadElement_Int32(s);
 			}
-			if (this.GetFlag(BoneFlags.IK))
+			if (GetFlag(BoneFlags.IK))
 			{
-				this.IK.FromStreamEx(s, f);
+				IK.FromStreamEx(s, f);
+			}
+			if (f.WithID)
+			{
+				base.UID = PmxStreamHelper.ReadElement_UInt(s);
+				base.CID = PmxStreamHelper.ReadElement_UInt(s);
 			}
 		}
 
 		public void ToStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			PmxStreamHelper.WriteString(s, this.Name, f);
-			PmxStreamHelper.WriteString(s, this.NameE, f);
-			V3_BytesConvert.ToStream(s, this.Position);
-			PmxStreamHelper.WriteElement_Int32(s, this.Parent, f.BoneSize, true);
-			PmxStreamHelper.WriteElement_Int32(s, this.Level, 4, true);
-			PmxStreamHelper.WriteElement_Int32(s, (int)this.Flags, 2, false);
-			if (this.GetFlag(BoneFlags.ToBone))
+			PmxStreamHelper.WriteString(s, Name, f);
+			PmxStreamHelper.WriteString(s, NameE, f);
+			V3_BytesConvert.ToStream(s, Position);
+			PmxStreamHelper.WriteElement_Int32(s, Parent, f.BoneSize);
+			PmxStreamHelper.WriteElement_Int32(s, Level);
+			PmxStreamHelper.WriteElement_Int32(s, (int)Flags, 2, signed: false);
+			if (GetFlag(BoneFlags.ToBone))
 			{
-				PmxStreamHelper.WriteElement_Int32(s, this.To_Bone, f.BoneSize, true);
+				PmxStreamHelper.WriteElement_Int32(s, To_Bone, f.BoneSize);
 			}
 			else
 			{
-				V3_BytesConvert.ToStream(s, this.To_Offset);
+				V3_BytesConvert.ToStream(s, To_Offset);
 			}
-			if (this.GetFlag(BoneFlags.AppendRotation) || this.GetFlag(BoneFlags.AppendTranslation))
+			if (GetFlag(BoneFlags.AddRotation) || GetFlag(BoneFlags.AddTranslation))
 			{
-				PmxStreamHelper.WriteElement_Int32(s, this.AppendParent, f.BoneSize, true);
-				PmxStreamHelper.WriteElement_Float(s, this.AppendRatio);
+				PmxStreamHelper.WriteElement_Int32(s, AddParent, f.BoneSize);
+				PmxStreamHelper.WriteElement_Float(s, AddRatio);
 			}
-			if (this.GetFlag(BoneFlags.FixAxis))
+			if (GetFlag(BoneFlags.FixAxis))
 			{
-				V3_BytesConvert.ToStream(s, this.Axis);
+				V3_BytesConvert.ToStream(s, Axis);
 			}
-			if (this.GetFlag(BoneFlags.LocalFrame))
+			if (GetFlag(BoneFlags.LocalFrame))
 			{
-				this.NormalizeLocal();
-				V3_BytesConvert.ToStream(s, this.LocalX);
-				V3_BytesConvert.ToStream(s, this.LocalZ);
+				if (!f.WithID)
+				{
+					NormalizeLocal();
+				}
+				V3_BytesConvert.ToStream(s, LocalX);
+				V3_BytesConvert.ToStream(s, LocalZ);
 			}
-			if (this.GetFlag(BoneFlags.ExtParent))
+			if (GetFlag(BoneFlags.ExtParent))
 			{
-				PmxStreamHelper.WriteElement_Int32(s, this.ExtKey, 4, true);
+				PmxStreamHelper.WriteElement_Int32(s, ExtKey);
 			}
-			if (this.GetFlag(BoneFlags.IK))
+			if (GetFlag(BoneFlags.IK))
 			{
-				this.IK.ToStreamEx(s, f);
+				IK.ToStreamEx(s, f);
+			}
+			if (f.WithID)
+			{
+				PmxStreamHelper.WriteElement_UInt(s, base.UID);
+				PmxStreamHelper.WriteElement_UInt(s, base.CID);
 			}
 		}
 
 		object ICloneable.Clone()
 		{
-			return new PmxBone(this, false);
+			return new PmxBone(this);
 		}
 
 		public PmxBone Clone()
 		{
-			return new PmxBone(this, false);
+			return new PmxBone(this);
 		}
 	}
 }

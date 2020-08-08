@@ -3,7 +3,7 @@ using System.Text;
 
 namespace PmxLib
 {
-	public class PmxBodyPassGroup : ICloneable
+	internal class PmxBodyPassGroup : ICloneable
 	{
 		private const int PassGroupCount = 16;
 
@@ -15,7 +15,7 @@ namespace PmxLib
 
 		public PmxBodyPassGroup()
 		{
-			this.Flags = new bool[16];
+			Flags = new bool[16];
 		}
 
 		public PmxBodyPassGroup(PmxBodyPassGroup pg)
@@ -23,7 +23,7 @@ namespace PmxLib
 		{
 			for (int i = 0; i < 16; i++)
 			{
-				this.Flags[i] = pg.Flags[i];
+				Flags[i] = pg.Flags[i];
 			}
 		}
 
@@ -31,9 +31,9 @@ namespace PmxLib
 		{
 			int num = 1;
 			int num2 = 0;
-			for (int i = 0; i < this.Flags.Length; i++)
+			for (int i = 0; i < Flags.Length; i++)
 			{
-				if (!this.Flags[i])
+				if (!Flags[i])
 				{
 					num2 |= num << i;
 				}
@@ -44,30 +44,30 @@ namespace PmxLib
 		public void FromFlagBits(ushort bits)
 		{
 			ushort num = 1;
-			for (int i = 0; i < this.Flags.Length; i++)
+			for (int i = 0; i < Flags.Length; i++)
 			{
-				this.Flags[i] = ((bits & num << i) <= 0);
+				Flags[i] = ((bits & (num << i)) <= 0);
 			}
 		}
 
 		public void FromFlagBits(bool[] flags)
 		{
-			int num = Math.Min(this.Flags.Length, flags.Length);
+			int num = Math.Min(Flags.Length, flags.Length);
 			for (int i = 0; i < num; i++)
 			{
-				this.Flags[i] = flags[i];
+				Flags[i] = flags[i];
 			}
 		}
 
 		public string ToText()
 		{
 			StringBuilder stringBuilder = new StringBuilder();
-			int num = this.Flags.Length;
+			int num = Flags.Length;
 			for (int i = 0; i < num; i++)
 			{
-				if (this.Flags[i])
+				if (Flags[i])
 				{
-					stringBuilder.Append((i + 1).ToString() + " ");
+					stringBuilder.Append(i + 1 + " ");
 				}
 			}
 			return stringBuilder.ToString();
@@ -81,21 +81,20 @@ namespace PmxLib
 				{
 					' '
 				}, StringSplitOptions.RemoveEmptyEntries);
-				int num = this.Flags.Length;
+				int num = Flags.Length;
 				for (int i = 0; i < num; i++)
 				{
-					this.Flags[i] = false;
+					Flags[i] = false;
 				}
 				int num2 = array.Length;
 				for (int j = 0; j < num2; j++)
 				{
-					int num3 = default(int);
-					if (int.TryParse(array[j], out num3))
+					if (int.TryParse(array[j], out int result))
 					{
-						num3--;
-						if (0 <= num3 && num3 < num)
+						result--;
+						if (0 <= result && result < num)
 						{
-							this.Flags[num3] = true;
+							Flags[result] = true;
 						}
 					}
 				}

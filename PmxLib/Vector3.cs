@@ -1,66 +1,67 @@
 using System;
-using UnityEngine;
 
 namespace PmxLib
 {
 	public struct Vector3
 	{
 		public float x;
-
 		public float y;
-
 		public float z;
 
 		public float X
 		{
-			get
-			{
-				return this.x;
-			}
-			set
-			{
-				this.x = value;
-			}
+			get { return this.x; }
+			set { this.x = value; }
 		}
 
 		public float Y
 		{
-			get
-			{
-				return this.y;
-			}
-			set
-			{
-				this.y = value;
-			}
+			get { return this.y; }
+			set { this.y = value; }
 		}
 
 		public float Z
 		{
-			get
-			{
-				return this.z;
-			}
-			set
-			{
-				this.z = value;
-			}
+			get { return this.z; }
+			set { this.z = value; }
 		}
 
-		public static Vector3 zero
+		public float Red
 		{
-			get
-			{
-				return new Vector3(0f, 0f, 0f);
-			}
+			get { return this.x; }
+			set { this.x = value; }
+		}
+
+		public float Green
+		{
+			get { return this.y; }
+			set { this.y = value; }
+		}
+
+		public float Blue
+		{
+			get { return this.z; }
+			set { this.z = value; }
 		}
 
 		public static Vector3 Zero
 		{
-			get
-			{
-				return new Vector3(0f, 0f, 0f);
-			}
+			get { return new Vector3(0f, 0f, 0f); }
+		}
+
+		public static Vector3 UnitX
+		{
+			get { return new Vector3(1f, 0f, 0f); }
+		}
+
+		public static Vector3 UnitY
+		{
+			get { return new Vector3(0f, 1f, 0f); }
+		}
+
+		public static Vector3 UnitZ
+		{
+			get { return new Vector3(0f, 0f, 1f); }
 		}
 
 		public Vector3(float x, float y, float z)
@@ -75,6 +76,20 @@ namespace PmxLib
 			this.x = x;
 			this.y = y;
 			this.z = 0f;
+		}
+
+		public Vector3(System.Drawing.Color c)
+		{
+			this.x = (float)((double)c.R / 255.0);
+			this.y = (float)((double)c.G / 255.0);
+			this.z = (float)((double)c.B / 255.0);
+		}
+
+		public Vector3(UnityEngine.Color c)
+		{
+			this.x = c.r;
+			this.y = c.g;
+			this.z = c.b;
 		}
 
 		public Vector3(UnityEngine.Vector3 v)
@@ -124,42 +139,42 @@ namespace PmxLib
 			}
 		}
 
-		public static Vector3 operator +(Vector3 a, Vector3 b)
+		public static Vector3 operator+(Vector3 a, Vector3 b)
 		{
 			return new Vector3(a.x + b.x, a.y + b.y, a.z + b.z);
 		}
 
-		public static Vector3 operator -(Vector3 a, Vector3 b)
+		public static Vector3 operator-(Vector3 a, Vector3 b)
 		{
 			return new Vector3(a.x - b.x, a.y - b.y, a.z - b.z);
 		}
 
-		public static Vector3 operator -(Vector3 a)
+		public static Vector3 operator-(Vector3 a)
 		{
 			return new Vector3(0f - a.x, 0f - a.y, 0f - a.z);
 		}
 
-		public static Vector3 operator *(Vector3 a, float d)
+		public static Vector3 operator*(Vector3 a, float d)
 		{
 			return new Vector3(a.x * d, a.y * d, a.z * d);
 		}
 
-		public static Vector3 operator *(float d, Vector3 a)
+		public static Vector3 operator*(float d, Vector3 a)
 		{
 			return new Vector3(a.x * d, a.y * d, a.z * d);
 		}
 
-		public static Vector3 operator /(Vector3 a, float d)
+		public static Vector3 operator/(Vector3 a, float d)
 		{
 			return new Vector3(a.x / d, a.y / d, a.z / d);
 		}
 
-		public static bool operator ==(Vector3 lhs, Vector3 rhs)
+		public static bool operator==(Vector3 lhs, Vector3 rhs)
 		{
 			return Vector3.SqrMagnitude(lhs - rhs) < 9.99999944E-11f;
 		}
 
-		public static bool operator !=(Vector3 lhs, Vector3 rhs)
+		public static bool operator!=(Vector3 lhs, Vector3 rhs)
 		{
 			return Vector3.SqrMagnitude(lhs - rhs) >= 9.99999944E-11f;
 		}

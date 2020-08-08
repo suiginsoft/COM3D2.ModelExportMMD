@@ -3,7 +3,7 @@ using System.IO;
 
 namespace PmxLib
 {
-	public class PmxElementFormat : IPmxStreamIO, ICloneable
+	internal class PmxElementFormat : IPmxStreamIO, ICloneable
 	{
 		public enum StringEncType
 		{
@@ -69,87 +69,99 @@ namespace PmxLib
 			set;
 		}
 
+		public bool WithID
+		{
+			get;
+			set;
+		}
+
 		public PmxElementFormat(float ver = 2.1f)
 		{
-			this.Ver = ver;
-			this.StringEnc = StringEncType.UTF16;
-			this.UVACount = 0;
-			this.VertexSize = 2;
-			this.TexSize = 1;
-			this.MaterialSize = 1;
-			this.BoneSize = 2;
-			this.MorphSize = 2;
-			this.BodySize = 4;
+			Ver = ver;
+			StringEnc = StringEncType.UTF16;
+			UVACount = 0;
+			VertexSize = 2;
+			TexSize = 1;
+			MaterialSize = 1;
+			BoneSize = 2;
+			MorphSize = 2;
+			BodySize = 4;
+			WithID = false;
 		}
 
 		public PmxElementFormat(PmxElementFormat f)
 		{
-			this.FromElementFormat(f);
+			FromElementFormat(f);
 		}
 
 		public void FromElementFormat(PmxElementFormat f)
 		{
-			this.Ver = f.Ver;
-			this.StringEnc = f.StringEnc;
-			this.UVACount = f.UVACount;
-			this.VertexSize = f.VertexSize;
-			this.TexSize = f.TexSize;
-			this.MaterialSize = f.MaterialSize;
-			this.BoneSize = f.BoneSize;
-			this.MorphSize = f.MorphSize;
-			this.BodySize = f.BodySize;
+			Ver = f.Ver;
+			StringEnc = f.StringEnc;
+			UVACount = f.UVACount;
+			VertexSize = f.VertexSize;
+			TexSize = f.TexSize;
+			MaterialSize = f.MaterialSize;
+			BoneSize = f.BoneSize;
+			MorphSize = f.MorphSize;
+			BodySize = f.BodySize;
+			WithID = f.WithID;
+		}
+
+		public void InitializeMax()
+		{
+			Ver = 2.1f;
+			StringEnc = StringEncType.UTF16;
+			UVACount = 4;
+			VertexSize = 4;
+			TexSize = 4;
+			MaterialSize = 4;
+			BoneSize = 4;
+			MorphSize = 4;
+			BodySize = 4;
 		}
 
 		public static int GetUnsignedBufSize(int count)
 		{
 			if (count < 256)
-			{
 				return 1;
-			}
 			if (count < 65536)
-			{
 				return 2;
-			}
 			return 4;
 		}
 
 		public static int GetSignedBufSize(int count)
 		{
 			if (count < 128)
-			{
 				return 1;
-			}
 			if (count < 32768)
-			{
 				return 2;
-			}
 			return 4;
 		}
 
 		public void FromStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			int num = PmxStreamHelper.ReadElement_Int32(s, 1, true);
-			byte[] array = new byte[num];
+			byte[] array = new byte[PmxStreamHelper.ReadElement_Int32(s, 1)];
 			s.Read(array, 0, array.Length);
-			int num2 = 0;
-			if (this.Ver <= 1f)
+			int num = 0;
+			if (Ver <= 1f)
 			{
-				this.VertexSize = array[num2++];
-				this.BoneSize = array[num2++];
-				this.MorphSize = array[num2++];
-				this.MaterialSize = array[num2++];
-				this.BodySize = array[num2++];
+				VertexSize = array[num++];
+				BoneSize = array[num++];
+				MorphSize = array[num++];
+				MaterialSize = array[num++];
+				BodySize = array[num++];
 			}
 			else
 			{
-				this.StringEnc = (StringEncType)array[num2++];
-				this.UVACount = array[num2++];
-				this.VertexSize = array[num2++];
-				this.TexSize = array[num2++];
-				this.MaterialSize = array[num2++];
-				this.BoneSize = array[num2++];
-				this.MorphSize = array[num2++];
-				this.BodySize = array[num2++];
+				StringEnc = (StringEncType)array[num++];
+				UVACount = array[num++];
+				VertexSize = array[num++];
+				TexSize = array[num++];
+				MaterialSize = array[num++];
+				BoneSize = array[num++];
+				MorphSize = array[num++];
+				BodySize = array[num++];
 			}
 		}
 
@@ -161,26 +173,26 @@ namespace PmxLib
 				array[i] = 0;
 			}
 			int num = 0;
-			if (this.Ver <= 1f)
+			if (Ver <= 1f)
 			{
-				array[num++] = (byte)this.VertexSize;
-				array[num++] = (byte)this.BoneSize;
-				array[num++] = (byte)this.MorphSize;
-				array[num++] = (byte)this.MaterialSize;
-				array[num++] = (byte)this.BodySize;
+				array[num++] = (byte)VertexSize;
+				array[num++] = (byte)BoneSize;
+				array[num++] = (byte)MorphSize;
+				array[num++] = (byte)MaterialSize;
+				array[num++] = (byte)BodySize;
 			}
 			else
 			{
-				array[num++] = (byte)this.StringEnc;
-				array[num++] = (byte)this.UVACount;
-				array[num++] = (byte)this.VertexSize;
-				array[num++] = (byte)this.TexSize;
-				array[num++] = (byte)this.MaterialSize;
-				array[num++] = (byte)this.BoneSize;
-				array[num++] = (byte)this.MorphSize;
-				array[num++] = (byte)this.BodySize;
+				array[num++] = (byte)StringEnc;
+				array[num++] = (byte)UVACount;
+				array[num++] = (byte)VertexSize;
+				array[num++] = (byte)TexSize;
+				array[num++] = (byte)MaterialSize;
+				array[num++] = (byte)BoneSize;
+				array[num++] = (byte)MorphSize;
+				array[num++] = (byte)BodySize;
 			}
-			PmxStreamHelper.WriteElement_Int32(s, array.Length, 1, true);
+			PmxStreamHelper.WriteElement_Int32(s, array.Length, 1);
 			s.Write(array, 0, array.Length);
 		}
 

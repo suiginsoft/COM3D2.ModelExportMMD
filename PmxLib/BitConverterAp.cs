@@ -28,44 +28,34 @@ namespace PmxLib
 
 		public static IEnumerable<byte> GetBytes(Matrix m)
 		{
-			try
+			float[] array = m.ToArray();
+			for (int i = 0; i < array.Length; i++)
 			{
-				float[] array3 = m.ToArray();
-				foreach (float value in array3)
+				byte[] bytes = BitConverter.GetBytes(array[i]);
+				byte[] array2 = bytes;
+				for (int j = 0; j < array2.Length; j++)
 				{
-					byte[] bytes = BitConverter.GetBytes(value);
-					try
-					{
-						byte[] array2 = bytes;
-						foreach (byte b in array2)
-						{
-							yield return b;
-						}
-					}
-					finally
-					{
-					}
+					yield return array2[j];
 				}
-			}
-			finally
-			{
 			}
 		}
 
 		public static Vector2 ToVector2(byte[] buf, int startIndex = 0)
 		{
+			int num = startIndex;
 			Vector2 result = default(Vector2);
-			result.X = BitConverter.ToSingle(buf, startIndex);
-			int startIndex2 = startIndex + 4;
-			result.Y = BitConverter.ToSingle(buf, startIndex2);
+			result.X = BitConverter.ToSingle(buf, num);
+			num += 4;
+			result.Y = BitConverter.ToSingle(buf, num);
 			return result;
 		}
 
 		public static Vector3 ToVector3(byte[] buf, int startIndex = 0)
 		{
+			int num = startIndex;
 			Vector3 result = default(Vector3);
-			result.X = BitConverter.ToSingle(buf, startIndex);
-			int num = startIndex + 4;
+			result.X = BitConverter.ToSingle(buf, num);
+			num += 4;
 			result.Y = BitConverter.ToSingle(buf, num);
 			num += 4;
 			result.Z = BitConverter.ToSingle(buf, num);
@@ -74,9 +64,10 @@ namespace PmxLib
 
 		public static Vector4 ToVector4(byte[] buf, int startIndex = 0)
 		{
+			int num = startIndex;
 			Vector4 result = default(Vector4);
-			result.X = BitConverter.ToSingle(buf, startIndex);
-			int num = startIndex + 4;
+			result.X = BitConverter.ToSingle(buf, num);
+			num += 4;
 			result.Y = BitConverter.ToSingle(buf, num);
 			num += 4;
 			result.Z = BitConverter.ToSingle(buf, num);
@@ -87,9 +78,10 @@ namespace PmxLib
 
 		public static Quaternion ToQuaternion(byte[] buf, int startIndex = 0)
 		{
+			int num = startIndex;
 			Quaternion result = default(Quaternion);
-			result.X = BitConverter.ToSingle(buf, startIndex);
-			int num = startIndex + 4;
+			result.X = BitConverter.ToSingle(buf, num);
+			num += 4;
 			result.Y = BitConverter.ToSingle(buf, num);
 			num += 4;
 			result.Z = BitConverter.ToSingle(buf, num);
@@ -100,9 +92,10 @@ namespace PmxLib
 
 		public static Matrix ToMatrix(byte[] buf, int startIndex = 0)
 		{
+			int num = startIndex;
 			Matrix result = default(Matrix);
-			result.M11 = BitConverter.ToSingle(buf, startIndex);
-			int num = startIndex + 4;
+			result.M11 = BitConverter.ToSingle(buf, num);
+			num += 4;
 			result.M12 = BitConverter.ToSingle(buf, num);
 			num += 4;
 			result.M13 = BitConverter.ToSingle(buf, num);

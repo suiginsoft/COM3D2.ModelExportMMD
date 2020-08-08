@@ -3,7 +3,7 @@ using System.IO;
 
 namespace PmxLib
 {
-	public class PmxJoint : IPmxObjectKey, IPmxStreamIO, ICloneable, INXName
+	internal class PmxJoint : PmxIDObject, IPmxObjectKey, IPmxStreamIO, ICloneable, INXName
 	{
 		public enum JointKind
 		{
@@ -37,13 +37,7 @@ namespace PmxLib
 
 		public Vector3 SpConst_Rotate;
 
-		PmxObject IPmxObjectKey.ObjectKey
-		{
-			get
-			{
-				return PmxObject.Joint;
-			}
-		}
+		PmxObjectType IPmxObjectKey.ObjectKey => PmxObjectType.Joint;
 
 		public string Name
 		{
@@ -73,138 +67,149 @@ namespace PmxLib
 		{
 			get
 			{
-				return this.Name;
+				return Name;
 			}
 			set
 			{
-				this.Name = value;
+				Name = value;
 			}
 		}
 
 		public PmxJoint()
 		{
-			this.Name = "";
-			this.NameE = "";
-			this.BodyA = -1;
-			this.BodyB = -1;
+			Name = "";
+			NameE = "";
+			BodyA = -1;
+			BodyB = -1;
 		}
 
 		public PmxJoint(PmxJoint joint, bool nonStr = false)
 		{
-			this.FromPmxJoint(joint, nonStr);
+			FromPmxJoint(joint, nonStr);
 		}
 
 		public void FromPmxJoint(PmxJoint joint, bool nonStr = false)
 		{
 			if (!nonStr)
 			{
-				this.Name = joint.Name;
-				this.NameE = joint.NameE;
+				Name = joint.Name;
+				NameE = joint.NameE;
 			}
-			this.Kind = joint.Kind;
-			this.BodyA = joint.BodyA;
-			this.BodyB = joint.BodyB;
-			this.Position = joint.Position;
-			this.Rotation = joint.Rotation;
-			this.Limit_MoveLow = joint.Limit_MoveLow;
-			this.Limit_MoveHigh = joint.Limit_MoveHigh;
-			this.Limit_AngleLow = joint.Limit_AngleLow;
-			this.Limit_AngleHigh = joint.Limit_AngleHigh;
-			this.SpConst_Move = joint.SpConst_Move;
-			this.SpConst_Rotate = joint.SpConst_Rotate;
+			Kind = joint.Kind;
+			BodyA = joint.BodyA;
+			BodyB = joint.BodyB;
+			Position = joint.Position;
+			Rotation = joint.Rotation;
+			Limit_MoveLow = joint.Limit_MoveLow;
+			Limit_MoveHigh = joint.Limit_MoveHigh;
+			Limit_AngleLow = joint.Limit_AngleLow;
+			Limit_AngleHigh = joint.Limit_AngleHigh;
+			SpConst_Move = joint.SpConst_Move;
+			SpConst_Rotate = joint.SpConst_Rotate;
+			FromID(joint);
 		}
 
 		public void ClearLimit()
 		{
-			this.Limit_AngleLow = Vector3.zero;
-			this.Limit_AngleHigh = Vector3.zero;
-			if (this.Kind == JointKind.ConeTwist)
+			Limit_AngleLow = Vector3.Zero;
+			Limit_AngleHigh = Vector3.Zero;
+			if (Kind == JointKind.ConeTwist)
 			{
-				this.Limit_MoveLow.y = 0f;
-				this.Limit_MoveHigh.y = 0f;
+				Limit_MoveLow.Y = 0f;
+				Limit_MoveHigh.Y = 0f;
 			}
 			else
 			{
-				this.Limit_MoveLow = Vector3.zero;
-				this.Limit_MoveHigh = Vector3.zero;
+				Limit_MoveLow = Vector3.Zero;
+				Limit_MoveHigh = Vector3.Zero;
 			}
 		}
 
 		public void ClearParameter()
 		{
-			switch (this.Kind)
+			switch (Kind)
 			{
 			case JointKind.Sp6DOF:
 			case JointKind.G6DOF:
 			case JointKind.P2P:
 			case JointKind.Slider:
-				this.SpConst_Move = Vector3.zero;
-				this.SpConst_Rotate = Vector3.zero;
+				SpConst_Move = Vector3.Zero;
+				SpConst_Rotate = Vector3.Zero;
 				break;
 			case JointKind.ConeTwist:
-				this.Limit_MoveLow.x = 0f;
-				this.Limit_MoveHigh.x = 1f;
-				this.Limit_MoveLow.z = 0f;
-				this.Limit_MoveHigh.z = 0f;
-				this.SpConst_Move = new Vector3(1f, 0.3f, 1f);
-				this.SpConst_Rotate = Vector3.zero;
+				Limit_MoveLow.X = 0f;
+				Limit_MoveHigh.X = 1f;
+				Limit_MoveLow.Z = 0f;
+				Limit_MoveHigh.Z = 0f;
+				SpConst_Move = new Vector3(1f, 0.3f, 1f);
+				SpConst_Rotate = Vector3.Zero;
 				break;
 			case JointKind.Hinge:
-				this.SpConst_Move = new Vector3(0.9f, 0.3f, 1f);
-				this.SpConst_Rotate = Vector3.zero;
+				SpConst_Move = new Vector3(0.9f, 0.3f, 1f);
+				SpConst_Rotate = Vector3.Zero;
 				break;
 			}
 		}
 
 		public void FromStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			this.Name = PmxStreamHelper.ReadString(s, f);
-			this.NameE = PmxStreamHelper.ReadString(s, f);
-			this.Kind = (JointKind)s.ReadByte();
-			this.BodyA = PmxStreamHelper.ReadElement_Int32(s, f.BodySize, true);
-			this.BodyB = PmxStreamHelper.ReadElement_Int32(s, f.BodySize, true);
-			this.Position = V3_BytesConvert.FromStream(s);
-			this.Rotation = V3_BytesConvert.FromStream(s);
-			this.Limit_MoveLow = V3_BytesConvert.FromStream(s);
-			this.Limit_MoveHigh = V3_BytesConvert.FromStream(s);
-			this.Limit_AngleLow = V3_BytesConvert.FromStream(s);
-			this.Limit_AngleHigh = V3_BytesConvert.FromStream(s);
-			this.SpConst_Move = V3_BytesConvert.FromStream(s);
-			this.SpConst_Rotate = V3_BytesConvert.FromStream(s);
+			Name = PmxStreamHelper.ReadString(s, f);
+			NameE = PmxStreamHelper.ReadString(s, f);
+			Kind = (JointKind)s.ReadByte();
+			BodyA = PmxStreamHelper.ReadElement_Int32(s, f.BodySize);
+			BodyB = PmxStreamHelper.ReadElement_Int32(s, f.BodySize);
+			Position = V3_BytesConvert.FromStream(s);
+			Rotation = V3_BytesConvert.FromStream(s);
+			Limit_MoveLow = V3_BytesConvert.FromStream(s);
+			Limit_MoveHigh = V3_BytesConvert.FromStream(s);
+			Limit_AngleLow = V3_BytesConvert.FromStream(s);
+			Limit_AngleHigh = V3_BytesConvert.FromStream(s);
+			SpConst_Move = V3_BytesConvert.FromStream(s);
+			SpConst_Rotate = V3_BytesConvert.FromStream(s);
+			if (f.WithID)
+			{
+				base.UID = PmxStreamHelper.ReadElement_UInt(s);
+				base.CID = PmxStreamHelper.ReadElement_UInt(s);
+			}
 		}
 
 		public void ToStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			PmxStreamHelper.WriteString(s, this.Name, f);
-			PmxStreamHelper.WriteString(s, this.NameE, f);
-			if (this.Kind != 0 && f.Ver < 2.1f)
+			PmxStreamHelper.WriteString(s, Name, f);
+			PmxStreamHelper.WriteString(s, NameE, f);
+			if (Kind != 0 && f.Ver < 2.1f)
 			{
 				s.WriteByte(0);
 			}
 			else
 			{
-				s.WriteByte((byte)this.Kind);
+				s.WriteByte((byte)Kind);
 			}
-			PmxStreamHelper.WriteElement_Int32(s, this.BodyA, f.BodySize, true);
-			PmxStreamHelper.WriteElement_Int32(s, this.BodyB, f.BodySize, true);
-			V3_BytesConvert.ToStream(s, this.Position);
-			V3_BytesConvert.ToStream(s, this.Rotation);
-			V3_BytesConvert.ToStream(s, this.Limit_MoveLow);
-			V3_BytesConvert.ToStream(s, this.Limit_MoveHigh);
-			V3_BytesConvert.ToStream(s, this.Limit_AngleLow);
-			V3_BytesConvert.ToStream(s, this.Limit_AngleHigh);
-			V3_BytesConvert.ToStream(s, this.SpConst_Move);
-			V3_BytesConvert.ToStream(s, this.SpConst_Rotate);
+			PmxStreamHelper.WriteElement_Int32(s, BodyA, f.BodySize);
+			PmxStreamHelper.WriteElement_Int32(s, BodyB, f.BodySize);
+			V3_BytesConvert.ToStream(s, Position);
+			V3_BytesConvert.ToStream(s, Rotation);
+			V3_BytesConvert.ToStream(s, Limit_MoveLow);
+			V3_BytesConvert.ToStream(s, Limit_MoveHigh);
+			V3_BytesConvert.ToStream(s, Limit_AngleLow);
+			V3_BytesConvert.ToStream(s, Limit_AngleHigh);
+			V3_BytesConvert.ToStream(s, SpConst_Move);
+			V3_BytesConvert.ToStream(s, SpConst_Rotate);
+			if (f.WithID)
+			{
+				PmxStreamHelper.WriteElement_UInt(s, base.UID);
+				PmxStreamHelper.WriteElement_UInt(s, base.CID);
+			}
 		}
 
 		object ICloneable.Clone()
 		{
-			return new PmxJoint(this, false);
+			return new PmxJoint(this);
 		}
 
 		public PmxJoint Clone()
 		{
-			return new PmxJoint(this, false);
+			return new PmxJoint(this);
 		}
 	}
 }

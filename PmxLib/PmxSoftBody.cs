@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace PmxLib
 {
-	public class PmxSoftBody : IPmxObjectKey, IPmxStreamIO, ICloneable, INXName
+	internal class PmxSoftBody : PmxIDObject, IPmxObjectKey, IPmxStreamIO, ICloneable, INXName
 	{
 		public enum ShapeKind
 		{
@@ -15,9 +16,9 @@ namespace PmxLib
 		[Flags]
 		public enum SoftBodyFlags
 		{
-			GenerateBendingLinks = 1,
-			GenerateClusters = 2,
-			RandomizeConstraints = 4
+			GenerateBendingLinks = 0x1,
+			GenerateClusters = 0x2,
+			RandomizeConstraints = 0x4
 		}
 
 		public struct SoftBodyConfig
@@ -70,29 +71,29 @@ namespace PmxLib
 
 			public void Clear()
 			{
-				this.AeroModel = 0;
-				this.VCF = 1f;
-				this.DP = 0f;
-				this.DG = 0f;
-				this.LF = 0f;
-				this.PR = 0f;
-				this.VC = 0f;
-				this.DF = 0.2f;
-				this.MT = 0f;
-				this.CHR = 1f;
-				this.KHR = 0.1f;
-				this.SHR = 1f;
-				this.AHR = 0.7f;
-				this.SRHR_CL = 0.1f;
-				this.SKHR_CL = 1f;
-				this.SSHR_CL = 0.5f;
-				this.SR_SPLT_CL = 0.5f;
-				this.SK_SPLT_CL = 0.5f;
-				this.SS_SPLT_CL = 0.5f;
-				this.V_IT = 0;
-				this.P_IT = 1;
-				this.D_IT = 0;
-				this.C_IT = 4;
+				AeroModel = 0;
+				VCF = 1f;
+				DP = 0f;
+				DG = 0f;
+				LF = 0f;
+				PR = 0f;
+				VC = 0f;
+				DF = 0.2f;
+				MT = 0f;
+				CHR = 1f;
+				KHR = 0.1f;
+				SHR = 1f;
+				AHR = 0.7f;
+				SRHR_CL = 0.1f;
+				SKHR_CL = 1f;
+				SSHR_CL = 0.5f;
+				SR_SPLT_CL = 0.5f;
+				SK_SPLT_CL = 0.5f;
+				SS_SPLT_CL = 0.5f;
+				V_IT = 0;
+				P_IT = 1;
+				D_IT = 0;
+				C_IT = 4;
 			}
 		}
 
@@ -106,9 +107,9 @@ namespace PmxLib
 
 			public void Clear()
 			{
-				this.LST = 1f;
-				this.AST = 1f;
-				this.VST = 1f;
+				LST = 1f;
+				AST = 1f;
+				VST = 1f;
 			}
 		}
 
@@ -134,26 +135,20 @@ namespace PmxLib
 				set;
 			}
 
-			public PmxObject ObjectKey
-			{
-				get
-				{
-					return PmxObject.SoftBodyAnchor;
-				}
-			}
+			public PmxObjectType ObjectKey => PmxObjectType.SoftBodyAnchor;
 
 			public BodyAnchor()
 			{
-				this.NodeIndex = -1;
-				this.IsNear = false;
+				NodeIndex = -1;
+				IsNear = false;
 			}
 
 			public BodyAnchor(BodyAnchor ac)
 			{
-				this.Body = ac.Body;
-				this.Vertex = ac.Vertex;
-				this.NodeIndex = ac.NodeIndex;
-				this.IsNear = ac.IsNear;
+				Body = ac.Body;
+				Vertex = ac.Vertex;
+				NodeIndex = ac.NodeIndex;
+				IsNear = ac.IsNear;
 			}
 
 			public object Clone()
@@ -174,23 +169,17 @@ namespace PmxLib
 				set;
 			}
 
-			public PmxObject ObjectKey
-			{
-				get
-				{
-					return PmxObject.SoftBodyPinVertex;
-				}
-			}
+			public PmxObjectType ObjectKey => PmxObjectType.SoftBodyPinVertex;
 
 			public VertexPin()
 			{
-				this.NodeIndex = -1;
+				NodeIndex = -1;
 			}
 
 			public VertexPin(VertexPin pin)
 			{
-				this.Vertex = pin.Vertex;
-				this.NodeIndex = pin.NodeIndex;
+				Vertex = pin.Vertex;
+				NodeIndex = pin.NodeIndex;
 			}
 
 			public object Clone()
@@ -221,13 +210,7 @@ namespace PmxLib
 
 		public SoftBodyMaterialConfig MaterialConfig;
 
-		PmxObject IPmxObjectKey.ObjectKey
-		{
-			get
-			{
-				return PmxObject.SoftBody;
-			}
-		}
+		PmxObjectType IPmxObjectKey.ObjectKey => PmxObjectType.SoftBody;
 
 		public string Name
 		{
@@ -251,17 +234,17 @@ namespace PmxLib
 		{
 			get
 			{
-				return (this.Flags & SoftBodyFlags.GenerateBendingLinks) > (SoftBodyFlags)0;
+				return (Flags & SoftBodyFlags.GenerateBendingLinks) > (SoftBodyFlags)0;
 			}
 			set
 			{
 				if (value)
 				{
-					this.Flags |= SoftBodyFlags.GenerateBendingLinks;
+					Flags |= SoftBodyFlags.GenerateBendingLinks;
 				}
 				else
 				{
-					this.Flags &= ~SoftBodyFlags.GenerateBendingLinks;
+					Flags &= ~SoftBodyFlags.GenerateBendingLinks;
 				}
 			}
 		}
@@ -270,17 +253,17 @@ namespace PmxLib
 		{
 			get
 			{
-				return (this.Flags & SoftBodyFlags.GenerateClusters) > (SoftBodyFlags)0;
+				return (Flags & SoftBodyFlags.GenerateClusters) > (SoftBodyFlags)0;
 			}
 			set
 			{
 				if (value)
 				{
-					this.Flags |= SoftBodyFlags.GenerateClusters;
+					Flags |= SoftBodyFlags.GenerateClusters;
 				}
 				else
 				{
-					this.Flags &= ~SoftBodyFlags.GenerateClusters;
+					Flags &= ~SoftBodyFlags.GenerateClusters;
 				}
 			}
 		}
@@ -289,17 +272,17 @@ namespace PmxLib
 		{
 			get
 			{
-				return (this.Flags & SoftBodyFlags.RandomizeConstraints) > (SoftBodyFlags)0;
+				return (Flags & SoftBodyFlags.RandomizeConstraints) > (SoftBodyFlags)0;
 			}
 			set
 			{
 				if (value)
 				{
-					this.Flags |= SoftBodyFlags.RandomizeConstraints;
+					Flags |= SoftBodyFlags.RandomizeConstraints;
 				}
 				else
 				{
-					this.Flags &= ~SoftBodyFlags.RandomizeConstraints;
+					Flags &= ~SoftBodyFlags.RandomizeConstraints;
 				}
 			}
 		}
@@ -326,78 +309,84 @@ namespace PmxLib
 		{
 			get
 			{
-				return this.Name;
+				return Name;
 			}
 			set
 			{
-				this.Name = value;
+				Name = value;
 			}
 		}
 
 		public void NormalizeBodyAnchorList()
 		{
-			if (this.BodyAnchorList.Count > 0)
+			if (BodyAnchorList.Count <= 0)
 			{
-				List<int> list = new List<int>(this.BodyAnchorList.Count);
-				Dictionary<string, int> dictionary = new Dictionary<string, int>(this.BodyAnchorList.Count);
-				for (int i = 0; i < this.BodyAnchorList.Count; i++)
+				return;
+			}
+			List<int> list = new List<int>(BodyAnchorList.Count);
+			Dictionary<string, int> dictionary = new Dictionary<string, int>(BodyAnchorList.Count);
+			for (int i = 0; i < BodyAnchorList.Count; i++)
+			{
+				BodyAnchor bodyAnchor = BodyAnchorList[i];
+				string key = bodyAnchor.Body + "_" + bodyAnchor.Vertex;
+				if (!dictionary.ContainsKey(key))
 				{
-					BodyAnchor bodyAnchor = this.BodyAnchorList[i];
-					string key = bodyAnchor.Body.ToString() + "_" + bodyAnchor.Vertex.ToString();
-					if (!dictionary.ContainsKey(key))
-					{
-						dictionary.Add(key, i);
-					}
-					else
-					{
-						list.Add(i);
-					}
+					dictionary.Add(key, i);
 				}
-				if (list.Count > 0)
+				else
 				{
-					int[] array = CP.SortIndexForRemove(list.ToArray());
-					for (int j = 0; j < array.Length; j++)
-					{
-						this.BodyAnchorList.RemoveAt(array[j]);
-					}
+					list.Add(i);
+				}
+			}
+			if (list.Count > 0)
+			{
+				int[] array = CP.SortIndexForRemove(list.ToArray());
+				for (int j = 0; j < array.Length; j++)
+				{
+					BodyAnchorList.RemoveAt(array[j]);
 				}
 			}
 		}
 
+		public string VertexPinText()
+		{
+			return string.Join(",", VertexPinList.Select((VertexPin pin) => pin.Vertex.ToString()).ToArray());
+		}
+
 		public void SetVertexPinFromText(string text)
 		{
-			this.VertexPinList.Clear();
+			VertexPinList.Clear();
 			string[] array = text.Split(',');
-			if (array != null)
+			if (array == null)
 			{
-				this.VertexPinList.Capacity = array.Length;
-				for (int i = 0; i < array.Length; i++)
+				return;
+			}
+			VertexPinList.Capacity = array.Length;
+			for (int i = 0; i < array.Length; i++)
+			{
+				if (!string.IsNullOrEmpty(array[i]) && int.TryParse(array[i].Trim(), out int result))
 				{
-					int vertex = default(int);
-					if (!string.IsNullOrEmpty(array[i]) && int.TryParse(array[i].Trim(), out vertex))
+					VertexPinList.Add(new VertexPin
 					{
-						this.VertexPinList.Add(new VertexPin
-						{
-							Vertex = vertex
-						});
-					}
+						Vertex = result
+					});
 				}
 			}
 		}
 
 		public void SortVertexPinList()
 		{
-			if (this.VertexPinList.Count > 0)
+			if (VertexPinList.Count > 0)
 			{
-				List<int> list = new List<int>(this.VertexPinList.Count);
-				for (int i = 0; i < this.VertexPinList.Count; i++)
+				List<int> list = new List<int>(VertexPinList.Count);
+				for (int i = 0; i < VertexPinList.Count; i++)
 				{
-					list.Add(this.VertexPinList[i].Vertex);
+					list.Add(VertexPinList[i].Vertex);
 				}
 				list.Sort();
-				for (int j = 0; j < this.VertexPinList.Count; j++)
+				for (int j = 0; j < VertexPinList.Count; j++)
 				{
-					VertexPin vertexPin = this.VertexPinList[j];
+					VertexPin vertexPin = VertexPinList[j];
 					vertexPin.Vertex = list[j];
 					vertexPin.NodeIndex = -1;
 					vertexPin.RefVertex = null;
@@ -407,236 +396,248 @@ namespace PmxLib
 
 		public void NormalizeVertexPinList()
 		{
-			if (this.VertexPinList.Count > 0)
+			if (VertexPinList.Count <= 0)
 			{
-				this.SortVertexPinList();
-				bool[] array = new bool[this.VertexPinList.Count];
-				array[0] = false;
-				for (int i = 1; i < this.VertexPinList.Count; i++)
+				return;
+			}
+			SortVertexPinList();
+			bool[] array = new bool[VertexPinList.Count];
+			array[0] = false;
+			for (int i = 1; i < VertexPinList.Count; i++)
+			{
+				VertexPin vertexPin = VertexPinList[i - 1];
+				VertexPin vertexPin2 = VertexPinList[i];
+				if (vertexPin.Vertex == vertexPin2.Vertex)
 				{
-					VertexPin vertexPin = this.VertexPinList[i - 1];
-					VertexPin vertexPin2 = this.VertexPinList[i];
-					if (vertexPin.Vertex == vertexPin2.Vertex)
-					{
-						array[i] = true;
-					}
+					array[i] = true;
 				}
-				Dictionary<int, int> dictionary = new Dictionary<int, int>();
-				foreach (BodyAnchor bodyAnchor in this.BodyAnchorList)
+			}
+			Dictionary<int, int> dictionary = new Dictionary<int, int>();
+			foreach (BodyAnchor bodyAnchor in BodyAnchorList)
+			{
+				dictionary.Add(bodyAnchor.Vertex, 0);
+			}
+			for (int j = 0; j < VertexPinList.Count; j++)
+			{
+				int vertex = VertexPinList[j].Vertex;
+				if (dictionary.ContainsKey(vertex))
 				{
-					dictionary.Add(bodyAnchor.Vertex, 0);
+					array[j] = true;
 				}
-				for (int j = 0; j < this.VertexPinList.Count; j++)
+			}
+			for (int num = array.Length - 1; num > 0; num--)
+			{
+				if (array[num])
 				{
-					int vertex = this.VertexPinList[j].Vertex;
-					if (dictionary.ContainsKey(vertex))
-					{
-						array[j] = true;
-					}
-				}
-				for (int num = array.Length - 1; num > 0; num--)
-				{
-					if (array[num])
-					{
-						this.VertexPinList.RemoveAt(num);
-					}
+					VertexPinList.RemoveAt(num);
 				}
 			}
 		}
 
 		public PmxSoftBody()
 		{
-			this.Name = "";
-			this.NameE = "";
-			this.Shape = ShapeKind.TriMesh;
-			this.Material = -1;
-			this.Group = 0;
-			this.PassGroup = new PmxBodyPassGroup();
-			this.InitializeParameter();
-			this.BodyAnchorList = new List<BodyAnchor>();
-			this.VertexPinList = new List<VertexPin>();
-			this.VertexIndices = new int[0];
+			Name = "";
+			NameE = "";
+			Shape = ShapeKind.TriMesh;
+			Material = -1;
+			Group = 0;
+			PassGroup = new PmxBodyPassGroup();
+			InitializeParameter();
+			BodyAnchorList = new List<BodyAnchor>();
+			VertexPinList = new List<VertexPin>();
+			VertexIndices = new int[0];
 		}
 
 		public PmxSoftBody(PmxSoftBody sbody, bool nonStr = false)
 		{
-			this.FromPmxSoftBody(sbody, nonStr);
+			FromPmxSoftBody(sbody, nonStr);
 		}
 
 		public void InitializeParameter()
 		{
-			this.ClearGenerate();
-			this.TotalMass = 1f;
-			this.Margin = 0.05f;
-			this.Config.Clear();
-			this.MaterialConfig.Clear();
+			ClearGenerate();
+			TotalMass = 1f;
+			Margin = 0.05f;
+			Config.Clear();
+			MaterialConfig.Clear();
 		}
 
 		public void ClearGenerate()
 		{
-			this.IsGenerateBendingLinks = true;
-			this.IsGenerateClusters = false;
-			this.IsRandomizeConstraints = true;
-			this.BendingLinkDistance = 2;
-			this.ClusterCount = 0;
+			IsGenerateBendingLinks = true;
+			IsGenerateClusters = false;
+			IsRandomizeConstraints = true;
+			BendingLinkDistance = 2;
+			ClusterCount = 0;
 		}
 
 		public void FromPmxSoftBody(PmxSoftBody sbody, bool nonStr = false)
 		{
 			if (!nonStr)
 			{
-				this.Name = sbody.Name;
-				this.NameE = sbody.NameE;
+				Name = sbody.Name;
+				NameE = sbody.NameE;
 			}
-			this.Shape = sbody.Shape;
-			this.Material = sbody.Material;
-			this.Group = sbody.Group;
-			this.PassGroup = sbody.PassGroup.Clone();
-			this.IsGenerateBendingLinks = sbody.IsGenerateBendingLinks;
-			this.IsGenerateClusters = sbody.IsGenerateClusters;
-			this.IsRandomizeConstraints = sbody.IsRandomizeConstraints;
-			this.BendingLinkDistance = sbody.BendingLinkDistance;
-			this.ClusterCount = sbody.ClusterCount;
-			this.TotalMass = sbody.TotalMass;
-			this.Margin = sbody.Margin;
-			this.Config = sbody.Config;
-			this.MaterialConfig = sbody.MaterialConfig;
-			this.BodyAnchorList = CP.CloneList(sbody.BodyAnchorList);
-			this.VertexPinList = CP.CloneList(sbody.VertexPinList);
-			this.VertexIndices = CP.CloneArray_ValueType(sbody.VertexIndices);
+			Shape = sbody.Shape;
+			Material = sbody.Material;
+			Group = sbody.Group;
+			PassGroup = sbody.PassGroup.Clone();
+			IsGenerateBendingLinks = sbody.IsGenerateBendingLinks;
+			IsGenerateClusters = sbody.IsGenerateClusters;
+			IsRandomizeConstraints = sbody.IsRandomizeConstraints;
+			BendingLinkDistance = sbody.BendingLinkDistance;
+			ClusterCount = sbody.ClusterCount;
+			TotalMass = sbody.TotalMass;
+			Margin = sbody.Margin;
+			Config = sbody.Config;
+			MaterialConfig = sbody.MaterialConfig;
+			BodyAnchorList = CP.CloneList(sbody.BodyAnchorList);
+			VertexPinList = CP.CloneList(sbody.VertexPinList);
+			VertexIndices = CP.CloneArray_ValueType(sbody.VertexIndices);
+			FromID(sbody);
 		}
 
 		public void FromStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			this.Name = PmxStreamHelper.ReadString(s, f);
-			this.NameE = PmxStreamHelper.ReadString(s, f);
-			this.Shape = (ShapeKind)PmxStreamHelper.ReadElement_Int32(s, 1, true);
-			this.Material = PmxStreamHelper.ReadElement_Int32(s, f.MaterialSize, true);
-			this.Group = PmxStreamHelper.ReadElement_Int32(s, 1, true);
-			ushort bits = (ushort)PmxStreamHelper.ReadElement_Int32(s, 2, false);
-			this.PassGroup.FromFlagBits(bits);
-			this.Flags = (SoftBodyFlags)PmxStreamHelper.ReadElement_Int32(s, 1, true);
-			this.BendingLinkDistance = PmxStreamHelper.ReadElement_Int32(s, 4, true);
-			this.ClusterCount = PmxStreamHelper.ReadElement_Int32(s, 4, true);
-			this.TotalMass = PmxStreamHelper.ReadElement_Float(s);
-			this.Margin = PmxStreamHelper.ReadElement_Float(s);
-			this.Config.AeroModel = PmxStreamHelper.ReadElement_Int32(s, 4, true);
-			this.Config.VCF = PmxStreamHelper.ReadElement_Float(s);
-			this.Config.DP = PmxStreamHelper.ReadElement_Float(s);
-			this.Config.DG = PmxStreamHelper.ReadElement_Float(s);
-			this.Config.LF = PmxStreamHelper.ReadElement_Float(s);
-			this.Config.PR = PmxStreamHelper.ReadElement_Float(s);
-			this.Config.VC = PmxStreamHelper.ReadElement_Float(s);
-			this.Config.DF = PmxStreamHelper.ReadElement_Float(s);
-			this.Config.MT = PmxStreamHelper.ReadElement_Float(s);
-			this.Config.CHR = PmxStreamHelper.ReadElement_Float(s);
-			this.Config.KHR = PmxStreamHelper.ReadElement_Float(s);
-			this.Config.SHR = PmxStreamHelper.ReadElement_Float(s);
-			this.Config.AHR = PmxStreamHelper.ReadElement_Float(s);
-			this.Config.SRHR_CL = PmxStreamHelper.ReadElement_Float(s);
-			this.Config.SKHR_CL = PmxStreamHelper.ReadElement_Float(s);
-			this.Config.SSHR_CL = PmxStreamHelper.ReadElement_Float(s);
-			this.Config.SR_SPLT_CL = PmxStreamHelper.ReadElement_Float(s);
-			this.Config.SK_SPLT_CL = PmxStreamHelper.ReadElement_Float(s);
-			this.Config.SS_SPLT_CL = PmxStreamHelper.ReadElement_Float(s);
-			this.Config.V_IT = PmxStreamHelper.ReadElement_Int32(s, 4, true);
-			this.Config.P_IT = PmxStreamHelper.ReadElement_Int32(s, 4, true);
-			this.Config.D_IT = PmxStreamHelper.ReadElement_Int32(s, 4, true);
-			this.Config.C_IT = PmxStreamHelper.ReadElement_Int32(s, 4, true);
-			this.MaterialConfig.LST = PmxStreamHelper.ReadElement_Float(s);
-			this.MaterialConfig.AST = PmxStreamHelper.ReadElement_Float(s);
-			this.MaterialConfig.VST = PmxStreamHelper.ReadElement_Float(s);
-			int num = PmxStreamHelper.ReadElement_Int32(s, 4, true);
-			this.BodyAnchorList.Clear();
-			this.BodyAnchorList.Capacity = num;
+			Name = PmxStreamHelper.ReadString(s, f);
+			NameE = PmxStreamHelper.ReadString(s, f);
+			Shape = (ShapeKind)PmxStreamHelper.ReadElement_Int32(s, 1);
+			Material = PmxStreamHelper.ReadElement_Int32(s, f.MaterialSize);
+			Group = PmxStreamHelper.ReadElement_Int32(s, 1);
+			ushort bits = (ushort)PmxStreamHelper.ReadElement_Int32(s, 2, signed: false);
+			PassGroup.FromFlagBits(bits);
+			Flags = (SoftBodyFlags)PmxStreamHelper.ReadElement_Int32(s, 1);
+			BendingLinkDistance = PmxStreamHelper.ReadElement_Int32(s);
+			ClusterCount = PmxStreamHelper.ReadElement_Int32(s);
+			TotalMass = PmxStreamHelper.ReadElement_Float(s);
+			Margin = PmxStreamHelper.ReadElement_Float(s);
+			Config.AeroModel = PmxStreamHelper.ReadElement_Int32(s);
+			Config.VCF = PmxStreamHelper.ReadElement_Float(s);
+			Config.DP = PmxStreamHelper.ReadElement_Float(s);
+			Config.DG = PmxStreamHelper.ReadElement_Float(s);
+			Config.LF = PmxStreamHelper.ReadElement_Float(s);
+			Config.PR = PmxStreamHelper.ReadElement_Float(s);
+			Config.VC = PmxStreamHelper.ReadElement_Float(s);
+			Config.DF = PmxStreamHelper.ReadElement_Float(s);
+			Config.MT = PmxStreamHelper.ReadElement_Float(s);
+			Config.CHR = PmxStreamHelper.ReadElement_Float(s);
+			Config.KHR = PmxStreamHelper.ReadElement_Float(s);
+			Config.SHR = PmxStreamHelper.ReadElement_Float(s);
+			Config.AHR = PmxStreamHelper.ReadElement_Float(s);
+			Config.SRHR_CL = PmxStreamHelper.ReadElement_Float(s);
+			Config.SKHR_CL = PmxStreamHelper.ReadElement_Float(s);
+			Config.SSHR_CL = PmxStreamHelper.ReadElement_Float(s);
+			Config.SR_SPLT_CL = PmxStreamHelper.ReadElement_Float(s);
+			Config.SK_SPLT_CL = PmxStreamHelper.ReadElement_Float(s);
+			Config.SS_SPLT_CL = PmxStreamHelper.ReadElement_Float(s);
+			Config.V_IT = PmxStreamHelper.ReadElement_Int32(s);
+			Config.P_IT = PmxStreamHelper.ReadElement_Int32(s);
+			Config.D_IT = PmxStreamHelper.ReadElement_Int32(s);
+			Config.C_IT = PmxStreamHelper.ReadElement_Int32(s);
+			MaterialConfig.LST = PmxStreamHelper.ReadElement_Float(s);
+			MaterialConfig.AST = PmxStreamHelper.ReadElement_Float(s);
+			MaterialConfig.VST = PmxStreamHelper.ReadElement_Float(s);
+			int num = PmxStreamHelper.ReadElement_Int32(s);
+			BodyAnchorList.Clear();
+			BodyAnchorList.Capacity = num;
 			for (int i = 0; i < num; i++)
 			{
-				int body = PmxStreamHelper.ReadElement_Int32(s, f.BodySize, true);
-				int vertex = PmxStreamHelper.ReadElement_Int32(s, f.VertexSize, true);
-				int num2 = PmxStreamHelper.ReadElement_Int32(s, 1, true);
-				this.BodyAnchorList.Add(new BodyAnchor
+				int body = PmxStreamHelper.ReadElement_Int32(s, f.BodySize);
+				int vertex = PmxStreamHelper.ReadElement_Int32(s, f.VertexSize);
+				int num2 = PmxStreamHelper.ReadElement_Int32(s, 1);
+				BodyAnchorList.Add(new BodyAnchor
 				{
 					Body = body,
 					Vertex = vertex,
 					IsNear = (num2 != 0)
 				});
 			}
-			num = PmxStreamHelper.ReadElement_Int32(s, 4, true);
-			this.VertexPinList.Clear();
-			this.VertexPinList.Capacity = num;
+			num = PmxStreamHelper.ReadElement_Int32(s);
+			VertexPinList.Clear();
+			VertexPinList.Capacity = num;
 			for (int j = 0; j < num; j++)
 			{
-				int vertex2 = PmxStreamHelper.ReadElement_Int32(s, f.VertexSize, true);
-				this.VertexPinList.Add(new VertexPin
+				int vertex2 = PmxStreamHelper.ReadElement_Int32(s, f.VertexSize);
+				VertexPinList.Add(new VertexPin
 				{
 					Vertex = vertex2
 				});
 			}
-			this.NormalizeBodyAnchorList();
-			this.NormalizeVertexPinList();
+			NormalizeBodyAnchorList();
+			NormalizeVertexPinList();
+			if (f.WithID)
+			{
+				base.UID = PmxStreamHelper.ReadElement_UInt(s);
+				base.CID = PmxStreamHelper.ReadElement_UInt(s);
+			}
 		}
 
 		public void ToStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			PmxStreamHelper.WriteString(s, this.Name, f);
-			PmxStreamHelper.WriteString(s, this.NameE, f);
-			PmxStreamHelper.WriteElement_Int32(s, (int)this.Shape, 1, true);
-			PmxStreamHelper.WriteElement_Int32(s, this.Material, f.MaterialSize, true);
-			PmxStreamHelper.WriteElement_Int32(s, this.Group, 1, true);
-			PmxStreamHelper.WriteElement_Int32(s, this.PassGroup.ToFlagBits(), 2, false);
-			PmxStreamHelper.WriteElement_Int32(s, (int)this.Flags, 1, false);
-			PmxStreamHelper.WriteElement_Int32(s, this.BendingLinkDistance, 4, true);
-			PmxStreamHelper.WriteElement_Int32(s, this.ClusterCount, 4, true);
-			PmxStreamHelper.WriteElement_Float(s, this.TotalMass);
-			PmxStreamHelper.WriteElement_Float(s, this.Margin);
-			PmxStreamHelper.WriteElement_Int32(s, this.Config.AeroModel, 4, true);
-			PmxStreamHelper.WriteElement_Float(s, this.Config.VCF);
-			PmxStreamHelper.WriteElement_Float(s, this.Config.DP);
-			PmxStreamHelper.WriteElement_Float(s, this.Config.DG);
-			PmxStreamHelper.WriteElement_Float(s, this.Config.LF);
-			PmxStreamHelper.WriteElement_Float(s, this.Config.PR);
-			PmxStreamHelper.WriteElement_Float(s, this.Config.VC);
-			PmxStreamHelper.WriteElement_Float(s, this.Config.DF);
-			PmxStreamHelper.WriteElement_Float(s, this.Config.MT);
-			PmxStreamHelper.WriteElement_Float(s, this.Config.CHR);
-			PmxStreamHelper.WriteElement_Float(s, this.Config.KHR);
-			PmxStreamHelper.WriteElement_Float(s, this.Config.SHR);
-			PmxStreamHelper.WriteElement_Float(s, this.Config.AHR);
-			PmxStreamHelper.WriteElement_Float(s, this.Config.SRHR_CL);
-			PmxStreamHelper.WriteElement_Float(s, this.Config.SKHR_CL);
-			PmxStreamHelper.WriteElement_Float(s, this.Config.SSHR_CL);
-			PmxStreamHelper.WriteElement_Float(s, this.Config.SR_SPLT_CL);
-			PmxStreamHelper.WriteElement_Float(s, this.Config.SK_SPLT_CL);
-			PmxStreamHelper.WriteElement_Float(s, this.Config.SS_SPLT_CL);
-			PmxStreamHelper.WriteElement_Int32(s, this.Config.V_IT, 4, true);
-			PmxStreamHelper.WriteElement_Int32(s, this.Config.P_IT, 4, true);
-			PmxStreamHelper.WriteElement_Int32(s, this.Config.D_IT, 4, true);
-			PmxStreamHelper.WriteElement_Int32(s, this.Config.C_IT, 4, true);
-			PmxStreamHelper.WriteElement_Float(s, this.MaterialConfig.LST);
-			PmxStreamHelper.WriteElement_Float(s, this.MaterialConfig.AST);
-			PmxStreamHelper.WriteElement_Float(s, this.MaterialConfig.VST);
-			PmxStreamHelper.WriteElement_Int32(s, this.BodyAnchorList.Count, 4, true);
-			for (int i = 0; i < this.BodyAnchorList.Count; i++)
+			PmxStreamHelper.WriteString(s, Name, f);
+			PmxStreamHelper.WriteString(s, NameE, f);
+			PmxStreamHelper.WriteElement_Int32(s, (int)Shape, 1);
+			PmxStreamHelper.WriteElement_Int32(s, Material, f.MaterialSize);
+			PmxStreamHelper.WriteElement_Int32(s, Group, 1);
+			PmxStreamHelper.WriteElement_Int32(s, PassGroup.ToFlagBits(), 2, signed: false);
+			PmxStreamHelper.WriteElement_Int32(s, (int)Flags, 1, signed: false);
+			PmxStreamHelper.WriteElement_Int32(s, BendingLinkDistance);
+			PmxStreamHelper.WriteElement_Int32(s, ClusterCount);
+			PmxStreamHelper.WriteElement_Float(s, TotalMass);
+			PmxStreamHelper.WriteElement_Float(s, Margin);
+			PmxStreamHelper.WriteElement_Int32(s, Config.AeroModel);
+			PmxStreamHelper.WriteElement_Float(s, Config.VCF);
+			PmxStreamHelper.WriteElement_Float(s, Config.DP);
+			PmxStreamHelper.WriteElement_Float(s, Config.DG);
+			PmxStreamHelper.WriteElement_Float(s, Config.LF);
+			PmxStreamHelper.WriteElement_Float(s, Config.PR);
+			PmxStreamHelper.WriteElement_Float(s, Config.VC);
+			PmxStreamHelper.WriteElement_Float(s, Config.DF);
+			PmxStreamHelper.WriteElement_Float(s, Config.MT);
+			PmxStreamHelper.WriteElement_Float(s, Config.CHR);
+			PmxStreamHelper.WriteElement_Float(s, Config.KHR);
+			PmxStreamHelper.WriteElement_Float(s, Config.SHR);
+			PmxStreamHelper.WriteElement_Float(s, Config.AHR);
+			PmxStreamHelper.WriteElement_Float(s, Config.SRHR_CL);
+			PmxStreamHelper.WriteElement_Float(s, Config.SKHR_CL);
+			PmxStreamHelper.WriteElement_Float(s, Config.SSHR_CL);
+			PmxStreamHelper.WriteElement_Float(s, Config.SR_SPLT_CL);
+			PmxStreamHelper.WriteElement_Float(s, Config.SK_SPLT_CL);
+			PmxStreamHelper.WriteElement_Float(s, Config.SS_SPLT_CL);
+			PmxStreamHelper.WriteElement_Int32(s, Config.V_IT);
+			PmxStreamHelper.WriteElement_Int32(s, Config.P_IT);
+			PmxStreamHelper.WriteElement_Int32(s, Config.D_IT);
+			PmxStreamHelper.WriteElement_Int32(s, Config.C_IT);
+			PmxStreamHelper.WriteElement_Float(s, MaterialConfig.LST);
+			PmxStreamHelper.WriteElement_Float(s, MaterialConfig.AST);
+			PmxStreamHelper.WriteElement_Float(s, MaterialConfig.VST);
+			PmxStreamHelper.WriteElement_Int32(s, BodyAnchorList.Count);
+			for (int i = 0; i < BodyAnchorList.Count; i++)
 			{
-				PmxStreamHelper.WriteElement_Int32(s, this.BodyAnchorList[i].Body, f.BodySize, true);
-				PmxStreamHelper.WriteElement_Int32(s, this.BodyAnchorList[i].Vertex, f.VertexSize, false);
-				PmxStreamHelper.WriteElement_Int32(s, this.BodyAnchorList[i].IsNear ? 1 : 0, 1, true);
+				PmxStreamHelper.WriteElement_Int32(s, BodyAnchorList[i].Body, f.BodySize);
+				PmxStreamHelper.WriteElement_Int32(s, BodyAnchorList[i].Vertex, f.VertexSize, signed: false);
+				PmxStreamHelper.WriteElement_Int32(s, BodyAnchorList[i].IsNear ? 1 : 0, 1);
 			}
-			PmxStreamHelper.WriteElement_Int32(s, this.VertexPinList.Count, 4, true);
-			for (int j = 0; j < this.VertexPinList.Count; j++)
+			PmxStreamHelper.WriteElement_Int32(s, VertexPinList.Count);
+			for (int j = 0; j < VertexPinList.Count; j++)
 			{
-				PmxStreamHelper.WriteElement_Int32(s, this.VertexPinList[j].Vertex, f.VertexSize, false);
+				PmxStreamHelper.WriteElement_Int32(s, VertexPinList[j].Vertex, f.VertexSize, signed: false);
+			}
+			if (f.WithID)
+			{
+				PmxStreamHelper.WriteElement_UInt(s, base.UID);
+				PmxStreamHelper.WriteElement_UInt(s, base.CID);
 			}
 		}
 
 		object ICloneable.Clone()
 		{
-			return new PmxSoftBody(this, false);
+			return new PmxSoftBody(this);
 		}
 
 		public PmxSoftBody Clone()
 		{
-			return new PmxSoftBody(this, false);
+			return new PmxSoftBody(this);
 		}
 	}
 }

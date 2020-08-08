@@ -1,8 +1,9 @@
 using System;
+using System.Drawing;
 
 namespace PmxLib
 {
-	public class VmdIplPoint : ICloneable
+	internal class VmdIplPoint : ICloneable
 	{
 		protected int m_x;
 
@@ -12,11 +13,11 @@ namespace PmxLib
 		{
 			get
 			{
-				return this.m_x;
+				return m_x;
 			}
 			set
 			{
-				this.m_x = this.RangeValue(value);
+				m_x = RangeValue(value);
 			}
 		}
 
@@ -24,11 +25,11 @@ namespace PmxLib
 		{
 			get
 			{
-				return this.m_y;
+				return m_y;
 			}
 			set
 			{
-				this.m_y = this.RangeValue(value);
+				m_y = RangeValue(value);
 			}
 		}
 
@@ -38,25 +39,25 @@ namespace PmxLib
 
 		public VmdIplPoint(VmdIplPoint ip)
 		{
-			this.X = ip.X;
-			this.Y = ip.Y;
+			X = ip.X;
+			Y = ip.Y;
 		}
 
 		public VmdIplPoint(int x, int y)
 		{
-			this.X = x;
-			this.Y = y;
+			X = x;
+			Y = y;
 		}
 
 		public VmdIplPoint(Point p)
 		{
-			this.Set(p);
+			Set(p);
 		}
 
 		public void Set(Point p)
 		{
-			this.X = p.X;
-			this.Y = p.Y;
+			X = p.X;
+			Y = p.Y;
 		}
 
 		protected int RangeValue(int v)

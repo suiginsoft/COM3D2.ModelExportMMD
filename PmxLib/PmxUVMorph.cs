@@ -9,23 +9,17 @@ namespace PmxLib
 
 		public Vector4 Offset;
 
-		PmxObject IPmxObjectKey.ObjectKey
-		{
-			get
-			{
-				return PmxObject.UVMorph;
-			}
-		}
+		PmxObjectType IPmxObjectKey.ObjectKey => PmxObjectType.UVMorph;
 
 		public override int BaseIndex
 		{
 			get
 			{
-				return this.Index;
+				return Index;
 			}
 			set
 			{
-				this.Index = value;
+				Index = value;
 			}
 		}
 
@@ -37,38 +31,40 @@ namespace PmxLib
 
 		public PmxUVMorph()
 		{
-			this.Index = -1;
+			Index = -1;
 		}
 
 		public PmxUVMorph(int index, Vector4 offset)
 			: this()
 		{
-			this.Index = index;
-			this.Offset = offset;
+			Index = index;
+			Offset = offset;
 		}
 
 		public PmxUVMorph(PmxUVMorph sv)
 			: this()
 		{
-			this.FromPmxUVMorph(sv);
+			FromPmxUVMorph(sv);
 		}
 
 		public void FromPmxUVMorph(PmxUVMorph sv)
 		{
-			this.Index = sv.Index;
-			this.Offset = sv.Offset;
+			FromPmxBaseMorph(sv);
+			Offset = sv.Offset;
 		}
 
-		public override void FromStreamEx(Stream s, PmxElementFormat size = null)
+		public override void FromStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			this.Index = PmxStreamHelper.ReadElement_Int32(s, size.VertexSize, false);
-			this.Offset = V4_BytesConvert.FromStream(s);
+			base.FromStreamEx(s, f);
+			Index = PmxStreamHelper.ReadElement_Int32(s, f.VertexSize, signed: false);
+			Offset = V4_BytesConvert.FromStream(s);
 		}
 
-		public override void ToStreamEx(Stream s, PmxElementFormat size = null)
+		public override void ToStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			PmxStreamHelper.WriteElement_Int32(s, this.Index, size.VertexSize, false);
-			V4_BytesConvert.ToStream(s, this.Offset);
+			base.ToStreamEx(s, f);
+			PmxStreamHelper.WriteElement_Int32(s, Index, f.VertexSize, signed: false);
+			V4_BytesConvert.ToStream(s, Offset);
 		}
 
 		object ICloneable.Clone()

@@ -4,7 +4,7 @@ using System.IO;
 
 namespace PmxLib
 {
-	public class PmxNode : IPmxObjectKey, IPmxStreamIO, ICloneable, INXName
+	internal class PmxNode : PmxIDObject, IPmxObjectKey, IPmxStreamIO, ICloneable, INXName
 	{
 		public enum ElementType
 		{
@@ -12,19 +12,13 @@ namespace PmxLib
 			Morph
 		}
 
-		public class NodeElement : IPmxObjectKey, IPmxStreamIO, ICloneable
+		public class NodeElement : PmxIDObject, IPmxObjectKey, IPmxStreamIO, ICloneable
 		{
 			public ElementType ElementType;
 
 			public int Index;
 
-			PmxObject IPmxObjectKey.ObjectKey
-			{
-				get
-				{
-					return PmxObject.NodeElement;
-				}
-			}
+			PmxObjectType IPmxObjectKey.ObjectKey => PmxObjectType.NodeElement;
 
 			public PmxBone RefBone
 			{
@@ -43,58 +37,72 @@ namespace PmxLib
 			}
 
 			public NodeElement(NodeElement e)
+				: this()
 			{
-				this.FromNodeElement(e);
+				FromNodeElement(e);
 			}
 
 			public void FromNodeElement(NodeElement e)
 			{
-				this.ElementType = e.ElementType;
-				this.Index = e.Index;
+				ElementType = e.ElementType;
+				Index = e.Index;
+				FromID(e);
 			}
 
 			public void FromStreamEx(Stream s, PmxElementFormat f = null)
 			{
-				this.ElementType = (ElementType)s.ReadByte();
-				switch (this.ElementType)
+				ElementType = (ElementType)s.ReadByte();
+				switch (ElementType)
 				{
 				case ElementType.Bone:
-					this.Index = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize, true);
+					Index = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize);
 					break;
 				case ElementType.Morph:
-					this.Index = PmxStreamHelper.ReadElement_Int32(s, f.MorphSize, true);
+					Index = PmxStreamHelper.ReadElement_Int32(s, f.MorphSize);
 					break;
+				}
+				if (f.WithID)
+				{
+					base.UID = PmxStreamHelper.ReadElement_UInt(s);
+					base.CID = PmxStreamHelper.ReadElement_UInt(s);
 				}
 			}
 
 			public void ToStreamEx(Stream s, PmxElementFormat f = null)
 			{
-				s.WriteByte((byte)this.ElementType);
-				switch (this.ElementType)
+				s.WriteByte((byte)ElementType);
+				switch (ElementType)
 				{
 				case ElementType.Bone:
-					PmxStreamHelper.WriteElement_Int32(s, this.Index, f.BoneSize, true);
+					PmxStreamHelper.WriteElement_Int32(s, Index, f.BoneSize);
 					break;
 				case ElementType.Morph:
-					PmxStreamHelper.WriteElement_Int32(s, this.Index, f.MorphSize, true);
+					PmxStreamHelper.WriteElement_Int32(s, Index, f.MorphSize);
 					break;
+				}
+				if (f.WithID)
+				{
+					PmxStreamHelper.WriteElement_UInt(s, base.UID);
+					PmxStreamHelper.WriteElement_UInt(s, base.CID);
 				}
 			}
 
 			public static NodeElement BoneElement(int index)
 			{
-				NodeElement nodeElement = new NodeElement();
-				nodeElement.ElementType = ElementType.Bone;
-				nodeElement.Index = index;
-				return nodeElement;
+				return new NodeElement
+				{
+					ElementType = ElementType.Bone,
+					Index = index
+				};
 			}
 
 			public static NodeElement MorphElement(int index)
 			{
-				NodeElement nodeElement = new NodeElement();
-				nodeElement.ElementType = ElementType.Morph;
-				nodeElement.Index = index;
-				return nodeElement;
+				return new NodeElement
+				{
+					ElementType = ElementType.Morph,
+					Index = index
+				};
 			}
 
 			object ICloneable.Clone()
@@ -112,13 +120,7 @@ namespace PmxLib
 
 		public List<NodeElement> ElementList;
 
-		PmxObject IPmxObjectKey.ObjectKey
-		{
-			get
-			{
-				return PmxObject.Node;
-			}
-		}
+		PmxObjectType IPmxObjectKey.ObjectKey => PmxObjectType.Node;
 
 		public string Name
 		{
@@ -136,81 +138,92 @@ namespace PmxLib
 		{
 			get
 			{
-				return this.Name;
+				return Name;
 			}
 			set
 			{
-				this.Name = value;
+				Name = value;
 			}
 		}
 
 		public PmxNode()
 		{
-			this.Name = "";
-			this.NameE = "";
-			this.SystemNode = false;
-			this.ElementList = new List<NodeElement>();
+			Name = "";
+			NameE = "";
+			SystemNode = false;
+			ElementList = new List<NodeElement>();
 		}
 
 		public PmxNode(PmxNode node, bool nonStr = false)
 			: this()
 		{
-			this.FromPmxNode(node, nonStr);
+			FromPmxNode(node, nonStr);
 		}
 
 		public void FromPmxNode(PmxNode node, bool nonStr = false)
 		{
 			if (!nonStr)
 			{
-				this.Name = node.Name;
-				this.NameE = node.NameE;
+				Name = node.Name;
+				NameE = node.NameE;
 			}
-			this.SystemNode = node.SystemNode;
+			SystemNode = node.SystemNode;
 			int count = node.ElementList.Count;
-			this.ElementList.Clear();
-			this.ElementList.Capacity = count;
+			ElementList.Clear();
+			ElementList.Capacity = count;
 			for (int i = 0; i < count; i++)
 			{
-				this.ElementList.Add(node.ElementList[i].Clone());
+				ElementList.Add(node.ElementList[i].Clone());
 			}
+			FromID(node);
 		}
 
 		public void FromStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			this.Name = PmxStreamHelper.ReadString(s, f);
-			this.NameE = PmxStreamHelper.ReadString(s, f);
-			this.SystemNode = (s.ReadByte() != 0);
-			int num = PmxStreamHelper.ReadElement_Int32(s, 4, true);
-			this.ElementList.Clear();
-			this.ElementList.Capacity = num;
+			Name = PmxStreamHelper.ReadString(s, f);
+			NameE = PmxStreamHelper.ReadString(s, f);
+			SystemNode = (s.ReadByte() != 0);
+			int num = PmxStreamHelper.ReadElement_Int32(s);
+			ElementList.Clear();
+			ElementList.Capacity = num;
 			for (int i = 0; i < num; i++)
 			{
 				NodeElement nodeElement = new NodeElement();
 				nodeElement.FromStreamEx(s, f);
-				this.ElementList.Add(nodeElement);
+				ElementList.Add(nodeElement);
+			}
+			if (f.WithID)
+			{
+				base.UID = PmxStreamHelper.ReadElement_UInt(s);
+				base.CID = PmxStreamHelper.ReadElement_UInt(s);
 			}
 		}
 
 		public void ToStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			PmxStreamHelper.WriteString(s, this.Name, f);
-			PmxStreamHelper.WriteString(s, this.NameE, f);
-			s.WriteByte((byte)(this.SystemNode ? 1 : 0));
-			PmxStreamHelper.WriteElement_Int32(s, this.ElementList.Count, 4, true);
-			for (int i = 0; i < this.ElementList.Count; i++)
+			PmxStreamHelper.WriteString(s, Name, f);
+			PmxStreamHelper.WriteString(s, NameE, f);
+			s.WriteByte((byte)(SystemNode ? 1u : 0u));
+			PmxStreamHelper.WriteElement_Int32(s, ElementList.Count);
+			for (int i = 0; i < ElementList.Count; i++)
 			{
-				this.ElementList[i].ToStreamEx(s, f);
+				ElementList[i].ToStreamEx(s, f);
+			}
+			if (f.WithID)
+			{
+				PmxStreamHelper.WriteElement_UInt(s, base.UID);
+				PmxStreamHelper.WriteElement_UInt(s, base.CID);
 			}
 		}
 
 		object ICloneable.Clone()
 		{
-			return new PmxNode(this, false);
+			return new PmxNode(this);
 		}
 
 		public PmxNode Clone()
 		{
-			return new PmxNode(this, false);
+			return new PmxNode(this);
 		}
 	}
 }

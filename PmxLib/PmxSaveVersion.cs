@@ -1,6 +1,6 @@
 namespace PmxLib
 {
-	public enum PmxSaveVersion
+	internal enum PmxSaveVersion
 	{
 		AutoSelect,
 		PMX2_0,

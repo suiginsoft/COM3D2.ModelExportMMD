@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace PmxLib
 {
-	public class VmdMotionIPL : IBytesConvert, ICloneable
+	internal class VmdMotionIPL : IBytesConvert, ICloneable
 	{
 		public VmdIplData MoveX = new VmdIplData();
 
@@ -13,13 +13,7 @@ namespace PmxLib
 
 		public VmdIplData Rotate = new VmdIplData();
 
-		public int ByteCount
-		{
-			get
-			{
-				return 16;
-			}
-		}
+		public int ByteCount => 16;
 
 		public VmdMotionIPL()
 		{
@@ -27,67 +21,69 @@ namespace PmxLib
 
 		public VmdMotionIPL(VmdMotionIPL ipl)
 		{
-			this.MoveX = (VmdIplData)ipl.MoveX.Clone();
-			this.MoveY = (VmdIplData)ipl.MoveY.Clone();
-			this.MoveZ = (VmdIplData)ipl.MoveZ.Clone();
-			this.Rotate = (VmdIplData)ipl.Rotate.Clone();
+			MoveX = (VmdIplData)ipl.MoveX.Clone();
+			MoveY = (VmdIplData)ipl.MoveY.Clone();
+			MoveZ = (VmdIplData)ipl.MoveZ.Clone();
+			Rotate = (VmdIplData)ipl.Rotate.Clone();
 		}
 
 		public byte[] ToBytes()
 		{
-			List<byte> list = new List<byte>();
-			list.Add((byte)this.MoveX.P1.X);
-			list.Add((byte)this.MoveX.P1.Y);
-			list.Add((byte)this.MoveX.P2.X);
-			list.Add((byte)this.MoveX.P2.Y);
-			list.Add((byte)this.MoveY.P1.X);
-			list.Add((byte)this.MoveY.P1.Y);
-			list.Add((byte)this.MoveY.P2.X);
-			list.Add((byte)this.MoveY.P2.Y);
-			list.Add((byte)this.MoveZ.P1.X);
-			list.Add((byte)this.MoveZ.P1.Y);
-			list.Add((byte)this.MoveZ.P2.X);
-			list.Add((byte)this.MoveZ.P2.Y);
-			list.Add((byte)this.Rotate.P1.X);
-			list.Add((byte)this.Rotate.P1.Y);
-			list.Add((byte)this.Rotate.P2.X);
-			list.Add((byte)this.Rotate.P2.Y);
-			return list.ToArray();
+			return new List<byte>
+			{
+				(byte)MoveX.P1.X,
+				(byte)MoveX.P1.Y,
+				(byte)MoveX.P2.X,
+				(byte)MoveX.P2.Y,
+				(byte)MoveY.P1.X,
+				(byte)MoveY.P1.Y,
+				(byte)MoveY.P2.X,
+				(byte)MoveY.P2.Y,
+				(byte)MoveZ.P1.X,
+				(byte)MoveZ.P1.Y,
+				(byte)MoveZ.P2.X,
+				(byte)MoveZ.P2.Y,
+				(byte)Rotate.P1.X,
+				(byte)Rotate.P1.Y,
+				(byte)Rotate.P2.X,
+				(byte)Rotate.P2.Y
+			}.ToArray();
 		}
 
 		public void FromBytes(byte[] bytes, int startIndex)
 		{
-			this.MoveX.P1.X = bytes[startIndex];
-			int num = startIndex + 1;
-			this.MoveX.P1.Y = bytes[num];
+			int num = startIndex;
+			MoveX.P1.X = bytes[num];
 			num++;
-			this.MoveX.P2.X = bytes[num];
+			MoveX.P1.Y = bytes[num];
 			num++;
-			this.MoveX.P2.Y = bytes[num];
+			MoveX.P2.X = bytes[num];
 			num++;
-			this.MoveY.P1.X = bytes[num];
+			MoveX.P2.Y = bytes[num];
 			num++;
-			this.MoveY.P1.Y = bytes[num];
+			MoveY.P1.X = bytes[num];
 			num++;
-			this.MoveY.P2.X = bytes[num];
+			MoveY.P1.Y = bytes[num];
 			num++;
-			this.MoveY.P2.Y = bytes[num];
+			MoveY.P2.X = bytes[num];
 			num++;
-			this.MoveZ.P1.X = bytes[num];
+			MoveY.P2.Y = bytes[num];
 			num++;
-			this.MoveZ.P1.Y = bytes[num];
+			MoveZ.P1.X = bytes[num];
 			num++;
-			this.MoveZ.P2.X = bytes[num];
+			MoveZ.P1.Y = bytes[num];
 			num++;
-			this.MoveZ.P2.Y = bytes[num];
+			MoveZ.P2.X = bytes[num];
 			num++;
-			this.Rotate.P1.X = bytes[num];
+			MoveZ.P2.Y = bytes[num];
 			num++;
-			this.Rotate.P1.Y = bytes[num];
+			Rotate.P1.X = bytes[num];
 			num++;
-			this.Rotate.P2.X = bytes[num];
+			Rotate.P1.Y = bytes[num];
 			num++;
-			this.Rotate.P2.Y = bytes[num];
+			Rotate.P2.X = bytes[num];
+			num++;
+			Rotate.P2.Y = bytes[num];
 			num++;
 		}
 

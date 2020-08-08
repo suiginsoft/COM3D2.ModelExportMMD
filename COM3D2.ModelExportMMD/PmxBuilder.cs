@@ -44,38 +44,30 @@ namespace COM3D2.ModelExportMMD
 
         public void CreatePmxHeader()
         {
-            PmxElementFormat pmxElementFormat = new PmxElementFormat(1f);
+            PmxElementFormat pmxElementFormat = new PmxElementFormat(2.1f);
             pmxElementFormat.VertexSize = PmxElementFormat.GetUnsignedBufSize(this.pmxFile.VertexList.Count);
             int val = -2147483648;
             for (int i = 0; i < this.pmxFile.BoneList.Count; i++)
-            {
                 val = Math.Max(val, Math.Abs(this.pmxFile.BoneList[i].IK.LinkList.Count));
-            }
             val = Math.Max(val, this.pmxFile.BoneList.Count);
             pmxElementFormat.BoneSize = PmxElementFormat.GetSignedBufSize(val);
             if (pmxElementFormat.BoneSize < 2)
-            {
                 pmxElementFormat.BoneSize = 2;
-            }
             pmxElementFormat.MorphSize = PmxElementFormat.GetUnsignedBufSize(this.pmxFile.MorphList.Count);
             pmxElementFormat.MaterialSize = PmxElementFormat.GetUnsignedBufSize(this.pmxFile.MaterialList.Count);
             pmxElementFormat.BodySize = PmxElementFormat.GetUnsignedBufSize(this.pmxFile.BodyList.Count);
-            PmxHeader pmxHeader = new PmxHeader(2.1f);
-            pmxHeader.FromElementFormat(pmxElementFormat);
-            this.pmxFile.Header = pmxHeader;
+            this.pmxFile.Header.FromElementFormat(pmxElementFormat);
         }
 
         public void CreateModelInfo()
         {
-            PmxModelInfo pmxModelInfo = new PmxModelInfo();
-            pmxModelInfo.ModelName = "妹抖";
-            pmxModelInfo.ModelNameE = "maid";
-            pmxModelInfo.Comment = "我的妹抖";
-            pmxModelInfo.CommentE = "my maid";
-            this.pmxFile.ModelInfo = pmxModelInfo;
+            this.pmxFile.ModelInfo.ModelName = "妹抖";
+            this.pmxFile.ModelInfo.ModelNameE = "maid";
+            this.pmxFile.ModelInfo.Comment = "我的妹抖";
+            this.pmxFile.ModelInfo.CommentE = "my maid";
         }
 
-        public PmxVertex.BoneWeight[] ConvertBoneWeight(BoneWeight unityWeight, Transform[] bones, SkinQuality quality)
+        internal PmxVertex.BoneWeight[] ConvertBoneWeight(BoneWeight unityWeight, Transform[] bones, SkinQuality quality)
         {
             int n = (int)quality;
             if (n < 1) n = 1;
@@ -262,7 +254,7 @@ namespace COM3D2.ModelExportMMD
             }
         }
 
-        public PmxBody CreateColliderBody(Collider rigidbody)
+        internal PmxBody CreateColliderBody(Collider rigidbody)
         {
             PmxBody pmxBody = new PmxBody();
             pmxBody.Name = rigidbody.name;
@@ -276,7 +268,7 @@ namespace COM3D2.ModelExportMMD
             return pmxBody;
         }
 
-        public void CreateMaterial(Material material, int count)
+        private void CreateMaterial(Material material, int count)
         {
             PmxMaterial pmxMaterial = new PmxMaterial();
             pmxMaterial.Name = material.name;
@@ -300,19 +292,19 @@ namespace COM3D2.ModelExportMMD
             }
             if (material.HasProperty("_Color"))
             {
-                pmxMaterial.Diffuse = material.GetColor("_Color");
+                pmxMaterial.Diffuse = new PmxLib.Vector4(material.GetColor("_Color"));
             }
             if (material.HasProperty("_AmbColor"))
             {
-                pmxMaterial.Ambient = material.GetColor("_AmbColor");
+                pmxMaterial.Ambient = new PmxLib.Vector3(material.GetColor("_AmbColor"));
             }
             if (material.HasProperty("_Opacity"))
             {
-                pmxMaterial.Diffuse.a = material.GetFloat("_Opacity");
+                pmxMaterial.Diffuse.Alpha = material.GetFloat("_Opacity");
             }
             if (material.HasProperty("_SpecularColor"))
             {
-                pmxMaterial.Specular = material.GetColor("_SpecularColor");
+                pmxMaterial.Specular = new PmxLib.Vector3(material.GetColor("_SpecularColor"));
             }
             if (material.HasProperty("_Shininess"))
             {
@@ -320,7 +312,7 @@ namespace COM3D2.ModelExportMMD
             if (material.HasProperty("_OutlineColor"))
             {
                 pmxMaterial.EdgeSize = material.GetFloat("_OutlineWidth");
-                pmxMaterial.EdgeColor = material.GetColor("_OutlineColor");
+                pmxMaterial.EdgeColor = new PmxLib.Vector4(material.GetColor("_OutlineColor"));
             }
             pmxMaterial.FaceCount = count;
             this.pmxFile.MaterialList.Add(pmxMaterial);

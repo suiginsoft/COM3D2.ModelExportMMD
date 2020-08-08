@@ -25,9 +25,7 @@ namespace PmxLib
 
 		public static void SetReadme(Pmx pmx, string path)
 		{
-			PmxModelInfo modelInfo = pmx.ModelInfo;
-			PmxModelInfo pmxModelInfo = modelInfo;
-			pmxModelInfo.CommentE += Environment.NewLine;
+			pmx.ModelInfo.CommentE += Environment.NewLine;
 			PmxTag.SetTag("readme", pmx.ModelInfo.CommentE);
 		}
 

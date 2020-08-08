@@ -26,12 +26,9 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System.Core">
-      <HintPath>C:\Windows\assembly\GAC_MSIL\System.Core\3.5.0.0__b77a5c561934e089\System.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="System">
-      <HintPath>C:\Windows\assembly\GAC_MSIL\System\2.0.0.0__b77a5c561934e089\System.dll</HintPath>
-    </Reference>
+    <Reference Include="System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL" />
+    <Reference Include="System.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL" />
+    <Reference Include="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System.XML" />
     <Reference Include="UnityEngine" />
     <Reference Include="UnityInjector" />
@@ -46,11 +43,13 @@
     <Compile Include="PmxLib\BytesStringProc.cs" />
     <Compile Include="PmxLib\CExt.cs" />
     <Compile Include="PmxLib\CMath.cs" />
+    <Compile Include="PmxLib\ColorConvert.cs" />
     <Compile Include="PmxLib\CP.cs" />
     <Compile Include="PmxLib\IBytesConvert.cs" />
     <Compile Include="PmxLib\IDObject.cs" />
     <Compile Include="PmxLib\IDOverflowException.cs" />
     <Compile Include="PmxLib\INXName.cs" />
+    <Compile Include="PmxLib\IPmxID.cs" />
     <Compile Include="PmxLib\IPmxObjectKey.cs" />
     <Compile Include="PmxLib\IPmxStreamIO.cs" />
     <Compile Include="PmxLib\Matrix.cs" />
@@ -65,17 +64,17 @@
     <Compile Include="PmxLib\PmxFace.cs" />
     <Compile Include="PmxLib\PmxGroupMorph.cs" />
     <Compile Include="PmxLib\PmxHeader.cs" />
+    <Compile Include="PmxLib\PmxIDObject.cs" />
     <Compile Include="PmxLib\PmxIK.cs" />
     <Compile Include="PmxLib\PmxImpulseMorph.cs" />
     <Compile Include="PmxLib\PmxJoint.cs" />
-    <Compile Include="PmxLib\PmxLibClass.cs" />
     <Compile Include="PmxLib\PmxMaterial.cs" />
     <Compile Include="PmxLib\PmxMaterialAttribute.cs" />
     <Compile Include="PmxLib\PmxMaterialMorph.cs" />
     <Compile Include="PmxLib\PmxModelInfo.cs" />
     <Compile Include="PmxLib\PmxMorph.cs" />
     <Compile Include="PmxLib\PmxNode.cs" />
-    <Compile Include="PmxLib\PmxObject.cs" />
+    <Compile Include="PmxLib\PmxObjectType.cs" />
     <Compile Include="PmxLib\PmxReadmeTag.cs" />
     <Compile Include="PmxLib\PmxSaveVersion.cs" />
     <Compile Include="PmxLib\PmxSoftBody.cs" />
@@ -88,6 +87,7 @@
     <Compile Include="PmxLib\Point.cs" />
     <Compile Include="PmxLib\Quaternion.cs" />
     <Compile Include="PmxLib\SystemToon.cs" />
+    <Compile Include="PmxLib\uID.cs" />
     <Compile Include="PmxLib\V2_BytesConvert.cs" />
     <Compile Include="PmxLib\V3_BytesConvert.cs" />
     <Compile Include="PmxLib\V4_BytesConvert.cs" />

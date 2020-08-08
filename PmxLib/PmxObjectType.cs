@@ -1,6 +1,6 @@
 namespace PmxLib
 {
-	public enum PmxObject
+	internal enum PmxObjectType
 	{
 		None,
 		Pmx,

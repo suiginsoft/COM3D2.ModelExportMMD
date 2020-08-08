@@ -1,20 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
 
 namespace PmxLib
 {
-	public class PmxMaterial : IPmxObjectKey, IPmxStreamIO, ICloneable, INXName
+	internal class PmxMaterial : PmxIDObject, IPmxObjectKey, IPmxStreamIO, ICloneable, INXName
 	{
 		[Flags]
 		public enum MaterialFlags
 		{
-			None = 0,
-			DrawBoth = 1,
-			Shadow = 2,
-			SelfShadowMap = 4,
-			SelfShadow = 8,
+			None = 0x0,
+			DrawBoth = 0x1,
+			Shadow = 0x2,
+			SelfShadowMap = 0x4,
+			SelfShadow = 0x8,
 			Edge = 0x10,
 			VertexColor = 0x20,
 			PointDraw = 0x40,
@@ -36,19 +35,19 @@ namespace PmxLib
 			SubTex
 		}
 
-		public Color Diffuse;
+		public Vector4 Diffuse;
 
-		public Color Specular;
+		public Vector3 Specular;
 
 		public float Power;
 
-		public Color Ambient;
+		public Vector3 Ambient;
 
 		public ExDrawMode ExDraw;
 
 		public MaterialFlags Flags;
 
-		public Color EdgeColor;
+		public Vector4 EdgeColor;
 
 		public float EdgeSize;
 
@@ -60,15 +59,7 @@ namespace PmxLib
 
 		public PmxMaterialMorph.MorphData OffsetAdd;
 
-		public List<PmxFace> FaceList;
-
-		PmxObject IPmxObjectKey.ObjectKey
-		{
-			get
-			{
-				return PmxObject.Material;
-			}
-		}
+		PmxObjectType IPmxObjectKey.ObjectKey => PmxObjectType.Material;
 
 		public string Name
 		{
@@ -116,203 +107,214 @@ namespace PmxLib
 		{
 			get
 			{
-				return this.Name;
+				return Name;
 			}
 			set
 			{
-				this.Name = value;
+				Name = value;
 			}
 		}
 
 		public void ClearFlags()
 		{
-			this.Flags = MaterialFlags.None;
+			Flags = MaterialFlags.None;
 		}
 
 		public bool GetFlag(MaterialFlags f)
 		{
-			return (f & this.Flags) == f;
+			return (f & Flags) == f;
 		}
 
 		public void SetFlag(MaterialFlags f, bool val)
 		{
 			if (val)
 			{
-				this.Flags |= f;
+				Flags |= f;
 			}
 			else
 			{
-				this.Flags &= ~f;
+				Flags &= ~f;
 			}
 		}
 
 		public void ClearOffset()
 		{
-			this.OffsetMul.Clear(PmxMaterialMorph.OpType.Mul);
-			this.OffsetAdd.Clear(PmxMaterialMorph.OpType.Add);
+			OffsetMul.Clear(PmxMaterialMorph.OpType.Mul);
+			OffsetAdd.Clear(PmxMaterialMorph.OpType.Add);
 		}
 
 		public void UpdateAttributeFromMemo()
 		{
-			this.Attribute.SetFromText(this.Memo);
+			Attribute.SetFromText(Memo);
 		}
 
 		public PmxMaterial()
 		{
-			this.Name = "";
-			this.NameE = "";
-			this.Diffuse = new Color(0f, 0f, 0f);
-			this.Specular = new Color(0f, 0f, 0f);
-			this.Power = 0f;
-			this.Ambient = new Color(0f, 0f, 0f);
-			this.ClearFlags();
-			this.EdgeColor = new Color(0f, 0f, 0f);
-			this.EdgeSize = 1f;
-			this.Tex = "";
-			this.Sphere = "";
-			this.SphereMode = SphereModeType.Mul;
-			this.Toon = "";
-			this.Memo = "";
-			this.OffsetMul = default(PmxMaterialMorph.MorphData);
-			this.OffsetAdd = default(PmxMaterialMorph.MorphData);
-			this.ClearOffset();
-			this.ExDraw = ExDrawMode.F3;
-			this.Attribute = new PmxMaterialAttribute();
+			Name = "";
+			NameE = "";
+			Diffuse = new Vector4(0f, 0f, 0f, 1f);
+			Specular = new Vector3(0f, 0f, 0f);
+			Power = 0f;
+			Ambient = new Vector3(0f, 0f, 0f);
+			ClearFlags();
+			EdgeColor = new Vector4(0f, 0f, 0f, 1f);
+			EdgeSize = 1f;
+			Tex = "";
+			Sphere = "";
+			SphereMode = SphereModeType.Mul;
+			Toon = "";
+			Memo = "";
+			OffsetMul = default(PmxMaterialMorph.MorphData);
+			OffsetAdd = default(PmxMaterialMorph.MorphData);
+			ClearOffset();
+			ExDraw = ExDrawMode.F3;
+			Attribute = new PmxMaterialAttribute();
 		}
 
 		public PmxMaterial(PmxMaterial m, bool nonStr = false)
 			: this()
 		{
-			this.FromPmxMaterial(m, nonStr);
+			FromPmxMaterial(m, nonStr);
 		}
 
 		public void FromPmxMaterial(PmxMaterial m, bool nonStr = false)
 		{
-			this.Diffuse = m.Diffuse;
-			this.Specular = m.Specular;
-			this.Power = m.Power;
-			this.Ambient = m.Ambient;
-			this.Flags = m.Flags;
-			this.EdgeColor = m.EdgeColor;
-			this.EdgeSize = m.EdgeSize;
-			this.SphereMode = m.SphereMode;
-			this.FaceCount = m.FaceCount;
-			this.ExDraw = m.ExDraw;
+			Diffuse = m.Diffuse;
+			Specular = m.Specular;
+			Power = m.Power;
+			Ambient = m.Ambient;
+			Flags = m.Flags;
+			EdgeColor = m.EdgeColor;
+			EdgeSize = m.EdgeSize;
+			SphereMode = m.SphereMode;
+			FaceCount = m.FaceCount;
+			ExDraw = m.ExDraw;
 			if (!nonStr)
 			{
-				this.Name = m.Name;
-				this.NameE = m.NameE;
-				this.Tex = m.Tex;
-				this.Sphere = m.Sphere;
-				this.Toon = m.Toon;
-				this.Memo = m.Memo;
+				Name = m.Name;
+				NameE = m.NameE;
+				Tex = m.Tex;
+				Sphere = m.Sphere;
+				Toon = m.Toon;
+				Memo = m.Memo;
 			}
-			this.Attribute = m.Attribute;
+			Attribute = m.Attribute;
+			FromID(m);
 		}
 
 		public void FromStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			this.Name = PmxStreamHelper.ReadString(s, f);
-			this.NameE = PmxStreamHelper.ReadString(s, f);
-			this.Diffuse = V4_BytesConvert.Vector4ToColor(V4_BytesConvert.FromStream(s));
-			this.Specular = V3_BytesConvert.Vector3ToColor(V3_BytesConvert.FromStream(s));
-			this.Power = PmxStreamHelper.ReadElement_Float(s);
-			this.Ambient = V3_BytesConvert.Vector3ToColor(V3_BytesConvert.FromStream(s));
-			this.Flags = (MaterialFlags)s.ReadByte();
-			this.EdgeColor = V4_BytesConvert.Vector4ToColor(V4_BytesConvert.FromStream(s));
-			this.EdgeSize = PmxStreamHelper.ReadElement_Float(s);
-			this.Tex = PmxStreamHelper.ReadString(s, f);
-			this.Sphere = PmxStreamHelper.ReadString(s, f);
-			this.SphereMode = (SphereModeType)s.ReadByte();
-			this.Toon = PmxStreamHelper.ReadString(s, f);
-			this.Memo = PmxStreamHelper.ReadString(s, f);
-			this.FaceCount = PmxStreamHelper.ReadElement_Int32(s, 4, true);
+			Name = PmxStreamHelper.ReadString(s, f);
+			NameE = PmxStreamHelper.ReadString(s, f);
+			Diffuse = V4_BytesConvert.FromStream(s);
+			Specular = V3_BytesConvert.FromStream(s);
+			Power = PmxStreamHelper.ReadElement_Float(s);
+			Ambient = V3_BytesConvert.FromStream(s);
+			Flags = (MaterialFlags)s.ReadByte();
+			EdgeColor = V4_BytesConvert.FromStream(s);
+			EdgeSize = PmxStreamHelper.ReadElement_Float(s);
+			Tex = PmxStreamHelper.ReadString(s, f);
+			Sphere = PmxStreamHelper.ReadString(s, f);
+			SphereMode = (SphereModeType)s.ReadByte();
+			Toon = PmxStreamHelper.ReadString(s, f);
+			Memo = PmxStreamHelper.ReadString(s, f);
+			FaceCount = PmxStreamHelper.ReadElement_Int32(s);
 		}
 
 		public void ToStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			PmxStreamHelper.WriteString(s, this.Name, f);
-			PmxStreamHelper.WriteString(s, this.NameE, f);
-			V4_BytesConvert.ToStream(s, V4_BytesConvert.ColorToVector4(this.Diffuse));
-			V3_BytesConvert.ToStream(s, V3_BytesConvert.ColorToVector3(this.Specular));
-			PmxStreamHelper.WriteElement_Float(s, this.Power);
-			V3_BytesConvert.ToStream(s, V3_BytesConvert.ColorToVector3(this.Ambient));
-			s.WriteByte((byte)this.Flags);
-			V4_BytesConvert.ToStream(s, V4_BytesConvert.ColorToVector4(this.EdgeColor));
-			PmxStreamHelper.WriteElement_Float(s, this.EdgeSize);
-			PmxStreamHelper.WriteString(s, this.Tex, f);
-			PmxStreamHelper.WriteString(s, this.Sphere, f);
-			s.WriteByte((byte)this.SphereMode);
-			PmxStreamHelper.WriteString(s, this.Toon, f);
-			PmxStreamHelper.WriteString(s, this.Memo, f);
-			PmxStreamHelper.WriteElement_Int32(s, this.FaceCount, 4, true);
+			PmxStreamHelper.WriteString(s, Name, f);
+			PmxStreamHelper.WriteString(s, NameE, f);
+			V4_BytesConvert.ToStream(s, Diffuse);
+			V3_BytesConvert.ToStream(s, Specular);
+			PmxStreamHelper.WriteElement_Float(s, Power);
+			V3_BytesConvert.ToStream(s, Ambient);
+			s.WriteByte((byte)Flags);
+			V4_BytesConvert.ToStream(s, EdgeColor);
+			PmxStreamHelper.WriteElement_Float(s, EdgeSize);
+			PmxStreamHelper.WriteString(s, Tex, f);
+			PmxStreamHelper.WriteString(s, Sphere, f);
+			s.WriteByte((byte)SphereMode);
+			PmxStreamHelper.WriteString(s, Toon, f);
+			PmxStreamHelper.WriteString(s, Memo, f);
+			PmxStreamHelper.WriteElement_Int32(s, FaceCount);
 		}
 
 		public void FromStreamEx_TexTable(Stream s, PmxTextureTable tx, PmxElementFormat f = null)
 		{
-			this.Name = PmxStreamHelper.ReadString(s, f);
-			this.NameE = PmxStreamHelper.ReadString(s, f);
-			this.Diffuse = V4_BytesConvert.Vector4ToColor(V4_BytesConvert.FromStream(s));
-			this.Specular = V4_BytesConvert.Vector4ToColor(V4_BytesConvert.FromStream(s));
-			this.Power = PmxStreamHelper.ReadElement_Float(s);
-			this.Ambient = V4_BytesConvert.Vector4ToColor(V4_BytesConvert.FromStream(s));
-			this.Flags = (MaterialFlags)s.ReadByte();
-			this.EdgeColor = V4_BytesConvert.Vector4ToColor(V4_BytesConvert.FromStream(s));
-			this.EdgeSize = PmxStreamHelper.ReadElement_Float(s);
-			this.Tex = tx.GetName(PmxStreamHelper.ReadElement_Int32(s, f.TexSize, true));
-			this.Sphere = tx.GetName(PmxStreamHelper.ReadElement_Int32(s, f.TexSize, true));
-			this.SphereMode = (SphereModeType)s.ReadByte();
+			Name = PmxStreamHelper.ReadString(s, f);
+			NameE = PmxStreamHelper.ReadString(s, f);
+			Diffuse = V4_BytesConvert.FromStream(s);
+			Specular = V3_BytesConvert.FromStream(s);
+			Power = PmxStreamHelper.ReadElement_Float(s);
+			Ambient = V3_BytesConvert.FromStream(s);
+			Flags = (MaterialFlags)s.ReadByte();
+			EdgeColor = V4_BytesConvert.FromStream(s);
+			EdgeSize = PmxStreamHelper.ReadElement_Float(s);
+			Tex = tx.GetName(PmxStreamHelper.ReadElement_Int32(s, f.TexSize));
+			Sphere = tx.GetName(PmxStreamHelper.ReadElement_Int32(s, f.TexSize));
+			SphereMode = (SphereModeType)s.ReadByte();
 			if (s.ReadByte() == 0)
 			{
-				this.Toon = tx.GetName(PmxStreamHelper.ReadElement_Int32(s, f.TexSize, true));
+				Toon = tx.GetName(PmxStreamHelper.ReadElement_Int32(s, f.TexSize));
 			}
 			else
 			{
 				int n = s.ReadByte();
-				this.Toon = SystemToon.GetToonName(n);
+				Toon = SystemToon.GetToonName(n);
 			}
-			this.Memo = PmxStreamHelper.ReadString(s, f);
-			this.UpdateAttributeFromMemo();
-			this.FaceCount = PmxStreamHelper.ReadElement_Int32(s, 4, true);
+			Memo = PmxStreamHelper.ReadString(s, f);
+			UpdateAttributeFromMemo();
+			FaceCount = PmxStreamHelper.ReadElement_Int32(s);
+			if (f.WithID)
+			{
+				base.UID = PmxStreamHelper.ReadElement_UInt(s);
+				base.CID = PmxStreamHelper.ReadElement_UInt(s);
+			}
 		}
 
 		public void ToStreamEx_TexTable(Stream s, PmxTextureTable tx, PmxElementFormat f = null)
 		{
-			PmxStreamHelper.WriteString(s, this.Name, f);
-			PmxStreamHelper.WriteString(s, this.NameE, f);
-			V4_BytesConvert.ToStream(s, V4_BytesConvert.ColorToVector4(this.Diffuse));
-			V3_BytesConvert.ToStream(s, V3_BytesConvert.ColorToVector3(this.Specular));
-			PmxStreamHelper.WriteElement_Float(s, this.Power);
-			V3_BytesConvert.ToStream(s, V3_BytesConvert.ColorToVector3(this.Ambient));
-			s.WriteByte((byte)this.Flags);
-			V4_BytesConvert.ToStream(s, V4_BytesConvert.ColorToVector4(this.EdgeColor));
-			PmxStreamHelper.WriteElement_Float(s, this.EdgeSize);
-			PmxStreamHelper.WriteElement_Int32(s, tx.GetIndex(this.Tex), f.TexSize, true);
-			PmxStreamHelper.WriteElement_Int32(s, tx.GetIndex(this.Sphere), f.TexSize, true);
-			s.WriteByte((byte)this.SphereMode);
-			int toonIndex = SystemToon.GetToonIndex(this.Toon);
+			PmxStreamHelper.WriteString(s, Name, f);
+			PmxStreamHelper.WriteString(s, NameE, f);
+			V4_BytesConvert.ToStream(s, Diffuse);
+			V3_BytesConvert.ToStream(s, Specular);
+			PmxStreamHelper.WriteElement_Float(s, Power);
+			V3_BytesConvert.ToStream(s, Ambient);
+			s.WriteByte((byte)Flags);
+			V4_BytesConvert.ToStream(s, EdgeColor);
+			PmxStreamHelper.WriteElement_Float(s, EdgeSize);
+			PmxStreamHelper.WriteElement_Int32(s, tx.GetIndex(Tex), f.TexSize);
+			PmxStreamHelper.WriteElement_Int32(s, tx.GetIndex(Sphere), f.TexSize);
+			s.WriteByte((byte)SphereMode);
+			int toonIndex = SystemToon.GetToonIndex(Toon);
 			if (toonIndex < 0)
 			{
 				s.WriteByte(0);
-				PmxStreamHelper.WriteElement_Int32(s, tx.GetIndex(this.Toon), f.TexSize, true);
+				PmxStreamHelper.WriteElement_Int32(s, tx.GetIndex(Toon), f.TexSize);
 			}
 			else
 			{
 				s.WriteByte(1);
 				s.WriteByte((byte)toonIndex);
 			}
-			PmxStreamHelper.WriteString(s, this.Memo, f);
-			PmxStreamHelper.WriteElement_Int32(s, this.FaceCount, 4, true);
+			PmxStreamHelper.WriteString(s, Memo, f);
+			PmxStreamHelper.WriteElement_Int32(s, FaceCount);
+			if (f.WithID)
+			{
+				PmxStreamHelper.WriteElement_UInt(s, base.UID);
+				PmxStreamHelper.WriteElement_UInt(s, base.CID);
+			}
 		}
 
 		object ICloneable.Clone()
 		{
-			return new PmxMaterial(this, false);
+			return new PmxMaterial(this);
 		}
 
 		public PmxMaterial Clone()
 		{
-			return new PmxMaterial(this, false);
+			return new PmxMaterial(this);
 		}
 	}
 }

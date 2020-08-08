@@ -2,15 +2,9 @@ using System;
 
 namespace PmxLib
 {
-	public class PmxFace : IPmxObjectKey, ICloneable
+	internal class PmxFace : IPmxObjectKey, ICloneable
 	{
-		PmxObject IPmxObjectKey.ObjectKey
-		{
-			get
-			{
-				return PmxObject.Face;
-			}
-		}
+		PmxObjectType IPmxObjectKey.ObjectKey => PmxObjectType.Face;
 
 		public PmxVertex V0
 		{
@@ -36,14 +30,14 @@ namespace PmxLib
 
 		public PmxFace(PmxFace f)
 		{
-			this.FromPmxFace(f);
+			FromPmxFace(f);
 		}
 
 		public void FromPmxFace(PmxFace f)
 		{
-			this.V0 = f.V0;
-			this.V1 = f.V1;
-			this.V2 = f.V2;
+			V0 = f.V0;
+			V1 = f.V1;
+			V2 = f.V2;
 		}
 
 		object ICloneable.Clone()

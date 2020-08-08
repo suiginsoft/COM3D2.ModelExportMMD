@@ -3,15 +3,9 @@ using System.IO;
 
 namespace PmxLib
 {
-	public abstract class PmxBaseMorph : IPmxObjectKey, IPmxStreamIO, ICloneable
+	internal abstract class PmxBaseMorph : PmxIDObject, IPmxObjectKey, IPmxStreamIO, ICloneable
 	{
-		PmxObject IPmxObjectKey.ObjectKey
-		{
-			get
-			{
-				return PmxObject.BaseMorph;
-			}
-		}
+		PmxObjectType IPmxObjectKey.ObjectKey => PmxObjectType.BaseMorph;
 
 		public virtual int BaseIndex
 		{
@@ -21,7 +15,8 @@ namespace PmxLib
 
 		public void FromPmxBaseMorph(PmxBaseMorph sv)
 		{
-			this.BaseIndex = sv.BaseIndex;
+			BaseIndex = sv.BaseIndex;
+			FromID(sv);
 		}
 
 		public static PmxBaseMorph CreateOffsetObject(PmxMorph.OffsetKind kind)
@@ -39,6 +34,12 @@ namespace PmxLib
 			case PmxMorph.OffsetKind.Bone:
 				result = new PmxBoneMorph();
 				break;
+			case PmxMorph.OffsetKind.Impulse:
+				result = new PmxImpulseMorph();
+				break;
+			case PmxMorph.OffsetKind.Material:
+				result = new PmxMaterialMorph();
+				break;
 			case PmxMorph.OffsetKind.UV:
 			case PmxMorph.OffsetKind.UVA1:
 			case PmxMorph.OffsetKind.UVA2:
@@ -46,19 +47,13 @@ namespace PmxLib
 			case PmxMorph.OffsetKind.UVA4:
 				result = new PmxUVMorph();
 				break;
-			case PmxMorph.OffsetKind.Material:
-				result = new PmxMaterialMorph();
-				break;
-			case PmxMorph.OffsetKind.Impulse:
-				result = new PmxImpulseMorph();
-				break;
 			}
 			return result;
 		}
 
 		object ICloneable.Clone()
 		{
-			return this.Clone();
+			return Clone();
 		}
 
 		public virtual PmxBaseMorph Clone()
@@ -68,10 +63,20 @@ namespace PmxLib
 
 		public virtual void FromStreamEx(Stream s, PmxElementFormat f = null)
 		{
+			if (f.WithID)
+			{
+				base.UID = PmxStreamHelper.ReadElement_UInt(s);
+				base.CID = PmxStreamHelper.ReadElement_UInt(s);
+			}
 		}
 
 		public virtual void ToStreamEx(Stream s, PmxElementFormat f = null)
 		{
+			if (f.WithID)
+			{
+				PmxStreamHelper.WriteElement_UInt(s, base.UID);
+				PmxStreamHelper.WriteElement_UInt(s, base.CID);
+			}
 		}
 	}
 }

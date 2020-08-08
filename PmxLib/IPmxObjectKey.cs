@@ -1,8 +1,8 @@
 namespace PmxLib
 {
-	public interface IPmxObjectKey
+	internal interface IPmxObjectKey
 	{
-		PmxObject ObjectKey
+		PmxObjectType ObjectKey
 		{
 			get;
 		}

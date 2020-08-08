@@ -11,23 +11,17 @@ namespace PmxLib
 
 		public Quaternion Rotaion;
 
-		PmxObject IPmxObjectKey.ObjectKey
-		{
-			get
-			{
-				return PmxObject.BoneMorph;
-			}
-		}
+		PmxObjectType IPmxObjectKey.ObjectKey => PmxObjectType.BoneMorph;
 
 		public override int BaseIndex
 		{
 			get
 			{
-				return this.Index;
+				return Index;
 			}
 			set
 			{
-				this.Index = value;
+				Index = value;
 			}
 		}
 
@@ -44,43 +38,45 @@ namespace PmxLib
 		public PmxBoneMorph(int index, Vector3 t, Quaternion r)
 			: this()
 		{
-			this.Index = index;
-			this.Translation = t;
-			this.Rotaion = r;
+			Index = index;
+			Translation = t;
+			Rotaion = r;
 		}
 
 		public PmxBoneMorph(PmxBoneMorph sv)
 			: this()
 		{
-			this.FromPmxBoneMorph(sv);
+			FromPmxBoneMorph(sv);
 		}
 
 		public void FromPmxBoneMorph(PmxBoneMorph sv)
 		{
-			this.Index = sv.Index;
-			this.Translation = sv.Translation;
-			this.Rotaion = sv.Rotaion;
+			FromPmxBaseMorph(sv);
+			Translation = sv.Translation;
+			Rotaion = sv.Rotaion;
 		}
 
 		public void Clear()
 		{
-			this.Translation = Vector3.zero;
-			this.Rotaion = Quaternion.identity;
+			Translation = Vector3.Zero;
+			Rotaion = Quaternion.Identity;
 		}
 
-		public override void FromStreamEx(Stream s, PmxElementFormat size = null)
+		public override void FromStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			this.Index = PmxStreamHelper.ReadElement_Int32(s, size.BoneSize, true);
-			this.Translation = V3_BytesConvert.FromStream(s);
+			base.FromStreamEx(s, f);
+			Index = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize);
+			Translation = V3_BytesConvert.FromStream(s);
 			Vector4 vector = V4_BytesConvert.FromStream(s);
-			this.Rotaion = new Quaternion(vector.x, vector.y, vector.z, vector.w);
+			Rotaion = new Quaternion(vector.X, vector.Y, vector.Z, vector.W);
 		}
 
-		public override void ToStreamEx(Stream s, PmxElementFormat size = null)
+		public override void ToStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			PmxStreamHelper.WriteElement_Int32(s, this.Index, size.BoneSize, true);
-			V3_BytesConvert.ToStream(s, this.Translation);
-			V4_BytesConvert.ToStream(s, new Vector4(this.Rotaion.x, this.Rotaion.y, this.Rotaion.z, this.Rotaion.w));
+			base.ToStreamEx(s, f);
+			PmxStreamHelper.WriteElement_Int32(s, Index, f.BoneSize);
+			V3_BytesConvert.ToStream(s, Translation);
+			V4_BytesConvert.ToStream(s, new Vector4(Rotaion.X, Rotaion.Y, Rotaion.Z, Rotaion.W));
 		}
 
 		object ICloneable.Clone()

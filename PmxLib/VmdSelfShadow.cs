@@ -3,48 +3,43 @@ using System.Collections.Generic;
 
 namespace PmxLib
 {
-	public class VmdSelfShadow : VmdFrameBase, IBytesConvert, ICloneable
+	internal class VmdSelfShadow : VmdFrameBase, IBytesConvert, ICloneable
 	{
 		public int Mode;
 
 		public float Distance;
 
-		public int ByteCount
-		{
-			get
-			{
-				return 9;
-			}
-		}
+		public int ByteCount => 9;
 
 		public VmdSelfShadow()
 		{
-			this.Mode = 0;
-			this.Distance = 0.011f;
+			Mode = 0;
+			Distance = 0.011f;
 		}
 
 		public VmdSelfShadow(VmdSelfShadow shadow)
 		{
-			base.FrameIndex = shadow.FrameIndex;
-			this.Mode = shadow.Mode;
-			this.Distance = shadow.Distance;
+			FrameIndex = shadow.FrameIndex;
+			Mode = shadow.Mode;
+			Distance = shadow.Distance;
 		}
 
 		public byte[] ToBytes()
 		{
 			List<byte> list = new List<byte>();
-			list.AddRange(BitConverter.GetBytes(base.FrameIndex));
-			list.Add((byte)this.Mode);
-			list.AddRange(BitConverter.GetBytes(this.Distance));
+			list.AddRange(BitConverter.GetBytes(FrameIndex));
+			list.Add((byte)Mode);
+			list.AddRange(BitConverter.GetBytes(Distance));
 			return list.ToArray();
 		}
 
 		public void FromBytes(byte[] bytes, int startIndex)
 		{
-			base.FrameIndex = BitConverter.ToInt32(bytes, startIndex);
-			int num = startIndex + 4;
-			this.Mode = bytes[num++];
-			this.Distance = BitConverter.ToSingle(bytes, num);
+			int num = startIndex;
+			FrameIndex = BitConverter.ToInt32(bytes, num);
+			num += 4;
+			Mode = bytes[num++];
+			Distance = BitConverter.ToSingle(bytes, num);
 			num += 4;
 		}
 

@@ -4,31 +4,39 @@ using System.Text;
 
 namespace PmxLib
 {
-	public class PmxHeader : IPmxObjectKey, IPmxStreamIO, ICloneable
+	internal class PmxHeader : IPmxObjectKey, IPmxStreamIO, ICloneable
 	{
-		public const float LastVer = 2.1f;
+		public class LoadException : Exception
+		{
+			public LoadException()
+			{
+			}
+
+			public LoadException(string message)
+				: base(message)
+			{
+			}
+		}
 
 		public static string PmxKey_v1 = "Pmx ";
 
 		public static string PmxKey = "PMX ";
 
-		PmxObject IPmxObjectKey.ObjectKey
-		{
-			get
-			{
-				return PmxObject.Header;
-			}
-		}
+		public static string BadPmxKey = "PMX";
+
+		public const float LastVer = 2.1f;
+
+		PmxObjectType IPmxObjectKey.ObjectKey => PmxObjectType.Header;
 
 		public float Ver
 		{
 			get
 			{
-				return this.ElementFormat.Ver;
+				return ElementFormat.Ver;
 			}
 			set
 			{
-				this.ElementFormat.Ver = value;
+				ElementFormat.Ver = value;
 			}
 		}
 
@@ -38,67 +46,87 @@ namespace PmxLib
 			private set;
 		}
 
-		public PmxHeader(float ver = 2.1f)
+		public bool BadKey
 		{
-			this.ElementFormat = new PmxElementFormat(ver);
+			get;
+			private set;
+		}
+
+		public PmxHeader()
+		{
+			ElementFormat = new PmxElementFormat();
+		}
+
+		public PmxHeader(float ver)
+		{
+			ElementFormat = new PmxElementFormat(ver);
 		}
 
 		public PmxHeader(PmxHeader h)
 		{
-			this.FromHeader(h);
+			FromHeader(h);
 		}
 
 		public void FromHeader(PmxHeader h)
 		{
-			this.ElementFormat = h.ElementFormat.Clone();
+			ElementFormat = h.ElementFormat.Clone();
+			BadKey = h.BadKey;
 		}
 
 		public void FromElementFormat(PmxElementFormat f)
 		{
-			this.ElementFormat = f;
+			ElementFormat = f;
 		}
 
 		public void FromStreamEx(Stream s, PmxElementFormat f = null)
 		{
+			BadKey = false;
 			byte[] array = new byte[4];
 			s.Read(array, 0, array.Length);
 			string @string = Encoding.ASCII.GetString(array);
-			if (@string.Equals(PmxHeader.PmxKey_v1))
+			if (@string.Equals(PmxKey_v1))
 			{
-				this.Ver = 1f;
+				Ver = 1f;
 				array = new byte[4];
 				s.Read(array, 0, array.Length);
+			}
+			else if (@string.Equals(PmxKey))
+			{
+				array = new byte[4];
+				s.Read(array, 0, array.Length);
+				Ver = BitConverter.ToSingle(array, 0);
 			}
 			else
 			{
-				if (!@string.Equals(PmxHeader.PmxKey))
+				if (!@string.Substring(0, 3).Equals(BadPmxKey))
 				{
-					throw new Exception("ファイル形式が異なります.");
+					throw new LoadException("ファイル形式が異なります.");
 				}
 				array = new byte[4];
 				s.Read(array, 0, array.Length);
-				this.Ver = BitConverter.ToSingle(array, 0);
+				Ver = BitConverter.ToSingle(array, 0);
+				BadKey = true;
 			}
-			if (this.Ver > 2.1f)
+			if (Ver > 2.1f)
 			{
-				throw new Exception("未対応のverです.");
+				throw new LoadException("未対応のverです.");
 			}
-			this.ElementFormat = new PmxElementFormat(this.Ver);
-			this.ElementFormat.FromStreamEx(s, null);
+			ElementFormat = new PmxElementFormat(Ver);
+			ElementFormat.FromStreamEx(s);
 		}
 
 		public void ToStreamEx(Stream s, PmxElementFormat f = null)
 		{
 			if (f == null)
 			{
-				f = this.ElementFormat;
+				f = ElementFormat;
 			}
 			byte[] array = new byte[4];
-			array = ((!(f.Ver <= 1f)) ? Encoding.ASCII.GetBytes(PmxHeader.PmxKey) : Encoding.ASCII.GetBytes(PmxHeader.PmxKey_v1));
+			array = ((!(f.Ver <= 1f)) ? Encoding.ASCII.GetBytes(PmxKey) : Encoding.ASCII.GetBytes(PmxKey_v1));
 			s.Write(array, 0, array.Length);
-			array = BitConverter.GetBytes(this.Ver);
+			array = BitConverter.GetBytes(Ver);
 			s.Write(array, 0, array.Length);
-			f.ToStreamEx(s, null);
+			f.ToStreamEx(s);
 		}
 
 		object ICloneable.Clone()

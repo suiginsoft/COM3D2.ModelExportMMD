@@ -4,7 +4,7 @@ using System.IO;
 
 namespace PmxLib
 {
-	public class PmxMorph : IPmxObjectKey, IPmxStreamIO, ICloneable, INXName
+	internal class PmxMorph : PmxIDObject, IPmxObjectKey, IPmxStreamIO, ICloneable, INXName
 	{
 		public enum OffsetKind
 		{
@@ -25,13 +25,7 @@ namespace PmxLib
 
 		public OffsetKind Kind;
 
-		PmxObject IPmxObjectKey.ObjectKey
-		{
-			get
-			{
-				return PmxObject.Morph;
-			}
-		}
+		PmxObjectType IPmxObjectKey.ObjectKey => PmxObjectType.Morph;
 
 		public string Name
 		{
@@ -55,67 +49,35 @@ namespace PmxLib
 		{
 			get
 			{
-				return this.Kind == OffsetKind.UV || this.Kind == OffsetKind.UVA1 || this.Kind == OffsetKind.UVA2 || this.Kind == OffsetKind.UVA3 || this.Kind == OffsetKind.UVA4;
+				if (Kind != OffsetKind.UV && Kind != OffsetKind.UVA1 && Kind != OffsetKind.UVA2 && Kind != OffsetKind.UVA3)
+				{
+					return Kind == OffsetKind.UVA4;
+				}
+				return true;
 			}
 		}
 
-		public bool IsVertex
-		{
-			get
-			{
-				return this.Kind == OffsetKind.Vertex;
-			}
-		}
+		public bool IsVertex => Kind == OffsetKind.Vertex;
 
-		public bool IsBone
-		{
-			get
-			{
-				return this.Kind == OffsetKind.Bone;
-			}
-		}
+		public bool IsBone => Kind == OffsetKind.Bone;
 
-		public bool IsMaterial
-		{
-			get
-			{
-				return this.Kind == OffsetKind.Material;
-			}
-		}
+		public bool IsMaterial => Kind == OffsetKind.Material;
 
-		public bool IsFlip
-		{
-			get
-			{
-				return this.Kind == OffsetKind.Flip;
-			}
-		}
+		public bool IsFlip => Kind == OffsetKind.Flip;
 
-		public bool IsImpulse
-		{
-			get
-			{
-				return this.Kind == OffsetKind.Impulse;
-			}
-		}
+		public bool IsImpulse => Kind == OffsetKind.Impulse;
 
-		public bool IsGroup
-		{
-			get
-			{
-				return this.Kind == OffsetKind.Group;
-			}
-		}
+		public bool IsGroup => Kind == OffsetKind.Group;
 
 		public string NXName
 		{
 			get
 			{
-				return this.Name;
+				return Name;
 			}
 			set
 			{
-				this.Name = value;
+				Name = value;
 			}
 		}
 
@@ -125,13 +87,13 @@ namespace PmxLib
 			switch (kind)
 			{
 			case OffsetKind.Group:
-				result = "グル\u30fcプ";
+				result = "グループ";
 				break;
 			case OffsetKind.Vertex:
 				result = "頂点";
 				break;
 			case OffsetKind.Bone:
-				result = "ボ\u30fcン";
+				result = "ボーン";
 				break;
 			case OffsetKind.UV:
 				result = "UV";
@@ -163,68 +125,85 @@ namespace PmxLib
 
 		public PmxMorph()
 		{
-			this.Name = "";
-			this.NameE = "";
-			this.Panel = 4;
-			this.Kind = OffsetKind.Vertex;
-			this.OffsetList = new List<PmxBaseMorph>();
+			Name = "";
+			NameE = "";
+			Panel = 4;
+			Kind = OffsetKind.Vertex;
+			OffsetList = new List<PmxBaseMorph>();
 		}
 
 		public PmxMorph(PmxMorph m, bool nonStr = false)
+			: this()
 		{
-			this.FromPmxMorph(m, nonStr);
+			FromPmxMorph(m, nonStr);
 		}
 
 		public void FromPmxMorph(PmxMorph m, bool nonStr = false)
 		{
 			if (!nonStr)
 			{
-				this.Name = m.Name;
-				this.NameE = m.NameE;
+				Name = m.Name;
+				NameE = m.NameE;
 			}
-			this.Panel = m.Panel;
-			this.Kind = m.Kind;
+			Panel = m.Panel;
+			Kind = m.Kind;
 			int count = m.OffsetList.Count;
-			this.OffsetList = new List<PmxBaseMorph>(count);
+			OffsetList.Clear();
+			OffsetList.Capacity = count;
 			for (int i = 0; i < count; i++)
 			{
-				this.OffsetList.Add(m.OffsetList[i].Clone());
+				OffsetList.Add(m.OffsetList[i].Clone());
 			}
+			FromID(m);
 		}
 
 		public void FromStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			this.Name = PmxStreamHelper.ReadString(s, f);
-			this.NameE = PmxStreamHelper.ReadString(s, f);
-			this.Panel = PmxStreamHelper.ReadElement_Int32(s, 1, true);
-			this.Kind = (OffsetKind)PmxStreamHelper.ReadElement_Int32(s, 1, true);
-			int num = PmxStreamHelper.ReadElement_Int32(s, 4, true);
-			this.OffsetList.Clear();
-			this.OffsetList.Capacity = num;
+			Name = PmxStreamHelper.ReadString(s, f);
+			NameE = PmxStreamHelper.ReadString(s, f);
+			Panel = PmxStreamHelper.ReadElement_Int32(s, 1);
+			Kind = (OffsetKind)PmxStreamHelper.ReadElement_Int32(s, 1);
+			int num = PmxStreamHelper.ReadElement_Int32(s);
+			OffsetList.Clear();
+			OffsetList.Capacity = num;
 			for (int i = 0; i < num; i++)
 			{
-				switch (this.Kind)
+				switch (Kind)
 				{
 				case OffsetKind.Group:
 				case OffsetKind.Flip:
 				{
 					PmxGroupMorph pmxGroupMorph = new PmxGroupMorph();
 					pmxGroupMorph.FromStreamEx(s, f);
-					this.OffsetList.Add(pmxGroupMorph);
+					OffsetList.Add(pmxGroupMorph);
 					break;
 				}
 				case OffsetKind.Vertex:
 				{
 					PmxVertexMorph pmxVertexMorph = new PmxVertexMorph();
 					pmxVertexMorph.FromStreamEx(s, f);
-					this.OffsetList.Add(pmxVertexMorph);
+					OffsetList.Add(pmxVertexMorph);
 					break;
 				}
 				case OffsetKind.Bone:
 				{
 					PmxBoneMorph pmxBoneMorph = new PmxBoneMorph();
 					pmxBoneMorph.FromStreamEx(s, f);
-					this.OffsetList.Add(pmxBoneMorph);
+					OffsetList.Add(pmxBoneMorph);
+					break;
+				}
+				case OffsetKind.Impulse:
+				{
+					PmxImpulseMorph pmxImpulseMorph = new PmxImpulseMorph();
+					pmxImpulseMorph.FromStreamEx(s, f);
+					OffsetList.Add(pmxImpulseMorph);
+					break;
+				}
+				case OffsetKind.Material:
+				{
+					PmxMaterialMorph pmxMaterialMorph = new PmxMaterialMorph();
+					pmxMaterialMorph.FromStreamEx(s, f);
+					OffsetList.Add(pmxMaterialMorph);
 					break;
 				}
 				case OffsetKind.UV:
@@ -235,83 +214,80 @@ namespace PmxLib
 				{
 					PmxUVMorph pmxUVMorph = new PmxUVMorph();
 					pmxUVMorph.FromStreamEx(s, f);
-					this.OffsetList.Add(pmxUVMorph);
-					break;
-				}
-				case OffsetKind.Material:
-				{
-					PmxMaterialMorph pmxMaterialMorph = new PmxMaterialMorph();
-					pmxMaterialMorph.FromStreamEx(s, f);
-					this.OffsetList.Add(pmxMaterialMorph);
-					break;
-				}
-				case OffsetKind.Impulse:
-				{
-					PmxImpulseMorph pmxImpulseMorph = new PmxImpulseMorph();
-					pmxImpulseMorph.FromStreamEx(s, f);
-					this.OffsetList.Add(pmxImpulseMorph);
+					OffsetList.Add(pmxUVMorph);
 					break;
 				}
 				}
+			}
+			if (f.WithID)
+			{
+				base.UID = PmxStreamHelper.ReadElement_UInt(s);
+				base.CID = PmxStreamHelper.ReadElement_UInt(s);
 			}
 		}
 
 		public void ToStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			if (!this.IsImpulse || !(f.Ver < 2.1f))
+			if (IsImpulse && f.Ver < 2.1f)
 			{
-				PmxStreamHelper.WriteString(s, this.Name, f);
-				PmxStreamHelper.WriteString(s, this.NameE, f);
-				PmxStreamHelper.WriteElement_Int32(s, this.Panel, 1, true);
-				if (this.IsFlip && f.Ver < 2.1f)
+				return;
+			}
+			PmxStreamHelper.WriteString(s, Name, f);
+			PmxStreamHelper.WriteString(s, NameE, f);
+			PmxStreamHelper.WriteElement_Int32(s, Panel, 1);
+			if (IsFlip && f.Ver < 2.1f)
+			{
+				PmxStreamHelper.WriteElement_Int32(s, 0, 1);
+			}
+			else
+			{
+				PmxStreamHelper.WriteElement_Int32(s, (int)Kind, 1);
+			}
+			PmxStreamHelper.WriteElement_Int32(s, OffsetList.Count);
+			for (int i = 0; i < OffsetList.Count; i++)
+			{
+				switch (Kind)
 				{
-					PmxStreamHelper.WriteElement_Int32(s, 0, 1, true);
+				case OffsetKind.Group:
+				case OffsetKind.Flip:
+					(OffsetList[i] as PmxGroupMorph).ToStreamEx(s, f);
+					break;
+				case OffsetKind.Vertex:
+					(OffsetList[i] as PmxVertexMorph).ToStreamEx(s, f);
+					break;
+				case OffsetKind.Bone:
+					(OffsetList[i] as PmxBoneMorph).ToStreamEx(s, f);
+					break;
+				case OffsetKind.Impulse:
+					(OffsetList[i] as PmxImpulseMorph).ToStreamEx(s, f);
+					break;
+				case OffsetKind.Material:
+					(OffsetList[i] as PmxMaterialMorph).ToStreamEx(s, f);
+					break;
+				case OffsetKind.UV:
+				case OffsetKind.UVA1:
+				case OffsetKind.UVA2:
+				case OffsetKind.UVA3:
+				case OffsetKind.UVA4:
+					(OffsetList[i] as PmxUVMorph).ToStreamEx(s, f);
+					break;
 				}
-				else
-				{
-					PmxStreamHelper.WriteElement_Int32(s, (int)this.Kind, 1, true);
-				}
-				PmxStreamHelper.WriteElement_Int32(s, this.OffsetList.Count, 4, true);
-				for (int i = 0; i < this.OffsetList.Count; i++)
-				{
-					switch (this.Kind)
-					{
-					case OffsetKind.Group:
-					case OffsetKind.Flip:
-						(this.OffsetList[i] as PmxGroupMorph).ToStreamEx(s, f);
-						break;
-					case OffsetKind.Vertex:
-						(this.OffsetList[i] as PmxVertexMorph).ToStreamEx(s, f);
-						break;
-					case OffsetKind.Bone:
-						(this.OffsetList[i] as PmxBoneMorph).ToStreamEx(s, f);
-						break;
-					case OffsetKind.UV:
-					case OffsetKind.UVA1:
-					case OffsetKind.UVA2:
-					case OffsetKind.UVA3:
-					case OffsetKind.UVA4:
-						(this.OffsetList[i] as PmxUVMorph).ToStreamEx(s, f);
-						break;
-					case OffsetKind.Material:
-						(this.OffsetList[i] as PmxMaterialMorph).ToStreamEx(s, f);
-						break;
-					case OffsetKind.Impulse:
-						(this.OffsetList[i] as PmxImpulseMorph).ToStreamEx(s, f);
-						break;
-					}
-				}
+			}
+			if (f.WithID)
+			{
+				PmxStreamHelper.WriteElement_UInt(s, base.UID);
+				PmxStreamHelper.WriteElement_UInt(s, base.CID);
 			}
 		}
 
 		object ICloneable.Clone()
 		{
-			return new PmxMorph(this, false);
+			return new PmxMorph(this);
 		}
 
 		public PmxMorph Clone()
 		{
-			return new PmxMorph(this, false);
+			return new PmxMorph(this);
 		}
 	}
 }

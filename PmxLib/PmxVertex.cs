@@ -4,7 +4,7 @@ using System.IO;
 
 namespace PmxLib
 {
-	public class PmxVertex : IPmxObjectKey, IPmxStreamIO, ICloneable
+	internal class PmxVertex : PmxIDObject, IPmxObjectKey, IPmxStreamIO, ICloneable
 	{
 		public struct BoneWeight
 		{
@@ -21,7 +21,7 @@ namespace PmxLib
 			public static BoneWeight[] Sort(BoneWeight[] w)
 			{
 				List<BoneWeight> list = new List<BoneWeight>(w);
-				BoneWeight.SortList(list);
+				SortList(list);
 				return list.ToArray();
 			}
 
@@ -30,15 +30,7 @@ namespace PmxLib
 				CP.SSort(list, delegate(BoneWeight l, BoneWeight r)
 				{
 					float num = Math.Abs(r.Value) - Math.Abs(l.Value);
-					if (num < 0f)
-					{
-						return -1;
-					}
-					if (num <= 0f)
-					{
-						return 0;
-					}
-					return 1;
+					return (!(num < 0f)) ? ((num > 0f) ? 1 : 0) : (-1);
 				});
 			}
 		}
@@ -52,19 +44,19 @@ namespace PmxLib
 			QDEF
 		}
 
-		public const int MaxUVACount = 4;
-
-		public const int MaxWeightBoneCount = 4;
-
 		public Vector3 Position;
 
 		public Vector3 Normal;
 
 		public Vector2 UV;
 
-		public Vector4[] UVA;
+		public const int MaxUVACount = 4;
 
-		public BoneWeight[] Weight;
+		public Vector4[] UVA = new Vector4[4];
+
+		public const int MaxWeightBoneCount = 4;
+
+		public BoneWeight[] Weight = new BoneWeight[4];
 
 		public DeformType Deform;
 
@@ -74,7 +66,7 @@ namespace PmxLib
 
 		public int UVMorphIndex = -1;
 
-		public int[] UVAMorphIndex;
+		public int[] UVAMorphIndex = new int[4];
 
 		public int SDEFIndex = -1;
 
@@ -92,78 +84,96 @@ namespace PmxLib
 
 		public Vector3 R1;
 
-		public Vector3 RW0;
+		public Vector3 RW;
 
-		public Vector3 RW1;
-
-		PmxObject IPmxObjectKey.ObjectKey
-		{
-			get
-			{
-				return PmxObject.Vertex;
-			}
-		}
+		PmxObjectType IPmxObjectKey.ObjectKey => PmxObjectType.Vertex;
 
 		public int NWeight
 		{
 			get
 			{
-				return (int)((this.Weight[0].Value + 0.005f) * 100f);
+				return (int)((Weight[0].Value + 0.005f) * 100f);
 			}
 			set
 			{
-				this.ClearWeightValue();
-				this.Weight[0].Value = (float)value * 0.01f;
-				this.Weight[1].Value = 1f - this.Weight[0].Value;
-				this.UpdateDeformType();
-				if (this.Deform == DeformType.BDEF4 || this.Deform == DeformType.QDEF)
+				ClearWeightValue();
+				Weight[0].Value = (float)value * 0.01f;
+				Weight[1].Value = 1f - Weight[0].Value;
+				UpdateDeformType();
+				if (Deform == DeformType.BDEF4 || Deform == DeformType.QDEF)
 				{
-					this.Deform = DeformType.BDEF2;
+					Deform = DeformType.BDEF2;
 				}
 			}
 		}
 
-		public PmxVertex()
+		public IEnumerable<BoneWeight> EnumWeights(bool normalize = false)
 		{
-			this.UVAMorphIndex = new int[4];
-			this.Weight = new BoneWeight[4];
-			this.UVA = new Vector4[4];
-			this.VertexMorphIndex = -1;
-			this.UVMorphIndex = -1;
-			for (int i = 0; i < this.UVAMorphIndex.Length; i++)
+			if (normalize)
 			{
-				this.UVAMorphIndex[i] = -1;
+				NormalizeWeight();
 			}
-			this.SDEFIndex = -1;
-			this.QDEFIndex = -1;
-			this.SoftBodyPosIndex = -1;
-			this.SoftBodyNormalIndex = -1;
-			this.ClearWeight();
+			switch (Deform)
+			{
+			case DeformType.BDEF1:
+				yield return Weight[0];
+				break;
+			case DeformType.BDEF2:
+			case DeformType.SDEF:
+				if (Weight[0].Value != 0f)
+				{
+					yield return Weight[0];
+				}
+				if (Weight[1].Value != 0f)
+				{
+					yield return Weight[1];
+				}
+				break;
+			case DeformType.BDEF4:
+			case DeformType.QDEF:
+				if (Weight[0].Value != 0f)
+				{
+					yield return Weight[0];
+				}
+				if (Weight[1].Value != 0f)
+				{
+					yield return Weight[1];
+				}
+				if (Weight[2].Value != 0f)
+				{
+					yield return Weight[2];
+				}
+				if (Weight[3].Value != 0f)
+				{
+					yield return Weight[3];
+				}
+				break;
+			}
 		}
 
 		public void ClearWeight()
 		{
-			this.ClearWeightBone();
-			this.ClearWeightValue();
-			this.Deform = DeformType.BDEF1;
-			this.SDEF = false;
+			ClearWeightBone();
+			ClearWeightValue();
+			Deform = DeformType.BDEF1;
+			SDEF = false;
 		}
 
 		public void ClearWeightBone()
 		{
-			this.Weight[0].Bone = 0;
+			Weight[0].Bone = 0;
 			for (int i = 1; i < 4; i++)
 			{
-				this.Weight[i].Bone = -1;
+				Weight[i].Bone = -1;
 			}
 		}
 
 		public void ClearWeightValue()
 		{
-			this.Weight[0].Value = 1f;
+			Weight[0].Value = 1f;
 			for (int i = 1; i < 4; i++)
 			{
-				this.Weight[i].Value = 0f;
+				Weight[i].Value = 0f;
 			}
 		}
 
@@ -171,30 +181,30 @@ namespace PmxLib
 		{
 			for (int i = 0; i < 4; i++)
 			{
-				if (this.Weight[i].Bone < 0)
+				if (Weight[i].Bone < 0)
 				{
-					this.Weight[i].Value = 0f;
+					Weight[i].Value = 0f;
 				}
 			}
-			if (this.Deform == DeformType.SDEF)
+			if (Deform == DeformType.SDEF)
 			{
-				this.NormalizeWeightOrder_SDEF();
+				NormalizeWeightOrder_SDEF();
 			}
 			else
 			{
-				this.NormalizeWeightOrder();
+				NormalizeWeightOrder();
 			}
-			this.UpdateDeformType();
-			if (this.Deform == DeformType.SDEF)
+			UpdateDeformType();
+			if (Deform == DeformType.SDEF)
 			{
-				this.Weight[2].Bone = -1;
-				this.Weight[2].Value = 0f;
-				this.Weight[3].Bone = -1;
-				this.Weight[3].Value = 0f;
+				Weight[2].Bone = -1;
+				Weight[2].Value = 0f;
+				Weight[3].Bone = -1;
+				Weight[3].Value = 0f;
 			}
-			this.NormalizeWeightSum(bdef4Sum);
+			NormalizeWeightSum(bdef4Sum);
 			int num = 1;
-			switch (this.Deform)
+			switch (Deform)
 			{
 			case DeformType.BDEF2:
 			case DeformType.SDEF:
@@ -207,83 +217,77 @@ namespace PmxLib
 			}
 			for (int j = 0; j < num; j++)
 			{
-				if (this.Weight[j].Bone < 0)
+				if (Weight[j].Bone < 0)
 				{
-					this.Weight[j].Bone = 0;
-					this.Weight[j].Value = 0f;
+					Weight[j].Bone = 0;
+					Weight[j].Value = 0f;
 				}
 			}
-			this.UpdateDeformType();
+			UpdateDeformType();
 		}
 
 		public void NormalizeWeightOrder()
 		{
-			BoneWeight[] array = BoneWeight.Sort(this.Weight);
+			BoneWeight[] array = BoneWeight.Sort(Weight);
 			for (int i = 0; i < array.Length; i++)
 			{
-				this.Weight[i] = array[i];
+				Weight[i] = array[i];
 			}
 		}
 
 		public void NormalizeWeightOrder_BDEF2()
 		{
-			if (this.Weight[0].Value < this.Weight[1].Value)
+			if (Weight[0].Value < Weight[1].Value)
 			{
-				CP.Swap<BoneWeight>(ref this.Weight[0], ref this.Weight[1]);
+				CP.Swap(ref Weight[0], ref Weight[1]);
 			}
 		}
 
 		public void NormalizeWeightOrder_SDEF()
 		{
-			if (this.Weight[0].Bone > this.Weight[1].Bone)
+			if (Weight[0].Bone > Weight[1].Bone)
 			{
-				CP.Swap<BoneWeight>(ref this.Weight[0], ref this.Weight[1]);
-				CP.Swap<Vector3>(ref this.R0, ref this.R1);
-				CP.Swap<Vector3>(ref this.RW0, ref this.RW0);
+				CP.Swap(ref Weight[0], ref Weight[1]);
+				CP.Swap(ref R0, ref R1);
 			}
 		}
 
 		public void NormalizeWeightSum(bool bdef4 = false)
 		{
-			if (bdef4 || (this.Deform != DeformType.BDEF4 && this.Deform != DeformType.QDEF))
+			if (!bdef4 && (Deform == DeformType.BDEF4 || Deform == DeformType.QDEF))
 			{
-				float num = 0f;
-				for (int i = 0; i < 4; i++)
+				return;
+			}
+			float num = 0f;
+			for (int i = 0; i < 4; i++)
+			{
+				num += Weight[i].Value;
+			}
+			if (num != 0f && num != 1f)
+			{
+				float num2 = 1f / num;
+				for (int j = 0; j < 4; j++)
 				{
-					num += this.Weight[i].Value;
-				}
-				if (num != 0f && num != 1f)
-				{
-					float num2 = 1f / num;
-					for (int j = 0; j < 4; j++)
-					{
-						BoneWeight[] weight = this.Weight;
-						int num3 = j;
-						weight[num3].Value = weight[num3].Value * num2;
-					}
+					Weight[j].Value *= num2;
 				}
 			}
 		}
 
 		public void NormalizeWeightSum_BDEF2()
 		{
-			float num = this.Weight[0].Value + this.Weight[1].Value;
+			float num = Weight[0].Value + Weight[1].Value;
 			if (num != 1f)
 			{
 				if (num == 0f)
 				{
-					this.Weight[0].Value = 1f;
-					this.Weight[1].Value = 0f;
+					Weight[0].Value = 1f;
+					Weight[1].Value = 0f;
 				}
 				else
 				{
 					float num2 = 1f / num;
-					BoneWeight[] weight = this.Weight;
-					int num3 = 0;
-					weight[num3].Value = weight[num3].Value * num2;
-					BoneWeight[] weight2 = this.Weight;
-					int num4 = 1;
-					weight2[num4].Value = weight2[num4].Value * num2;
+					Weight[0].Value *= num2;
+					Weight[1].Value *= num2;
 				}
 			}
 		}
@@ -293,16 +297,16 @@ namespace PmxLib
 			int num = 0;
 			for (int i = 0; i < 4; i++)
 			{
-				if (this.Weight[i].Value != 0f)
+				if (Weight[i].Value != 0f)
 				{
 					num++;
 				}
 			}
-			if (this.SDEF && num != 1)
+			if (SDEF && num != 1)
 			{
 				return DeformType.SDEF;
 			}
-			if (this.Deform == DeformType.QDEF && num != 1)
+			if (Deform == DeformType.QDEF && num != 1)
 			{
 				return DeformType.QDEF;
 			}
@@ -326,211 +330,216 @@ namespace PmxLib
 
 		public void UpdateDeformType()
 		{
-			this.Deform = this.GetDeformType();
+			Deform = GetDeformType();
 		}
 
 		public void SetSDEF_RV(Vector3 r0, Vector3 r1)
 		{
-			this.R0 = r0;
-			this.R1 = r1;
-			this.CalcSDEF_RW();
+			R0 = r0;
+			R1 = r1;
+			CalcSDEF_RW();
 		}
 
 		public void CalcSDEF_RW()
 		{
-			Vector3 b = this.Weight[0].Value * this.R0 + this.Weight[1].Value * this.R1;
-			this.RW0 = this.R0 - b;
-			this.RW1 = this.R1 - b;
+			RW = 0.5f * Weight[0].Value * Weight[1].Value * (R0 - R1);
 		}
 
 		public bool NormalizeSDEF_C0(List<PmxBone> boneList)
 		{
-			if (this.Deform != DeformType.SDEF)
+			if (Deform != DeformType.SDEF)
 			{
 				return true;
 			}
-			int bone = this.Weight[0].Bone;
-			int bone2 = this.Weight[1].Bone;
-			if (!CP.InRange(boneList, bone))
+			int bone = Weight[0].Bone;
+			int bone2 = Weight[1].Bone;
+			PmxBone pmxBone = null;
+			PmxBone pmxBone2 = null;
+			if (CP.InRange(boneList, bone))
 			{
+				pmxBone = boneList[bone];
+				if (CP.InRange(boneList, bone2))
+				{
+					pmxBone2 = boneList[bone2];
+					Vector3 position = pmxBone.Position;
+					Vector3 vector = pmxBone2.Position - position;
+					vector.Normalize();
+					Vector3 position2 = Position;
+					position2 -= position;
+					float scale = Vector3.Dot(vector, position2);
+					C0 = vector * scale + position;
+					return true;
+				}
 				return false;
-			}
-			PmxBone pmxBone = boneList[bone];
-			if (CP.InRange(boneList, bone2))
-			{
-				PmxBone pmxBone2 = boneList[bone2];
-				Vector3 position = pmxBone.Position;
-				Vector3 position2 = pmxBone2.Position;
-				Vector3 vector = position2 - position;
-				Vector3 vector2 = vector;
-				vector2.Normalize();
-				Vector3 position3 = this.Position;
-				position3 -= position;
-				float d = Vector3.Dot(vector2, position3);
-				this.C0 = vector2 * d + position;
-				return true;
 			}
 			return false;
 		}
 
-		public bool IsSDEF_EnableBone(List<PmxBone> boneList)
+		public PmxVertex()
 		{
-			int bone = this.Weight[0].Bone;
-			int bone2 = this.Weight[1].Bone;
-			if (!CP.InRange(boneList, bone))
+			VertexMorphIndex = -1;
+			UVMorphIndex = -1;
+			for (int i = 0; i < UVAMorphIndex.Length; i++)
 			{
-				return false;
+				UVAMorphIndex[i] = -1;
 			}
-			PmxBone pmxBone = boneList[bone];
-			if (CP.InRange(boneList, bone2))
-			{
-				PmxBone pmxBone2 = boneList[bone2];
-				return pmxBone.Parent == bone2 || pmxBone2.Parent == bone;
-			}
-			return false;
+			SDEFIndex = -1;
+			QDEFIndex = -1;
+			SoftBodyPosIndex = -1;
+			SoftBodyNormalIndex = -1;
+			ClearWeight();
 		}
 
 		public PmxVertex(PmxVertex vertex)
 			: this()
 		{
-			this.FromPmxVertex(vertex);
+			FromPmxVertex(vertex);
 		}
 
 		public void FromPmxVertex(PmxVertex vertex)
 		{
-			this.Position = vertex.Position;
-			this.Normal = vertex.Normal;
-			this.UV = vertex.UV;
+			Position = vertex.Position;
+			Normal = vertex.Normal;
+			UV = vertex.UV;
 			for (int i = 0; i < 4; i++)
 			{
-				this.UVA[i] = vertex.UVA[i];
+				UVA[i] = vertex.UVA[i];
 			}
 			for (int j = 0; j < 4; j++)
 			{
-				this.Weight[j] = vertex.Weight[j];
-				this.Weight[j].RefBone = null;
+				Weight[j] = vertex.Weight[j];
 			}
-			this.EdgeScale = vertex.EdgeScale;
-			this.Deform = vertex.Deform;
-			this.SDEF = vertex.SDEF;
-			this.C0 = vertex.C0;
-			this.R0 = vertex.R0;
-			this.R1 = vertex.R1;
-			this.RW0 = vertex.RW0;
-			this.RW1 = vertex.RW1;
-			this.VertexMorphIndex = vertex.VertexMorphIndex;
-			this.UVMorphIndex = vertex.UVMorphIndex;
-			for (int k = 0; k < this.UVAMorphIndex.Length; k++)
+			EdgeScale = vertex.EdgeScale;
+			Deform = vertex.Deform;
+			SDEF = vertex.SDEF;
+			C0 = vertex.C0;
+			R0 = vertex.R0;
+			R1 = vertex.R1;
+			RW = vertex.RW;
+			VertexMorphIndex = vertex.VertexMorphIndex;
+			UVMorphIndex = vertex.UVMorphIndex;
+			for (int k = 0; k < UVAMorphIndex.Length; k++)
 			{
-				this.UVAMorphIndex[k] = vertex.UVAMorphIndex[k];
+				UVAMorphIndex[k] = vertex.UVAMorphIndex[k];
 			}
-			this.SDEFIndex = vertex.SDEFIndex;
-			this.QDEFIndex = vertex.QDEFIndex;
-			this.SoftBodyPosIndex = vertex.SoftBodyPosIndex;
-			this.SoftBodyNormalIndex = vertex.SoftBodyNormalIndex;
+			SDEFIndex = vertex.SDEFIndex;
+			QDEFIndex = vertex.QDEFIndex;
+			SoftBodyPosIndex = vertex.SoftBodyPosIndex;
+			SoftBodyNormalIndex = vertex.SoftBodyNormalIndex;
+			FromID(vertex);
 		}
 
 		public void FromStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			this.Position = V3_BytesConvert.FromStream(s);
-			this.Normal = V3_BytesConvert.FromStream(s);
-			this.UV = V2_BytesConvert.FromStream(s);
+			Position = V3_BytesConvert.FromStream(s);
+			Normal = V3_BytesConvert.FromStream(s);
+			UV = V2_BytesConvert.FromStream(s);
 			for (int i = 0; i < f.UVACount; i++)
 			{
 				Vector4 vector = V4_BytesConvert.FromStream(s);
-				if (0 <= i && i < this.UVA.Length)
+				if (0 <= i && i < UVA.Length)
 				{
-					this.UVA[i] = vector;
+					UVA[i] = vector;
 				}
 			}
-			this.Deform = (DeformType)s.ReadByte();
-			this.SDEF = false;
-			switch (this.Deform)
+			Deform = (DeformType)s.ReadByte();
+			SDEF = false;
+			switch (Deform)
 			{
 			case DeformType.BDEF1:
-				this.Weight[0].Bone = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize, true);
-				this.Weight[0].Value = 1f;
+				Weight[0].Bone = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize);
+				Weight[0].Value = 1f;
 				break;
 			case DeformType.BDEF2:
-				this.Weight[0].Bone = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize, true);
-				this.Weight[1].Bone = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize, true);
-				this.Weight[0].Value = PmxStreamHelper.ReadElement_Float(s);
-				this.Weight[1].Value = 1f - this.Weight[0].Value;
+				Weight[0].Bone = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize);
+				Weight[1].Bone = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize);
+				Weight[0].Value = PmxStreamHelper.ReadElement_Float(s);
+				Weight[1].Value = 1f - Weight[0].Value;
 				break;
 			case DeformType.BDEF4:
 			case DeformType.QDEF:
-				this.Weight[0].Bone = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize, true);
-				this.Weight[1].Bone = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize, true);
-				this.Weight[2].Bone = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize, true);
-				this.Weight[3].Bone = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize, true);
-				this.Weight[0].Value = PmxStreamHelper.ReadElement_Float(s);
-				this.Weight[1].Value = PmxStreamHelper.ReadElement_Float(s);
-				this.Weight[2].Value = PmxStreamHelper.ReadElement_Float(s);
-				this.Weight[3].Value = PmxStreamHelper.ReadElement_Float(s);
+				Weight[0].Bone = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize);
+				Weight[1].Bone = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize);
+				Weight[2].Bone = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize);
+				Weight[3].Bone = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize);
+				Weight[0].Value = PmxStreamHelper.ReadElement_Float(s);
+				Weight[1].Value = PmxStreamHelper.ReadElement_Float(s);
+				Weight[2].Value = PmxStreamHelper.ReadElement_Float(s);
+				Weight[3].Value = PmxStreamHelper.ReadElement_Float(s);
 				break;
 			case DeformType.SDEF:
-				this.Weight[0].Bone = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize, true);
-				this.Weight[1].Bone = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize, true);
-				this.Weight[0].Value = PmxStreamHelper.ReadElement_Float(s);
-				this.Weight[1].Value = 1f - this.Weight[0].Value;
-				this.C0 = V3_BytesConvert.FromStream(s);
-				this.R0 = V3_BytesConvert.FromStream(s);
-				this.R1 = V3_BytesConvert.FromStream(s);
-				this.CalcSDEF_RW();
-				this.SDEF = true;
+				Weight[0].Bone = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize);
+				Weight[1].Bone = PmxStreamHelper.ReadElement_Int32(s, f.BoneSize);
+				Weight[0].Value = PmxStreamHelper.ReadElement_Float(s);
+				Weight[1].Value = 1f - Weight[0].Value;
+				C0 = V3_BytesConvert.FromStream(s);
+				R0 = V3_BytesConvert.FromStream(s);
+				R1 = V3_BytesConvert.FromStream(s);
+				CalcSDEF_RW();
+				SDEF = true;
 				break;
 			}
-			this.EdgeScale = PmxStreamHelper.ReadElement_Float(s);
+			EdgeScale = PmxStreamHelper.ReadElement_Float(s);
+			if (f.WithID)
+			{
+				base.UID = PmxStreamHelper.ReadElement_UInt(s);
+				base.CID = PmxStreamHelper.ReadElement_UInt(s);
+			}
 		}
 
 		public void ToStreamEx(Stream s, PmxElementFormat f = null)
 		{
-			V3_BytesConvert.ToStream(s, this.Position);
-			V3_BytesConvert.ToStream(s, this.Normal);
-			V2_BytesConvert.ToStream(s, this.UV);
+			V3_BytesConvert.ToStream(s, Position);
+			V3_BytesConvert.ToStream(s, Normal);
+			V2_BytesConvert.ToStream(s, UV);
 			for (int i = 0; i < f.UVACount; i++)
 			{
-				V4_BytesConvert.ToStream(s, this.UVA[i]);
+				V4_BytesConvert.ToStream(s, UVA[i]);
 			}
-			if (this.Deform == DeformType.QDEF && f.Ver < 2.1f)
+			if (Deform == DeformType.QDEF && f.Ver < 2.1f)
 			{
 				s.WriteByte(2);
 			}
 			else
 			{
-				s.WriteByte((byte)this.Deform);
+				s.WriteByte((byte)Deform);
 			}
-			switch (this.Deform)
+			switch (Deform)
 			{
 			case DeformType.BDEF1:
-				PmxStreamHelper.WriteElement_Int32(s, this.Weight[0].Bone, f.BoneSize, true);
+				PmxStreamHelper.WriteElement_Int32(s, Weight[0].Bone, f.BoneSize);
 				break;
 			case DeformType.BDEF2:
-				PmxStreamHelper.WriteElement_Int32(s, this.Weight[0].Bone, f.BoneSize, true);
-				PmxStreamHelper.WriteElement_Int32(s, this.Weight[1].Bone, f.BoneSize, true);
-				PmxStreamHelper.WriteElement_Float(s, this.Weight[0].Value);
+				PmxStreamHelper.WriteElement_Int32(s, Weight[0].Bone, f.BoneSize);
+				PmxStreamHelper.WriteElement_Int32(s, Weight[1].Bone, f.BoneSize);
+				PmxStreamHelper.WriteElement_Float(s, Weight[0].Value);
 				break;
 			case DeformType.BDEF4:
 			case DeformType.QDEF:
-				PmxStreamHelper.WriteElement_Int32(s, this.Weight[0].Bone, f.BoneSize, true);
-				PmxStreamHelper.WriteElement_Int32(s, this.Weight[1].Bone, f.BoneSize, true);
-				PmxStreamHelper.WriteElement_Int32(s, this.Weight[2].Bone, f.BoneSize, true);
-				PmxStreamHelper.WriteElement_Int32(s, this.Weight[3].Bone, f.BoneSize, true);
-				PmxStreamHelper.WriteElement_Float(s, this.Weight[0].Value);
-				PmxStreamHelper.WriteElement_Float(s, this.Weight[1].Value);
-				PmxStreamHelper.WriteElement_Float(s, this.Weight[2].Value);
-				PmxStreamHelper.WriteElement_Float(s, this.Weight[3].Value);
+				PmxStreamHelper.WriteElement_Int32(s, Weight[0].Bone, f.BoneSize);
+				PmxStreamHelper.WriteElement_Int32(s, Weight[1].Bone, f.BoneSize);
+				PmxStreamHelper.WriteElement_Int32(s, Weight[2].Bone, f.BoneSize);
+				PmxStreamHelper.WriteElement_Int32(s, Weight[3].Bone, f.BoneSize);
+				PmxStreamHelper.WriteElement_Float(s, Weight[0].Value);
+				PmxStreamHelper.WriteElement_Float(s, Weight[1].Value);
+				PmxStreamHelper.WriteElement_Float(s, Weight[2].Value);
+				PmxStreamHelper.WriteElement_Float(s, Weight[3].Value);
 				break;
 			case DeformType.SDEF:
-				PmxStreamHelper.WriteElement_Int32(s, this.Weight[0].Bone, f.BoneSize, true);
-				PmxStreamHelper.WriteElement_Int32(s, this.Weight[1].Bone, f.BoneSize, true);
-				PmxStreamHelper.WriteElement_Float(s, this.Weight[0].Value);
-				V3_BytesConvert.ToStream(s, this.C0);
-				V3_BytesConvert.ToStream(s, this.R0);
-				V3_BytesConvert.ToStream(s, this.R1);
+				PmxStreamHelper.WriteElement_Int32(s, Weight[0].Bone, f.BoneSize);
+				PmxStreamHelper.WriteElement_Int32(s, Weight[1].Bone, f.BoneSize);
+				PmxStreamHelper.WriteElement_Float(s, Weight[0].Value);
+				V3_BytesConvert.ToStream(s, C0);
+				V3_BytesConvert.ToStream(s, R0);
+				V3_BytesConvert.ToStream(s, R1);
 				break;
 			}
-			PmxStreamHelper.WriteElement_Float(s, this.EdgeScale);
+			PmxStreamHelper.WriteElement_Float(s, EdgeScale);
+			if (f.WithID)
+			{
+				PmxStreamHelper.WriteElement_UInt(s, base.UID);
+				PmxStreamHelper.WriteElement_UInt(s, base.CID);
+			}
 		}
 
 		object ICloneable.Clone()

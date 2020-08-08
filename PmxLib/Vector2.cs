@@ -5,39 +5,23 @@ namespace PmxLib
 	public struct Vector2
 	{
 		public float x;
-
 		public float y;
 
 		public float X
 		{
-			get
-			{
-				return this.x;
-			}
-			set
-			{
-				this.x = value;
-			}
+			get { return this.x; }
+			set { this.x = value; }
 		}
 
 		public float Y
 		{
-			get
-			{
-				return this.y;
-			}
-			set
-			{
-				this.y = value;
-			}
+			get { return this.y; }
+			set { this.y = value; }
 		}
 
-		public static Vector2 zero
+		public static Vector2 Zero
 		{
-			get
-			{
-				return new Vector2(0f, 0f);
-			}
+			get { return new Vector2(0f, 0f); }
 		}
 
 		public Vector2(float x, float y)
