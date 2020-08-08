@@ -3,7 +3,8 @@
   <PropertyGroup>
     <ProjectGuid>{E738FE2D-CCF4-413E-937F-8DD8B0280B88}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AssemblyName>COM3D2.ModelExportMMD</AssemblyName>
+    <AssemblyName>COM3D2.ModelExportMMD.Plugin</AssemblyName>
+    <RootNamespace>COM3D2.ModelExportMMD</RootNamespace>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
