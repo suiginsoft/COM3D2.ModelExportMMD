@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{E738FE2D-CCF4-413E-937F-8DD8B0280B88}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>COM3D2.ModelExportMMD</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)'=='AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.Core">
+      <HintPath>C:\Windows\assembly\GAC_MSIL\System.Core\3.5.0.0__b77a5c561934e089\System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System">
+      <HintPath>C:\Windows\assembly\GAC_MSIL\System\2.0.0.0__b77a5c561934e089\System.dll</HintPath>
+    </Reference>
+    <Reference Include="System.XML" />
+    <Reference Include="UnityEngine" />
+    <Reference Include="UnityInjector" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Collada\ColladaExporter.cs" />
+    <Compile Include="COM3D2.ModelExportMMD.Gui\ExportWindow.cs" />
+    <Compile Include="COM3D2.ModelExportMMD.Plugin\ModelExport.cs" />
+    <Compile Include="COM3D2.ModelExportMMD.Util\TextureWriter.cs" />
+    <Compile Include="COM3D2.ModelExportMMD\DaeBuilder.cs" />
+    <Compile Include="COM3D2.ModelExportMMD\ObjBuilder.cs" />
+    <Compile Include="COM3D2.ModelExportMMD\PmxBuilder.cs" />
+    <Compile Include="PmxLib\BitConverterAp.cs" />
+    <Compile Include="PmxLib\BytesStringProc.cs" />
+    <Compile Include="PmxLib\CExt.cs" />
+    <Compile Include="PmxLib\CMath.cs" />
+    <Compile Include="PmxLib\CP.cs" />
+    <Compile Include="PmxLib\IBytesConvert.cs" />
+    <Compile Include="PmxLib\IDObject.cs" />
+    <Compile Include="PmxLib\IDOverflowException.cs" />
+    <Compile Include="PmxLib\INXName.cs" />
+    <Compile Include="PmxLib\IPmxObjectKey.cs" />
+    <Compile Include="PmxLib\IPmxStreamIO.cs" />
+    <Compile Include="PmxLib\Matrix.cs" />
+    <Compile Include="PmxLib\NodeFrame.cs" />
+    <Compile Include="PmxLib\Pmx.cs" />
+    <Compile Include="PmxLib\PmxBaseMorph.cs" />
+    <Compile Include="PmxLib\PmxBody.cs" />
+    <Compile Include="PmxLib\PmxBodyPassGroup.cs" />
+    <Compile Include="PmxLib\PmxBone.cs" />
+    <Compile Include="PmxLib\PmxBoneMorph.cs" />
+    <Compile Include="PmxLib\PmxElementFormat.cs" />
+    <Compile Include="PmxLib\PmxFace.cs" />
+    <Compile Include="PmxLib\PmxGroupMorph.cs" />
+    <Compile Include="PmxLib\PmxHeader.cs" />
+    <Compile Include="PmxLib\PmxIK.cs" />
+    <Compile Include="PmxLib\PmxImpulseMorph.cs" />
+    <Compile Include="PmxLib\PmxJoint.cs" />
+    <Compile Include="PmxLib\PmxLibClass.cs" />
+    <Compile Include="PmxLib\PmxMaterial.cs" />
+    <Compile Include="PmxLib\PmxMaterialAttribute.cs" />
+    <Compile Include="PmxLib\PmxMaterialMorph.cs" />
+    <Compile Include="PmxLib\PmxModelInfo.cs" />
+    <Compile Include="PmxLib\PmxMorph.cs" />
+    <Compile Include="PmxLib\PmxNode.cs" />
+    <Compile Include="PmxLib\PmxObject.cs" />
+    <Compile Include="PmxLib\PmxReadmeTag.cs" />
+    <Compile Include="PmxLib\PmxSaveVersion.cs" />
+    <Compile Include="PmxLib\PmxSoftBody.cs" />
+    <Compile Include="PmxLib\PmxStreamHelper.cs" />
+    <Compile Include="PmxLib\PmxTag.cs" />
+    <Compile Include="PmxLib\PmxTextureTable.cs" />
+    <Compile Include="PmxLib\PmxUVMorph.cs" />
+    <Compile Include="PmxLib\PmxVertex.cs" />
+    <Compile Include="PmxLib\PmxVertexMorph.cs" />
+    <Compile Include="PmxLib\Point.cs" />
+    <Compile Include="PmxLib\Quaternion.cs" />
+    <Compile Include="PmxLib\SystemToon.cs" />
+    <Compile Include="PmxLib\V2_BytesConvert.cs" />
+    <Compile Include="PmxLib\V3_BytesConvert.cs" />
+    <Compile Include="PmxLib\V4_BytesConvert.cs" />
+    <Compile Include="PmxLib\Vector2.cs" />
+    <Compile Include="PmxLib\Vector3.cs" />
+    <Compile Include="PmxLib\Vector4.cs" />
+    <Compile Include="PmxLib\Vmd.cs" />
+    <Compile Include="PmxLib\VmdCamera.cs" />
+    <Compile Include="PmxLib\VmdCameraIPL.cs" />
+    <Compile Include="PmxLib\VmdCamera_v1.cs" />
+    <Compile Include="PmxLib\VmdFrameBase.cs" />
+    <Compile Include="PmxLib\VmdIplData.cs" />
+    <Compile Include="PmxLib\VmdIplPoint.cs" />
+    <Compile Include="PmxLib\VmdLight.cs" />
+    <Compile Include="PmxLib\VmdMorph.cs" />
+    <Compile Include="PmxLib\VmdMotion.cs" />
+    <Compile Include="PmxLib\VmdMotionIPL.cs" />
+    <Compile Include="PmxLib\VmdSelfShadow.cs" />
+    <Compile Include="PmxLib\VmdVisibleIK.cs" />
+    <Compile Include="PmxLib\Vpd.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Collada\collada_schema_1_4_1_ms.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Collada\collada_schema_1_5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
