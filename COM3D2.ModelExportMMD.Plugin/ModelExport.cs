@@ -16,9 +16,14 @@ namespace COM3D2.ModelExportMMD.Plugin
     [PluginFilter("COM3D2x64")]
     public class ModelExport : PluginBase
     {
-        private ExportWindow window;
+        #region Fields
 
+        private ExportWindow window;
         private List<SkinnedMeshRenderer> skinnedMeshList;
+
+        #endregion
+
+        #region Methods
 
         public void Update()
         {
@@ -40,7 +45,6 @@ namespace COM3D2.ModelExportMMD.Plugin
                 window = new ExportWindow();
                 window.PMXExportCallBack = (Action)Delegate.Combine(window.PMXExportCallBack, new Action(ExportPMX));
                 window.OBJExportCallBack = (Action)Delegate.Combine(window.OBJExportCallBack, new Action(ExportOBJ));
-                window.DAEExportCallBack = (Action)Delegate.Combine(window.DAEExportCallBack, new Action(ExportDAE));
             }
             window.DrawWindow();
         }
@@ -163,15 +167,6 @@ namespace COM3D2.ModelExportMMD.Plugin
             objBuilder.Export(this.skinnedMeshList, filename);
         }
 
-        private void ExportDAE()
-        {
-            string filename = ExportWindow.ExportFolder + "\\" + ExportWindow.ExportName + ".dae";
-            DaeBuilder daeBuilder = new DaeBuilder(filename);
-            foreach (SkinnedMeshRenderer skinnedMesh in skinnedMeshList)
-            {
-                daeBuilder.AddMesh(skinnedMesh);
-            }
-            daeBuilder.Finish();
-        }
+        #endregion
     }
 }

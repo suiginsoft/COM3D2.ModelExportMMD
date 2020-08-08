@@ -10,19 +10,24 @@ namespace COM3D2.ModelExportMMD
 {
     public class PmxBuilder
     {
-        private Pmx pmxFile;
+        #region Constants
 
-        private float scale = 8;
+        private const float ScaleFactor = 8;
 
+        #endregion
+
+        #region Fields
+
+        private readonly Pmx pmxFile;
+        private readonly List<Transform> boneList = new List<Transform>();
+        private readonly List<int> boneParent = new List<int>();
+        private readonly List<Matrix4x4> bindposeList = new List<Matrix4x4>();
+        private Dictionary<string, int> bonesMap;
         private int vertexCount = 0;
 
-        private Dictionary<string, int> bonesMap;
+        #endregion
 
-        private List<Transform> boneList = new List<Transform>();
-
-        private List<int> boneParent = new List<int>();
-
-        private List<Matrix4x4> bindposeList = new List<Matrix4x4>();
+        #region Constructors
 
         public PmxBuilder()
         {
@@ -32,6 +37,10 @@ namespace COM3D2.ModelExportMMD
             }
             this.pmxFile = new Pmx();
         }
+
+        #endregion
+
+        #region Methods
 
         public void CreatePmxHeader()
         {
@@ -145,7 +154,7 @@ namespace COM3D2.ModelExportMMD
                 pmxVertex.Normal = ToPmxVec3(n);
                 UnityEngine.Vector3 v = vertices[i];
                 v = t.TransformPoint(v);
-                v *= (float)this.scale;
+                v *= ScaleFactor;
                 pmxVertex.Position = ToPmxVec3(v);
                 this.pmxFile.VertexList.Add(pmxVertex);
             }
@@ -247,7 +256,7 @@ namespace COM3D2.ModelExportMMD
                 {
                     pmxBone.Parent = this.boneParent[i];
                 }
-                UnityEngine.Vector3 vector = bone.position * this.scale;
+                UnityEngine.Vector3 vector = bone.position * ScaleFactor;
                 pmxBone.Position = ToPmxVec3(vector);
                 this.pmxFile.BoneList.Add(pmxBone);
             }
@@ -273,7 +282,7 @@ namespace COM3D2.ModelExportMMD
             pmxMaterial.Name = material.name;
             pmxMaterial.NameE = material.name;
             pmxMaterial.Flags = (PmxMaterial.MaterialFlags.DrawBoth | PmxMaterial.MaterialFlags.Shadow | PmxMaterial.MaterialFlags.SelfShadowMap | PmxMaterial.MaterialFlags.SelfShadow);
-            if ((UnityEngine.Object)material.mainTexture != (UnityEngine.Object)null)
+            if (material.mainTexture != null)
             {
                 string text = material.name;
                 Debug.Log("Generate Material : " + text);
@@ -321,5 +330,7 @@ namespace COM3D2.ModelExportMMD
         {
             this.pmxFile.ToFile(filename);
         }
+
+        #endregion
     }
 }

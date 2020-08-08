@@ -9,6 +9,8 @@ namespace COM3D2.ModelExportMMD
 {
     public class ObjBuilder
     {
+        #region Types
+
         public enum SplitType
         {
             By_Mesh,
@@ -17,11 +19,17 @@ namespace COM3D2.ModelExportMMD
             None
         }
 
+        #endregion
+
+        #region Fields
+
         private string exportFolder;
-
         private string exportName;
-
         private List<string> matNameCache;
+
+        #endregion
+
+        #region Methods
 
         private string ConstructFaceString(int i1, int i2, int i3)
         {
@@ -79,10 +87,10 @@ namespace COM3D2.ModelExportMMD
                     float num = Mathf.Lerp(1f, 0f, color.a);
                     sbMaterial.AppendLine("d " + num);
                 }
-                if ((Object)material.mainTexture != (Object)null)
+                if (material.mainTexture != null)
                 {
                     Texture mainTex = this.GetMainTex(material);
-                    if ((Object)mainTex != (Object)null)
+                    if (mainTex != null)
                     {
                         Vector2 textureScale = material.GetTextureScale("_MainTex");
                         if (mainTex.wrapMode == TextureWrapMode.Clamp)
@@ -96,7 +104,7 @@ namespace COM3D2.ModelExportMMD
                             TextureWriter.WriteTexture2D(this.exportFolder + "/" + text + "d.png", mainTex);
                         }
                         Texture2D shadowTex = this.GetShadowTex(material);
-                        if ((Object)shadowTex != (Object)null)
+                        if (shadowTex != null)
                         {
                             sbMaterial.AppendLine("map_Ka " + text + "a.png");
                             if (ExportWindow.SaveTexture)
@@ -188,7 +196,7 @@ namespace COM3D2.ModelExportMMD
                 }
                 bool flag = false;
                 Renderer component = gameObject.GetComponent<Renderer>();
-                if ((Object)component != (Object)null)
+                if (component != null)
                 {
                     flag = true;
                 }
@@ -222,5 +230,7 @@ namespace COM3D2.ModelExportMMD
             File.WriteAllText(this.exportFolder + "\\" + this.exportName + ".obj", stringBuilder.ToString());
             File.WriteAllText(this.exportFolder + "\\" + this.exportName + ".mtl", stringBuilder2.ToString());
         }
+
+        #endregion
     }
 }

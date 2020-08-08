@@ -37,11 +37,9 @@
     <Reference Include="UnityInjector" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Collada\ColladaExporter.cs" />
     <Compile Include="COM3D2.ModelExportMMD.Gui\ExportWindow.cs" />
     <Compile Include="COM3D2.ModelExportMMD.Plugin\ModelExport.cs" />
     <Compile Include="COM3D2.ModelExportMMD.Util\TextureWriter.cs" />
-    <Compile Include="COM3D2.ModelExportMMD\DaeBuilder.cs" />
     <Compile Include="COM3D2.ModelExportMMD\ObjBuilder.cs" />
     <Compile Include="COM3D2.ModelExportMMD\PmxBuilder.cs" />
     <Compile Include="PmxLib\BitConverterAp.cs" />
@@ -111,14 +109,6 @@
     <Compile Include="PmxLib\VmdVisibleIK.cs" />
     <Compile Include="PmxLib\Vpd.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Collada\collada_schema_1_4_1_ms.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Collada\collada_schema_1_5.xsd">
-      <SubType>Designer</SubType>
-    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
