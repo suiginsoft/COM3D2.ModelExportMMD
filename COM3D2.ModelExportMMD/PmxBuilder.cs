@@ -31,9 +31,9 @@ namespace COM3D2.ModelExportMMD
 
         public PmxBuilder()
         {
-            if (!Directory.Exists(ExportWindow.ExportFolder))
+            if (!Directory.Exists(ModelExportWindow.ExportFolder))
             {
-                Directory.CreateDirectory(ExportWindow.ExportFolder);
+                Directory.CreateDirectory(ModelExportWindow.ExportFolder);
             }
             this.pmxFile = new Pmx();
         }
@@ -118,7 +118,7 @@ namespace COM3D2.ModelExportMMD
             GameObject gameObject = meshRender.gameObject;
             Mesh mesh = meshRender.sharedMesh;
             BoneWeight[] boneWeights = mesh.boneWeights;
-            if (ExportWindow.SavePostion)
+            if (ModelExportWindow.SavePostion)
             {
                 Mesh mesh2 = new Mesh();
                 meshRender.BakeMesh(mesh2);
@@ -285,9 +285,9 @@ namespace COM3D2.ModelExportMMD
                 }
                 pmxMaterial.Tex = text + ".png";
                 Texture mainTexture = material.mainTexture;
-                if (ExportWindow.SaveTexture)
+                if (ModelExportWindow.SaveTexture)
                 {
-                    TextureWriter.WriteTexture2D(ExportWindow.ExportFolder + "/" + pmxMaterial.Tex, mainTexture);
+                    TextureWriter.WriteTexture2D(ModelExportWindow.ExportFolder + "/" + pmxMaterial.Tex, mainTexture);
                 }
             }
             if (material.HasProperty("_Color"))

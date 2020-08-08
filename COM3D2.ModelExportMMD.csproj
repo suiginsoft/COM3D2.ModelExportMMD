@@ -34,8 +34,8 @@
     <Reference Include="UnityInjector" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="COM3D2.ModelExportMMD.Gui\ExportWindow.cs" />
-    <Compile Include="COM3D2.ModelExportMMD.Plugin\ModelExport.cs" />
+    <Compile Include="COM3D2.ModelExportMMD.Gui\ModelExportWindow.cs" />
+    <Compile Include="COM3D2.ModelExportMMD.Plugin\ModelExportPlugin.cs" />
     <Compile Include="COM3D2.ModelExportMMD.Util\TextureWriter.cs" />
     <Compile Include="COM3D2.ModelExportMMD\ObjBuilder.cs" />
     <Compile Include="COM3D2.ModelExportMMD\PmxBuilder.cs" />

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace COM3D2.ModelExportMMD.Gui
 {
-    public class ExportWindow
+    public class ModelExportWindow
     {
         #region Constants
 
@@ -39,15 +39,15 @@ namespace COM3D2.ModelExportMMD.Gui
 
         #region Properties
 
-        public Action OBJExportCallBack { get; set; }
+        public Action ExportObjCallBack { get; set; }
 
-        public Action PMXExportCallBack { get; set; }
+        public Action ExportPmxCallBack { get; set; }
 
         #endregion
 
         #region Constructors
 
-        public ExportWindow()
+        public ModelExportWindow()
         {
             this.modalRect = new Rect(Screen.width / 2 - this.FixPx(300), Screen.height / 2 - this.FixPx(300), this.FixPx(450), this.FixPx(450));
             Color textColor = new Color(1f, 0.329411775f, 0.478431374f, 1f);
@@ -112,26 +112,26 @@ namespace COM3D2.ModelExportMMD.Gui
             GUI.Label(position, labels[0], this.lStyle);
             position.x += position.width;
             position.width = this.modalRect.width * 0.8f - num;
-            ExportWindow.ExportFolder = GUI.TextField(position, ExportWindow.ExportFolder, this.textStyle);
+            ModelExportWindow.ExportFolder = GUI.TextField(position, ModelExportWindow.ExportFolder, this.textStyle);
             position.x = num;
             position.y += position.height + num;
             position.width = this.modalRect.width * 0.2f - num;
             GUI.Label(position, labels[1], this.lStyle);
             position.x += position.width;
             position.width = this.modalRect.width * 0.8f - num;
-            ExportWindow.ExportName = GUI.TextField(position, ExportWindow.ExportName, this.textStyle);
+            ModelExportWindow.ExportName = GUI.TextField(position, ModelExportWindow.ExportName, this.textStyle);
             position.x = num;
             position.y += position.height + num;
-            ExportWindow.SaveTexture = GUI.Toggle(position, ExportWindow.SaveTexture, labels[2], this.tStyle);
+            ModelExportWindow.SaveTexture = GUI.Toggle(position, ModelExportWindow.SaveTexture, labels[2], this.tStyle);
             position.x = num;
             position.y += position.height + num;
-            ExportWindow.SavePostion = GUI.Toggle(position, ExportWindow.SavePostion, labels[3], this.tStyle);
+            ModelExportWindow.SavePostion = GUI.Toggle(position, ModelExportWindow.SavePostion, labels[3], this.tStyle);
             position.x = num;
             position.y += position.height + num;
             position.width = this.modalRect.width - num * 2f;
             if (GUI.Button(position, labels[4], this.bStyle))
             {
-                this.OBJExportCallBack();
+                this.ExportObjCallBack();
                 this.showSaveDialog = false;
             }
             position.x = num;
@@ -139,7 +139,7 @@ namespace COM3D2.ModelExportMMD.Gui
             position.width = this.modalRect.width - num * 2f;
             if (GUI.Button(position, labels[5], this.bStyle))
             {
-                this.PMXExportCallBack();
+                this.ExportPmxCallBack();
                 this.showSaveDialog = false;
             }
             position.x = num;

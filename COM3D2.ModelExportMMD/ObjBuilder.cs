@@ -99,7 +99,7 @@ namespace COM3D2.ModelExportMMD
                         }
                         sbMaterial.AppendLine("s " + textureScale.x + " " + textureScale.y);
                         sbMaterial.AppendLine("map_Kd " + text + "d.png");
-                        if (ExportWindow.SaveTexture)
+                        if (ModelExportWindow.SaveTexture)
                         {
                             TextureWriter.WriteTexture2D(this.exportFolder + "/" + text + "d.png", mainTex);
                         }
@@ -107,7 +107,7 @@ namespace COM3D2.ModelExportMMD
                         if (shadowTex != null)
                         {
                             sbMaterial.AppendLine("map_Ka " + text + "a.png");
-                            if (ExportWindow.SaveTexture)
+                            if (ModelExportWindow.SaveTexture)
                             {
                                 TextureWriter.WriteTexture2D(this.exportFolder + "/" + text + "a.png", shadowTex);
                             }
@@ -157,7 +157,7 @@ namespace COM3D2.ModelExportMMD
                 SkinnedMeshRenderer skinnedMeshRenderer = meshesList[i];
                 Mesh mesh = null;
                 GameObject gameObject = meshesList[i].gameObject;
-                if (ExportWindow.SavePostion)
+                if (ModelExportWindow.SavePostion)
                 {
                     Mesh mesh2 = new Mesh();
                     meshesList[i].BakeMesh(mesh2);
