@@ -54,33 +54,51 @@ namespace COM3D2.ModelExportMMD.Plugin
 
         private void ExportObj()
         {
-            string filepath = Path.Combine(ModelExportWindow.ExportFolder, ModelExportWindow.ExportName + ".obj");
-            var skinnedMeshes = FetchAllSkinnedMeshes();
+            try
+            {
+                var filepath = GetExportFilePath(".obj");
+                var skinnedMeshes = GetAllSkinnedMeshes();
 
-            ObjBuilder objBuilder = new ObjBuilder();
-            objBuilder.Export(skinnedMeshes, filepath);
+                var objBuilder = new ObjBuilder();
+                objBuilder.Export(skinnedMeshes, filepath);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Error exporting OBJ: {e.Message}\n\nStack trace:\n{e.StackTrace}");
+            }
         }
 
         private void ExportPmx()
         {
-            string filepath = Path.Combine(ModelExportWindow.ExportFolder, ModelExportWindow.ExportName + ".pmx");
-            var skinnedMeshes = FetchAllSkinnedMeshes();
-
-            PmxBuilder pmxBuilder = new PmxBuilder();
-            pmxBuilder.CreateModelInfo();
-            pmxBuilder.PrepareData(skinnedMeshes);
-            pmxBuilder.CreateBoneList();
-
-            foreach (var skinnedMesh in skinnedMeshes)
+            try
             {
-                pmxBuilder.CreateMeshList(skinnedMesh);
-            }
+                var filepath = GetExportFilePath(".pmx");
+                var skinnedMeshes = GetAllSkinnedMeshes();
 
-            pmxBuilder.CreatePmxHeader();
-            pmxBuilder.Save(filepath);
+                var pmxBuilder = new PmxBuilder();
+                pmxBuilder.PrepareData(skinnedMeshes);
+                pmxBuilder.CreateBoneList();
+
+                foreach (var skinnedMesh in skinnedMeshes)
+                {
+                    pmxBuilder.CreateMeshList(skinnedMesh);
+                }
+
+                pmxBuilder.CreatePmxHeader();
+                pmxBuilder.Save(filepath);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Error exporting PMX: {e.Message}\n\nStack trace:\n{e.StackTrace}");
+            }
         }
 
-        private List<SkinnedMeshRenderer> FetchAllSkinnedMeshes()
+        private string GetExportFilePath(string extension)
+        {
+            return Path.Combine(ModelExportWindow.ExportFolder, ModelExportWindow.ExportName + extension);
+        }
+
+        private List<SkinnedMeshRenderer> GetAllSkinnedMeshes()
         {
             return FindObjectsOfType<SkinnedMeshRenderer>()
                 .Where(smr => smr.name != "obj1")
@@ -94,7 +112,7 @@ namespace COM3D2.ModelExportMMD.Plugin
                 .OrderBy(go => go.name)
                 .ToList();
 
-            using (StreamWriter w = new StreamWriter(@"GameObjects.txt"))
+            using (var w = new StreamWriter(@"GameObjects.txt"))
             {
                 if (gameObjects.Count == 0)
                 {
@@ -122,7 +140,7 @@ namespace COM3D2.ModelExportMMD.Plugin
                 .Where(go => go.name.Contains("body"))
                 .FirstOrDefault();
 
-            using (StreamWriter w = new StreamWriter(@"BodyModel.txt"))
+            using (var w = new StreamWriter(@"BodyModel.txt"))
             {
                 if (gameObject == null)
                 {
