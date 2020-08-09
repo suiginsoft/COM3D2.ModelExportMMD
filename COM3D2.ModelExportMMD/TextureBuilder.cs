@@ -33,7 +33,7 @@ namespace COM3D2.ModelExportMMD
             }
             catch (Exception error)
             {
-                Debug.Log($"Error writing texture to file: {error.Message}\n\nStack Trace:\n{error.StackTrace}");
+                Debug.Log($"Error writing texture to file: {error.Message}\n\nStack trace:\n{error.StackTrace}");
             }
         }
 

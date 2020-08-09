@@ -135,14 +135,17 @@ namespace COM3D2.ModelExportMMD.Plugin
             {
                 window.Show();
             }
+#if DEBUG
             if (Input.GetKeyDown(KeyCode.F9))
             {
                 DumpGameObjects();
             }
+
             if (Input.GetKeyDown(KeyCode.F10))
             {
                 DumpBodyModel();
             }
+#endif
         }
 
         public void OnGUI()
@@ -190,9 +193,9 @@ namespace COM3D2.ModelExportMMD.Plugin
                 var objBuilder = new ObjBuilder();
                 objBuilder.Export(skinnedMeshes, filepath);
             }
-            catch (Exception e)
+            catch (Exception error)
             {
-                Debug.LogError($"Error exporting OBJ: {e.Message}\n\nStack trace:\n{e.StackTrace}");
+                Debug.LogError($"Error exporting OBJ: {error.Message}\n\nStack trace:\n{error.StackTrace}");
             }
         }
 
@@ -217,9 +220,9 @@ namespace COM3D2.ModelExportMMD.Plugin
                 pmxBuilder.CreatePmxHeader();
                 pmxBuilder.Save(filepath);
             }
-            catch (Exception e)
+            catch (Exception error)
             {
-                Debug.LogError($"Error exporting PMX: {e.Message}\n\nStack trace:\n{e.StackTrace}");
+                Debug.LogError($"Error exporting PMX: {error.Message}\n\nStack trace:\n{error.StackTrace}");
             }
         }
 
@@ -242,11 +245,11 @@ namespace COM3D2.ModelExportMMD.Plugin
                 .OrderBy(go => go.name)
                 .ToList();
 
-            using (var w = new StreamWriter(@"GameObjects.txt"))
+            using (var writer = new StreamWriter(@"GameObjects.txt"))
             {
                 if (gameObjects.Count == 0)
                 {
-                    w.WriteLine("No game objects found");
+                    writer.WriteLine("No game objects found");
                     return;
                 }
 
@@ -254,10 +257,10 @@ namespace COM3D2.ModelExportMMD.Plugin
 
                 foreach (var go in gameObjects)
                 {
-                    w.WriteLine(go.name + "[" + go.GetInstanceID() + "]");
-                    foreach (var c in go.GetComponents<Component>())
+                    writer.WriteLine(go.name + "[" + go.GetInstanceID() + "]");
+                    foreach (var component in go.GetComponents<Component>())
                     {
-                        DumpComponents(w, c, ".", printed);
+                        DumpComponents(writer, component, ".", printed);
                     }
                 }
             }
@@ -270,31 +273,31 @@ namespace COM3D2.ModelExportMMD.Plugin
                 .Where(go => go.name.StartsWith("body"))
                 .FirstOrDefault();
 
-            using (var w = new StreamWriter(@"BodyModel.txt"))
+            using (var writer = new StreamWriter(@"BodyModel.txt"))
             {
                 if (gameObject == null)
                 {
-                    w.WriteLine("No body model found");
+                    writer.WriteLine("No body model found");
                     return;
                 }
 
-                w.WriteLine($"Component tree of {gameObject.name}");
+                writer.WriteLine($"Component tree of {gameObject.name}");
 
                 var printed = new HashSet<Component>();
 
                 var components = new List<Component>();
                 gameObject.GetComponents(components);
 
-                foreach (var c in components)
+                foreach (var component in components)
                 {
-                    DumpComponents(w, c, ".", printed);
+                    DumpComponents(writer, component, ".", printed);
                 }
             }
         }
 
-        private void DumpComponents(StreamWriter w, Component root, string indent, HashSet<Component> printed)
+        private void DumpComponents(StreamWriter writer, Component root, string indent, HashSet<Component> printed)
         {
-            w.WriteLine($"{indent} {root.name}({root.GetType().Name})");
+            writer.WriteLine($"{indent} {root.name}({root.GetType().Name})");
 
             var subindent = indent + indent[0];
 
@@ -303,14 +306,14 @@ namespace COM3D2.ModelExportMMD.Plugin
                 var components = new List<Component>();
                 root.GetComponents(components);
 
-                foreach (var c in components)
+                foreach (var component in components)
                 {
-                    DumpComponents(w, c, subindent, printed);
+                    DumpComponents(writer, component, subindent, printed);
                 }
             }
             else
             {
-                w.WriteLine($"{subindent} [already printed]");
+                writer.WriteLine($"{subindent} [already printed]");
             }
         }
 
