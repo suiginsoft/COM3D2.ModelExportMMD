@@ -1,5 +1,4 @@
 using COM3D2.ModelExportMMD.Gui;
-using COM3D2.ModelExportMMD.Util;
 using PmxLib;
 using System;
 using System.Collections.Generic;
@@ -295,7 +294,7 @@ namespace COM3D2.ModelExportMMD
                 Texture mainTexture = material.mainTexture;
                 if (ModelExportWindow.SaveTexture)
                 {
-                    TextureWriter.WriteTexture2D(ModelExportWindow.ExportFolder + "/" + pmxMaterial.Tex, mainTexture);
+                    TextureBuilder.WriteTextureToFile(ModelExportWindow.ExportFolder + "/" + pmxMaterial.Tex, mainTexture);
                 }
             }
             if (material.HasProperty("_Color"))

@@ -46,7 +46,7 @@
   <ItemGroup>
     <Compile Include="COM3D2.ModelExportMMD.Gui\ModelExportWindow.cs" />
     <Compile Include="COM3D2.ModelExportMMD.Plugin\ModelExportPlugin.cs" />
-    <Compile Include="COM3D2.ModelExportMMD.Util\TextureWriter.cs" />
+    <Compile Include="COM3D2.ModelExportMMD\TextureBuilder.cs" />
     <Compile Include="COM3D2.ModelExportMMD\ObjBuilder.cs" />
     <Compile Include="COM3D2.ModelExportMMD\PmxBuilder.cs" />
     <Compile Include="PmxLib\BitConverterAp.cs" />

@@ -1,5 +1,4 @@
 using COM3D2.ModelExportMMD.Gui;
-using COM3D2.ModelExportMMD.Util;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -52,7 +51,7 @@ namespace COM3D2.ModelExportMMD
             if (material.HasProperty("_ShadowTex"))
             {
                 Texture texture = material.GetTexture("_ShadowTex");
-                result = ((texture.GetType() != typeof(RenderTexture)) ? (texture as Texture2D) : TextureWriter.Render2Texture2D(texture as RenderTexture));
+                result = ((texture.GetType() != typeof(RenderTexture)) ? (texture as Texture2D) : TextureBuilder.ConvertToTexture2D(texture as RenderTexture));
             }
             return result;
         }
@@ -101,7 +100,7 @@ namespace COM3D2.ModelExportMMD
                         sbMaterial.AppendLine("map_Kd " + text + "d.png");
                         if (ModelExportWindow.SaveTexture)
                         {
-                            TextureWriter.WriteTexture2D(this.exportFolder + "/" + text + "d.png", mainTex);
+                            TextureBuilder.WriteTextureToFile(this.exportFolder + "/" + text + "d.png", mainTex);
                         }
                         Texture2D shadowTex = this.GetShadowTex(material);
                         if (shadowTex != null)
@@ -109,7 +108,7 @@ namespace COM3D2.ModelExportMMD
                             sbMaterial.AppendLine("map_Ka " + text + "a.png");
                             if (ModelExportWindow.SaveTexture)
                             {
-                                TextureWriter.WriteTexture2D(this.exportFolder + "/" + text + "a.png", shadowTex);
+                                TextureBuilder.WriteTextureToFile(this.exportFolder + "/" + text + "a.png", shadowTex);
                             }
                         }
                     }

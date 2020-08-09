@@ -2,13 +2,13 @@ using System;
 using System.IO;
 using UnityEngine;
 
-namespace COM3D2.ModelExportMMD.Util
+namespace COM3D2.ModelExportMMD
 {
-    public static class TextureWriter
+    public static class TextureBuilder
     {
         #region Methods
 
-        public static Texture2D Render2Texture2D(RenderTexture renderTexture)
+        public static Texture2D ConvertToTexture2D(RenderTexture renderTexture)
         {
             int width = renderTexture.width;
             int height = renderTexture.height;
@@ -19,11 +19,11 @@ namespace COM3D2.ModelExportMMD.Util
             return texture2D;
         }
 
-        public static void WriteTexture2D(string path, Texture tex)
+        public static void WriteTextureToFile(string path, Texture tex)
         {
             try
             {
-                Texture2D texture2D = ((!(tex is RenderTexture)) ? (tex as Texture2D) : Render2Texture2D(tex as RenderTexture));
+                Texture2D texture2D = ((!(tex is RenderTexture)) ? (tex as Texture2D) : ConvertToTexture2D(tex as RenderTexture));
                 Texture2D argb32Texture2D = new Texture2D(texture2D.width, texture2D.height, TextureFormat.ARGB32, false);
                 Color[] pixels = texture2D.GetPixels();
                 argb32Texture2D.SetPixels(pixels);
@@ -31,9 +31,9 @@ namespace COM3D2.ModelExportMMD.Util
                 File.WriteAllBytes(path, bytes);
                 Debug.Log("Writing Texture :" + path);
             }
-            catch (Exception message)
+            catch (Exception error)
             {
-                Debug.Log(message);
+                Debug.Log($"Error writing texture to file: {error.Message}\n\nStack Trace:\n{error.StackTrace}");
             }
         }
 
