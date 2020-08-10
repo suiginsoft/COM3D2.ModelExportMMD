@@ -2,21 +2,15 @@
 
 namespace COM3D2.ModelExportMMD.Gui
 {
-    public enum ModelExportFormat
-    {
-        Obj,
-        Pmx
-    }
-
     public class ModelExportEventArgs : EventArgs
     {
         #region Properties
 
-        public ModelExportFormat Format { get; }
-
         public string Folder { get; }
 
         public string Name { get; }
+
+        public ModelExportFormat Format { get; }
 
         public bool SavePosition { get; } = true;
 
@@ -26,11 +20,11 @@ namespace COM3D2.ModelExportMMD.Gui
 
         #region Constructors
 
-        public ModelExportEventArgs(ModelExportFormat format, string folder, string name, bool savePosition, bool saveTexture)
+        public ModelExportEventArgs(string folder, string name, ModelExportFormat format, bool savePosition, bool saveTexture)
         {
-            Format = format;
             Folder = folder;
             Name = name;
+            Format = format;
             SavePosition = savePosition;
             SaveTexture = saveTexture;
         }

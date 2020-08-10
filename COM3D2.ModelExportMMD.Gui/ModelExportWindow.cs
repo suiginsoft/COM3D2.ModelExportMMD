@@ -16,24 +16,32 @@ namespace COM3D2.ModelExportMMD.Gui
         private static readonly string[] Labels =
         {
             "Folder",
-            "File",
+            "Browse",
+            "Name",
+            "Format",
             "Save texture",
             "Save position",
             "Apply T-Pose",
-            "Save as MMD",
-            "Save as OBJ",
+            "Export",
             "Close"
+        };
+
+        private static readonly string[] ExportFormatLabels =
+        {
+            "MMD (*.pmx)",
+            "OBJ (*.obj)"
         };
 
         #endregion
 
         #region Fields
 
-        private readonly GUIStyle lStyle = "label";
-        private readonly GUIStyle bStyle = "button";
-        private readonly GUIStyle tStyle = "toggle";
-        private readonly GUIStyle textStyle = "textField";
-        private readonly GUIStyle windowStyle = "window";
+        private readonly GUIStyle buttonStyle = new GUIStyle("button");
+        private readonly GUIStyle labelStyle = new GUIStyle("label");
+        private readonly GUIStyle selectionGridStyle = new GUIStyle("button");
+        private readonly GUIStyle textStyle = new GUIStyle("textfield");
+        private readonly GUIStyle toggleStyle = new GUIStyle("toggle");
+        private readonly GUIStyle windowStyle = new GUIStyle("window");
         private bool showSaveDialog = false;
         private Rect modalRect;
 
@@ -44,6 +52,7 @@ namespace COM3D2.ModelExportMMD.Gui
         public string PluginVersion { get; set; }
         public string ExportFolderPath { get; set; }
         public string ExportName { get; set; }
+        public ModelExportFormat ExportFormat { get; set; }
         public bool SavePostion { get; set; }
         public bool SaveTextures { get; set; }
 
@@ -51,6 +60,7 @@ namespace COM3D2.ModelExportMMD.Gui
 
         #region Events
 
+        public event EventHandler<EventArgs> BrowseClicked;
         public event EventHandler<EventArgs> ApplyTPoseClicked;
         public event EventHandler<ModelExportEventArgs> ExportClicked;
         public event EventHandler<EventArgs> CloseClicked;
@@ -73,26 +83,36 @@ namespace COM3D2.ModelExportMMD.Gui
                 backgroundTexture.Apply();
             }
 
-            var textColor = new Color(1f, 0.329411775f, 0.478431374f, 1f);
-            var textColor2 = new Color(1f, 1f, 1f, 1f);
+            var white = new Color(1f, 1f, 1f, 1f);
+            var grey = new Color(0.65f, 0.65f, 0.65f, 1f);
+            var pink = new Color(1f, 0.329411775f, 0.478431374f, 1f);
 
-            this.windowStyle.normal.textColor = textColor;
-            this.windowStyle.normal.background = backgroundTexture;
-            this.lStyle.fontSize = FixPx(FontSizePx);
-            this.lStyle.normal.textColor = textColor;
-            this.bStyle.fontSize = FixPx(FontSizePx);
-            this.bStyle.normal.textColor = textColor2;
-            this.tStyle.fontSize = FixPx(FontSizePx);
-            this.tStyle.normal.textColor = textColor;
-            this.tStyle.onNormal.textColor = textColor;
-            this.tStyle.active.textColor = textColor;
-            this.tStyle.hover.textColor = textColor;
-            this.tStyle.onHover.textColor = textColor;
-            this.tStyle.onActive.textColor = textColor;
-            this.tStyle.focused.textColor = textColor;
-            this.tStyle.onFocused.textColor = textColor;
+            this.buttonStyle.fontSize = FixPx(FontSizePx);
+            this.buttonStyle.normal.textColor = white;
+            this.labelStyle.fontSize = FixPx(FontSizePx);
+            this.labelStyle.normal.textColor = pink;
+            this.selectionGridStyle.fontSize = FixPx(FontSizePx);
+            this.selectionGridStyle.normal.textColor = white;
+            this.selectionGridStyle.active.textColor = pink;
+            this.selectionGridStyle.focused.textColor = pink;
+            this.selectionGridStyle.hover.textColor = pink;
+            this.selectionGridStyle.onNormal.textColor = white;
+            this.selectionGridStyle.onActive.textColor = pink;
+            this.selectionGridStyle.onHover.textColor = pink;
+            this.selectionGridStyle.onFocused.textColor = pink;
             this.textStyle.fontSize = FixPx(FontSizePx);
-            this.textStyle.normal.textColor = textColor2;
+            this.textStyle.normal.textColor = white;
+            this.toggleStyle.fontSize = FixPx(FontSizePx);
+            this.toggleStyle.normal.textColor = pink;
+            this.toggleStyle.onNormal.textColor = pink;
+            this.toggleStyle.active.textColor = pink;
+            this.toggleStyle.hover.textColor = pink;
+            this.toggleStyle.onHover.textColor = pink;
+            this.toggleStyle.onActive.textColor = pink;
+            this.toggleStyle.focused.textColor = pink;
+            this.toggleStyle.onFocused.textColor = pink;
+            this.windowStyle.normal.textColor = pink;
+            this.windowStyle.normal.background = backgroundTexture;
         }
 
         #endregion
@@ -114,32 +134,39 @@ namespace COM3D2.ModelExportMMD.Gui
         {
             if (this.showSaveDialog)
             {
-                var windowTitle = $"Model Export to MMD Version {this.PluginVersion}";
+                var windowTitle = $"Model Export MMD Version {this.PluginVersion}";
                 this.modalRect = GUI.ModalWindow(0, this.modalRect, this.DoSaveModDialog, windowTitle, this.windowStyle);
             }
         }
 
         private void DoSaveModDialog(int winId)
         {
-            this.lStyle.fontSize = FixPx(FontSizePx);
+            this.labelStyle.fontSize = FixPx(FontSizePx);
 
             float margin = FixPx(MarginPx);
             float itemHeight = FixPx(ItemHeightPx);
 
-            Rect position = new Rect(0f, 0f, this.modalRect.width - margin * 2f, itemHeight);
+            Rect position = new Rect(0f, 0f, this.modalRect.width - margin * 3f, itemHeight);
             position.x = margin;
             position.y = itemHeight + margin;
             position.width = this.modalRect.width * 0.2f - margin;
-            GUI.Label(position, Labels[0], this.lStyle);
+            GUI.Label(position, Labels[0], this.labelStyle);
 
             position.x += position.width;
-            position.width = this.modalRect.width * 0.8f - margin;
+            position.width = this.modalRect.width * 0.6f - margin;
             this.ExportFolderPath = GUI.TextField(position, this.ExportFolderPath, this.textStyle);
+
+            position.x += position.width;
+            position.width = this.modalRect.width * 0.2f;
+            if (GUI.Button(position, Labels[1], this.buttonStyle))
+            {
+                this.BrowseClicked(this, EventArgs.Empty);
+            }
 
             position.x = margin;
             position.y += position.height + margin;
             position.width = this.modalRect.width * 0.2f - margin;
-            GUI.Label(position, Labels[1], this.lStyle);
+            GUI.Label(position, Labels[2], this.labelStyle);
 
             position.x += position.width;
             position.width = this.modalRect.width * 0.8f - margin;
@@ -147,16 +174,25 @@ namespace COM3D2.ModelExportMMD.Gui
 
             position.x = margin;
             position.y += position.height + margin;
-            this.SaveTextures = GUI.Toggle(position, this.SaveTextures, Labels[2], this.tStyle);
+            position.width = this.modalRect.width * 0.2f - margin;
+            GUI.Label(position, Labels[3], this.labelStyle);
+
+            position.x += position.width;
+            position.width = this.modalRect.width * 0.8f - margin;
+            this.ExportFormat = (ModelExportFormat)GUI.SelectionGrid(position, (int)this.ExportFormat, ExportFormatLabels, ExportFormatLabels.Length, this.selectionGridStyle);
 
             position.x = margin;
             position.y += position.height + margin;
-            this.SavePostion = GUI.Toggle(position, this.SavePostion, Labels[3], this.tStyle);
+            this.SaveTextures = GUI.Toggle(position, this.SaveTextures, Labels[4], this.toggleStyle);
+
+            position.x = margin;
+            position.y += position.height + margin;
+            this.SavePostion = GUI.Toggle(position, this.SavePostion, Labels[5], this.toggleStyle);
 
             position.x = margin;
             position.y += position.height + margin;
             position.width = this.modalRect.width - margin * 2f;
-            if (GUI.Button(position, Labels[4], this.bStyle))
+            if (GUI.Button(position, Labels[6], this.buttonStyle))
             {
                 this.ApplyTPoseClicked(this, EventArgs.Empty);
             }
@@ -164,12 +200,12 @@ namespace COM3D2.ModelExportMMD.Gui
             position.x = margin;
             position.y += position.height + margin;
             position.width = this.modalRect.width - margin * 2f;
-            if (GUI.Button(position, Labels[5], this.bStyle))
+            if (GUI.Button(position, Labels[7], this.buttonStyle))
             {
                 var args = new ModelExportEventArgs(
-                    ModelExportFormat.Pmx,
                     this.ExportFolderPath,
                     this.ExportName,
+                    this.ExportFormat,
                     this.SavePostion,
                     this.SaveTextures);
                 this.ExportClicked(this, args);
@@ -178,22 +214,7 @@ namespace COM3D2.ModelExportMMD.Gui
 
             position.x = margin;
             position.y += position.height + margin;
-            position.width = this.modalRect.width - margin * 2f;
-            if (GUI.Button(position, Labels[6], this.bStyle))
-            {
-                var args = new ModelExportEventArgs(
-                    ModelExportFormat.Obj,
-                    this.ExportFolderPath,
-                    this.ExportName,
-                    this.SavePostion,
-                    this.SaveTextures);
-                this.ExportClicked(this, args);
-                this.showSaveDialog = false;
-            }
-
-            position.x = margin;
-            position.y += position.height + margin;
-            if (GUI.Button(position, Labels[7], this.bStyle))
+            if (GUI.Button(position, Labels[8], this.buttonStyle))
             {
                 this.CloseClicked(this, EventArgs.Empty);
                 this.showSaveDialog = false;

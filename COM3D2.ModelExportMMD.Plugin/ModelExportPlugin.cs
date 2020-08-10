@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Windows.Forms;
 using UnityEngine;
 using UnityInjector;
 using UnityInjector.Attributes;
@@ -21,6 +22,7 @@ namespace COM3D2.ModelExportMMD.Plugin
 
         private const string IniSection = "ExportPreferences";
         private const string IniKeyFolderPath = "FolderPath";
+        private const string IniKeyFormat = "Format";
         private const string IniKeySavePosition = "SavePosition";
         private const string IniKeySaveTextures = "SaveTextures";
 
@@ -138,7 +140,6 @@ namespace COM3D2.ModelExportMMD.Plugin
         {
             if (Input.GetKeyDown(KeyCode.F8) && window != null)
             {
-                LoadUserExportPreferences();
                 this.window.Show();
             }
 #if DEBUG
@@ -167,15 +168,18 @@ namespace COM3D2.ModelExportMMD.Plugin
                     SaveTextures = true
                 };
 
+                this.window.BrowseClicked += BrowseForExportFolder;
                 this.window.ApplyTPoseClicked += ApplyTPose;
-                this.window.ExportClicked += Export;
-                this.window.CloseClicked += delegate(object s, EventArgs a) { SaveUserExportPreferences(); };
+                this.window.ExportClicked += ExportModel;
+                this.window.CloseClicked += delegate(object s, EventArgs a) { SaveUserPreferences(); };
+
+                LoadUserPreferences();
             }
 
             this.window.DrawWindow();
         }
 
-        private void LoadUserExportPreferences()
+        private void LoadUserPreferences()
         {
             try
             {
@@ -186,6 +190,16 @@ namespace COM3D2.ModelExportMMD.Plugin
                     if (iniExportFolder != null && iniExportFolder.RawValue != null)
                     {
                         this.window.ExportFolderPath = iniExportFolder.RawValue;
+                    }
+
+                    var iniFormat = iniSection.GetKey(IniKeyFormat);
+                    if (iniFormat != null && !string.IsNullOrEmpty(iniFormat.RawValue))
+                    {
+                        try
+                        {
+                            this.window.ExportFormat = (ModelExportFormat)Enum.Parse(typeof(ModelExportFormat), iniFormat.RawValue, true);
+                        }
+                        catch { /* ignore and fallthrough*/ }
                     }
 
                     var iniSavePosition = iniSection.GetKey(IniKeySavePosition);
@@ -207,12 +221,13 @@ namespace COM3D2.ModelExportMMD.Plugin
             }
         }
 
-        private void SaveUserExportPreferences()
+        private void SaveUserPreferences()
         {
             try
             {
                 var iniSection = this.Preferences.CreateSection(IniSection);
                 iniSection.CreateKey(IniKeyFolderPath).Value = this.window.ExportFolderPath;
+                iniSection.CreateKey(IniKeyFormat).Value = this.window.ExportFormat.ToString();
                 iniSection.CreateKey(IniKeySavePosition).Value = this.window.SavePostion.ToString();
                 iniSection.CreateKey(IniKeySaveTextures).Value = this.window.SaveTextures.ToString();
                 SaveConfig();
@@ -223,10 +238,30 @@ namespace COM3D2.ModelExportMMD.Plugin
             }
         }
 
+        private void BrowseForExportFolder(object sender, EventArgs args)
+        {
+            var dialog = new SaveFileDialog();
+            dialog.Title = "Select the folder where the model and textures will be exported";
+            dialog.Filter = "MMD Files(*.pmx)|*.pmx|OBJ Files(*.obj)|*.obj|All files (*.*)|*.*";
+            dialog.FilterIndex = (int)this.window.ExportFormat + 1;
+            dialog.FileName = this.window.ExportName;
+            dialog.InitialDirectory = this.window.ExportFolderPath;
+            if (!Directory.Exists(dialog.InitialDirectory))
+            {
+                dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            }
+
+            var result = dialog.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                this.window.ExportFolderPath = Path.GetDirectoryName(dialog.FileName);
+                this.window.ExportName = Path.GetFileNameWithoutExtension(dialog.FileName);
+                this.window.ExportFormat = (ModelExportFormat)(1 <= dialog.FilterIndex && dialog.FilterIndex <= 2 ? dialog.FilterIndex - 1 : 0);
+            }
+        }
+
         private void ApplyTPose(object sender, EventArgs args)
         {
-            Debug.Assert(sender == this.window);
-
             Maid maid = GameMain.Instance.CharacterMgr.GetMaid(0);
             maid.body0.m_Bones.GetComponent<Animation>().Stop();
 
@@ -244,11 +279,9 @@ namespace COM3D2.ModelExportMMD.Plugin
             }
         }
 
-        private void Export(object sender, ModelExportEventArgs args)
+        private void ExportModel(object sender, ModelExportEventArgs args)
         {
-            Debug.Assert(sender == this.window);
-
-            SaveUserExportPreferences();
+            SaveUserPreferences();
 
             try
             {
@@ -259,16 +292,6 @@ namespace COM3D2.ModelExportMMD.Plugin
 
                 switch (args.Format)
                 {
-                    case ModelExportFormat.Obj:
-                        {
-                            var objBuilder = new ObjBuilder(args.Folder, args.Name)
-                            {
-                                SavePostion = args.SavePosition,
-                                SaveTexture = args.SaveTexture
-                            };
-                            objBuilder.Export(meshes);
-                        }
-                        break;
                     case ModelExportFormat.Pmx:
                         {
                             var pmxBuilder = new PmxBuilder(args.Folder, args.Name)
@@ -277,6 +300,16 @@ namespace COM3D2.ModelExportMMD.Plugin
                                 SaveTexture = args.SaveTexture
                             };
                             pmxBuilder.Export(meshes);
+                        }
+                        break;
+                    case ModelExportFormat.Obj:
+                        {
+                            var objBuilder = new ObjBuilder(args.Folder, args.Name)
+                            {
+                                SavePostion = args.SavePosition,
+                                SaveTexture = args.SaveTexture
+                            };
+                            objBuilder.Export(meshes);
                         }
                         break;
                 }
