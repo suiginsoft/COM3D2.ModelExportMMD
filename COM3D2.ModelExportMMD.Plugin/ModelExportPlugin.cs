@@ -19,6 +19,11 @@ namespace COM3D2.ModelExportMMD.Plugin
     {
         #region Constants
 
+        private const string IniSection = "ExportPreferences";
+        private const string IniKeyFolderPath = "FolderPath";
+        private const string IniKeySavePosition = "SavePosition";
+        private const string IniKeySaveTextures = "SaveTextures";
+
         private static readonly string[] TPoseBonesToReset = new string[]
         {
             "Bip01",
@@ -133,7 +138,8 @@ namespace COM3D2.ModelExportMMD.Plugin
         {
             if (Input.GetKeyDown(KeyCode.F8) && window != null)
             {
-                window.Show();
+                LoadUserExportPreferences();
+                this.window.Show();
             }
 #if DEBUG
             if (Input.GetKeyDown(KeyCode.F9))
@@ -150,17 +156,71 @@ namespace COM3D2.ModelExportMMD.Plugin
 
         public void OnGUI()
         {
-            if (window == null)
+            if (this.window == null)
             {
-                var pluginVersionAttributes = GetType().GetCustomAttributes(typeof(PluginVersionAttribute), false);
-                var pluginVersion = ((PluginVersionAttribute)pluginVersionAttributes[0]).Version;
+                this.window = new ModelExportWindow()
+                {
+                    PluginVersion = ((PluginVersionAttribute)GetType().GetCustomAttributes(typeof(PluginVersionAttribute), false)[0]).Version,
+                    ExportFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Maids"),
+                    ExportName = "Maid",
+                    SavePostion = true,
+                    SaveTextures = true
+                };
 
-                window = new ModelExportWindow(pluginVersion);
-                window.ApplyTPoseClicked += ApplyTPose;
-                window.ExportClicked += Export;
+                this.window.ApplyTPoseClicked += ApplyTPose;
+                this.window.ExportClicked += Export;
+                this.window.CloseClicked += delegate(object s, EventArgs a) { SaveUserExportPreferences(); };
             }
 
-            window.DrawWindow();
+            this.window.DrawWindow();
+        }
+
+        private void LoadUserExportPreferences()
+        {
+            try
+            {
+                var iniSection = this.Preferences.GetSection(IniSection);
+                if (iniSection != null)
+                {
+                    var iniExportFolder = iniSection.GetKey(IniKeyFolderPath);
+                    if (iniExportFolder != null && iniExportFolder.RawValue != null)
+                    {
+                        this.window.ExportFolderPath = iniExportFolder.RawValue;
+                    }
+
+                    var iniSavePosition = iniSection.GetKey(IniKeySavePosition);
+                    if (iniSavePosition != null && bool.TryParse(iniSavePosition.RawValue, out bool savePosition))
+                    {
+                        this.window.SavePostion = savePosition;
+                    }
+
+                    var iniSaveTextures = iniSection.GetKey(IniKeySaveTextures);
+                    if (iniSaveTextures != null && bool.TryParse(iniSaveTextures.RawValue, out bool saveTextures))
+                    {
+                        this.window.SaveTextures = saveTextures;
+                    }
+                }
+            }
+            catch (Exception error)
+            {
+                Debug.LogError($"Error loading user exporter preferences: {error.Message}\n\nStack trace:\n{error.StackTrace}");
+            }
+        }
+
+        private void SaveUserExportPreferences()
+        {
+            try
+            {
+                var iniSection = this.Preferences.CreateSection(IniSection);
+                iniSection.CreateKey(IniKeyFolderPath).Value = this.window.ExportFolderPath;
+                iniSection.CreateKey(IniKeySavePosition).Value = this.window.SavePostion.ToString();
+                iniSection.CreateKey(IniKeySaveTextures).Value = this.window.SaveTextures.ToString();
+                SaveConfig();
+            }
+            catch (Exception error)
+            {
+                Debug.LogError($"Error saving user exporter preferences: {error.Message}\n\nStack trace:\n{error.StackTrace}");
+            }
         }
 
         private void ApplyTPose(object sender, EventArgs args)
@@ -188,13 +248,15 @@ namespace COM3D2.ModelExportMMD.Plugin
         {
             Debug.Assert(sender == this.window);
 
-            var meshes = FindObjectsOfType<SkinnedMeshRenderer>()
-                .Where(smr => smr.name != "obj1")
-                .Distinct()
-                .ToList();
+            SaveUserExportPreferences();
 
             try
             {
+                var meshes = FindObjectsOfType<SkinnedMeshRenderer>()
+                    .Where(smr => smr.name != "obj1")
+                    .Distinct()
+                    .ToList();
+
                 switch (args.Format)
                 {
                     case ModelExportFormat.Obj:

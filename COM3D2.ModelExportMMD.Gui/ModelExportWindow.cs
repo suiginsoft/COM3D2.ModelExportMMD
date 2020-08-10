@@ -34,14 +34,18 @@ namespace COM3D2.ModelExportMMD.Gui
         private readonly GUIStyle tStyle = "toggle";
         private readonly GUIStyle textStyle = "textField";
         private readonly GUIStyle windowStyle = "window";
-        private readonly string windowTitle;
-
-        private string exportFolder = "C:\\Model";
-        private string exportName = "Maid";
-        private bool savePostion = true;
-        private bool saveTexture = true;
         private bool showSaveDialog = false;
         private Rect modalRect;
+
+        #endregion
+
+        #region Properties
+
+        public string PluginVersion { get; set; }
+        public string ExportFolderPath { get; set; }
+        public string ExportName { get; set; }
+        public bool SavePostion { get; set; }
+        public bool SaveTextures { get; set; }
 
         #endregion
 
@@ -49,15 +53,14 @@ namespace COM3D2.ModelExportMMD.Gui
 
         public event EventHandler<EventArgs> ApplyTPoseClicked;
         public event EventHandler<ModelExportEventArgs> ExportClicked;
+        public event EventHandler<EventArgs> CloseClicked;
 
         #endregion
 
         #region Constructors
 
-        public ModelExportWindow(string pluginVersion)
+        public ModelExportWindow()
         {
-            this.windowTitle = $"Model Export to MMD Version {pluginVersion}";
-
             this.modalRect = new Rect(Screen.width / 2 - FixPx(300), Screen.height / 2 - FixPx(300), FixPx(450), FixPx(450));
 
             var backgroundTexture = new Texture2D((int)this.modalRect.width, (int)this.modalRect.height, TextureFormat.RGBA32, false);
@@ -111,7 +114,8 @@ namespace COM3D2.ModelExportMMD.Gui
         {
             if (this.showSaveDialog)
             {
-                this.modalRect = GUI.ModalWindow(0, this.modalRect, this.DoSaveModDialog, this.windowTitle, this.windowStyle);
+                var windowTitle = $"Model Export to MMD Version {this.PluginVersion}";
+                this.modalRect = GUI.ModalWindow(0, this.modalRect, this.DoSaveModDialog, windowTitle, this.windowStyle);
             }
         }
 
@@ -130,7 +134,7 @@ namespace COM3D2.ModelExportMMD.Gui
 
             position.x += position.width;
             position.width = this.modalRect.width * 0.8f - margin;
-            this.exportFolder = GUI.TextField(position, this.exportFolder, this.textStyle);
+            this.ExportFolderPath = GUI.TextField(position, this.ExportFolderPath, this.textStyle);
 
             position.x = margin;
             position.y += position.height + margin;
@@ -139,15 +143,15 @@ namespace COM3D2.ModelExportMMD.Gui
 
             position.x += position.width;
             position.width = this.modalRect.width * 0.8f - margin;
-            this.exportName = GUI.TextField(position, this.exportName, this.textStyle);
+            this.ExportName = GUI.TextField(position, this.ExportName, this.textStyle);
 
             position.x = margin;
             position.y += position.height + margin;
-            this.saveTexture = GUI.Toggle(position, this.saveTexture, Labels[2], this.tStyle);
+            this.SaveTextures = GUI.Toggle(position, this.SaveTextures, Labels[2], this.tStyle);
 
             position.x = margin;
             position.y += position.height + margin;
-            this.savePostion = GUI.Toggle(position, this.savePostion, Labels[3], this.tStyle);
+            this.SavePostion = GUI.Toggle(position, this.SavePostion, Labels[3], this.tStyle);
 
             position.x = margin;
             position.y += position.height + margin;
@@ -164,10 +168,10 @@ namespace COM3D2.ModelExportMMD.Gui
             {
                 var args = new ModelExportEventArgs(
                     ModelExportFormat.Pmx,
-                    this.exportFolder,
-                    this.exportName,
-                    this.savePostion,
-                    this.saveTexture);
+                    this.ExportFolderPath,
+                    this.ExportName,
+                    this.SavePostion,
+                    this.SaveTextures);
                 this.ExportClicked(this, args);
                 this.showSaveDialog = false;
             }
@@ -179,10 +183,10 @@ namespace COM3D2.ModelExportMMD.Gui
             {
                 var args = new ModelExportEventArgs(
                     ModelExportFormat.Obj,
-                    this.exportFolder,
-                    this.exportName,
-                    this.savePostion,
-                    this.saveTexture);
+                    this.ExportFolderPath,
+                    this.ExportName,
+                    this.SavePostion,
+                    this.SaveTextures);
                 this.ExportClicked(this, args);
                 this.showSaveDialog = false;
             }
@@ -191,6 +195,7 @@ namespace COM3D2.ModelExportMMD.Gui
             position.y += position.height + margin;
             if (GUI.Button(position, Labels[7], this.bStyle))
             {
+                this.CloseClicked(this, EventArgs.Empty);
                 this.showSaveDialog = false;
             }
 
