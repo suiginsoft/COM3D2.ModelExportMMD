@@ -17,39 +17,51 @@ namespace COM3D2.ModelExportMMD.Gui
         private const int FontSizePx = 16;
         private const int ItemHeightPx = 24;
 
+        private static readonly string[] Labels =
+        {
+            "Folder",
+            "File",
+            "Save texture",
+            "Save position",
+            "Apply T-Pose",
+            "Save as OBJ",
+            "Save as MMD",
+            "Close"
+        };
+
         #endregion
 
         #region Fields
 
-        public static string ExportFolder = "C:\\Model";
-        public static string ExportName = "Maid";
-        public static bool SavePostion = true;
-        public static bool SaveTexture = true;
-
-        private Rect modalRect;
-        private bool showSaveDialog;
         private readonly GUIStyle lStyle = "label";
         private readonly GUIStyle bStyle = "button";
         private readonly GUIStyle tStyle = "toggle";
         private readonly GUIStyle textStyle = "textField";
         private readonly GUIStyle windowStyle = "window";
+        private readonly string windowTitle;
 
-        private readonly string[] labels = { "Folder", "File", "Save texture", "Save position", "Apply T-Pose", "Save as OBJ", "Save as MMD", "Close" };
+        private string exportFolder = "C:\\Model";
+        private string exportName = "Maid";
+        private bool savePostion = true;
+        private bool saveTexture = true;
+        private bool showSaveDialog = false;
+        private Rect modalRect;
 
         #endregion
 
         #region Events
 
         public event EventHandler<EventArgs> ApplyTPoseClicked;
-        public event EventHandler<EventArgs> ExportObjClicked;
-        public event EventHandler<EventArgs> ExportPmxClicked;
+        public event EventHandler<ModelExportEventArgs> ExportClicked;
 
         #endregion
 
         #region Constructors
 
-        public ModelExportWindow()
+        public ModelExportWindow(string pluginVersion)
         {
+            this.windowTitle = $"Model Export to MMD (Version {pluginVersion})";
+
             this.modalRect = new Rect(Screen.width / 2 - FixPx(300), Screen.height / 2 - FixPx(300), FixPx(450), FixPx(450));
 
             var imageData = Convert.FromBase64String(ImageBase64);
@@ -98,7 +110,7 @@ namespace COM3D2.ModelExportMMD.Gui
         {
             if (this.showSaveDialog)
             {
-                this.modalRect = GUI.ModalWindow(0, this.modalRect, this.DoSaveModDialog, "导出模型MOD  ", this.windowStyle);
+                this.modalRect = GUI.ModalWindow(0, this.modalRect, this.DoSaveModDialog, this.windowTitle, this.windowStyle);
             }
         }
 
@@ -113,58 +125,70 @@ namespace COM3D2.ModelExportMMD.Gui
             position.x = margin;
             position.y = itemHeight + margin;
             position.width = this.modalRect.width * 0.2f - margin;
-            GUI.Label(position, this.labels[0], this.lStyle);
+            GUI.Label(position, Labels[0], this.lStyle);
 
             position.x += position.width;
             position.width = this.modalRect.width * 0.8f - margin;
-            ModelExportWindow.ExportFolder = GUI.TextField(position, ModelExportWindow.ExportFolder, this.textStyle);
+            this.exportFolder = GUI.TextField(position, this.exportFolder, this.textStyle);
 
             position.x = margin;
             position.y += position.height + margin;
             position.width = this.modalRect.width * 0.2f - margin;
-            GUI.Label(position, this.labels[1], this.lStyle);
+            GUI.Label(position, Labels[1], this.lStyle);
 
             position.x += position.width;
             position.width = this.modalRect.width * 0.8f - margin;
-            ModelExportWindow.ExportName = GUI.TextField(position, ModelExportWindow.ExportName, this.textStyle);
+            this.exportName = GUI.TextField(position, this.exportName, this.textStyle);
 
             position.x = margin;
             position.y += position.height + margin;
-            ModelExportWindow.SaveTexture = GUI.Toggle(position, ModelExportWindow.SaveTexture, this.labels[2], this.tStyle);
+            this.saveTexture = GUI.Toggle(position, this.saveTexture, Labels[2], this.tStyle);
 
             position.x = margin;
             position.y += position.height + margin;
-            ModelExportWindow.SavePostion = GUI.Toggle(position, ModelExportWindow.SavePostion, this.labels[3], this.tStyle);
+            this.savePostion = GUI.Toggle(position, this.savePostion, Labels[3], this.tStyle);
 
             position.x = margin;
             position.y += position.height + margin;
             position.width = this.modalRect.width - margin * 2f;
-            if (GUI.Button(position, this.labels[4], this.bStyle))
+            if (GUI.Button(position, Labels[4], this.bStyle))
             {
-                this.ApplyTPoseClicked(this, new EventArgs());
+                this.ApplyTPoseClicked(this, EventArgs.Empty);
             }
 
             position.x = margin;
             position.y += position.height + margin;
             position.width = this.modalRect.width - margin * 2f;
-            if (GUI.Button(position, this.labels[5], this.bStyle))
+            if (GUI.Button(position, Labels[5], this.bStyle))
             {
-                this.ExportObjClicked(this, new EventArgs());
+                var args = new ModelExportEventArgs(
+                    ModelExportFormat.Obj,
+                    this.exportFolder,
+                    this.exportName,
+                    this.savePostion,
+                    this.saveTexture);
+                this.ExportClicked(this, args);
                 this.showSaveDialog = false;
             }
 
             position.x = margin;
             position.y += position.height + margin;
             position.width = this.modalRect.width - margin * 2f;
-            if (GUI.Button(position, this.labels[6], this.bStyle))
+            if (GUI.Button(position, Labels[6], this.bStyle))
             {
-                this.ExportPmxClicked(this, new EventArgs());
+                var args = new ModelExportEventArgs(
+                    ModelExportFormat.Pmx,
+                    this.exportFolder,
+                    this.exportName,
+                    this.savePostion,
+                    this.saveTexture);
+                this.ExportClicked(this, args);
                 this.showSaveDialog = false;
             }
 
             position.x = margin;
             position.y += position.height + margin;
-            if (GUI.Button(position, this.labels[7], this.bStyle))
+            if (GUI.Button(position, Labels[7], this.bStyle))
             {
                 this.showSaveDialog = false;
             }

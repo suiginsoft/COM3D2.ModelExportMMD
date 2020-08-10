@@ -19,7 +19,7 @@ namespace COM3D2.ModelExportMMD.Plugin
     {
         #region Constants
 
-        private static readonly string[] TPoseResetIdentityBones = new string[]
+        private static readonly string[] TPoseBonesToReset = new string[]
         {
             "Bip01",
             "Bip01 Footsteps",
@@ -152,11 +152,14 @@ namespace COM3D2.ModelExportMMD.Plugin
         {
             if (window == null)
             {
-                window = new ModelExportWindow();
-                window.ApplyTPoseClicked += this.ApplyTPose;
-                window.ExportObjClicked += this.ExportObj;
-                window.ExportPmxClicked += this.ExportPmx;
+                var pluginVersionAttributes = GetType().GetCustomAttributes(typeof(PluginVersionAttribute), false);
+                var pluginVersion = ((PluginVersionAttribute)pluginVersionAttributes[0]).Version;
+
+                window = new ModelExportWindow(pluginVersion);
+                window.ApplyTPoseClicked += ApplyTPose;
+                window.ExportClicked += Export;
             }
+
             window.DrawWindow();
         }
 
@@ -169,7 +172,7 @@ namespace COM3D2.ModelExportMMD.Plugin
 
             Transform rootTransform = maid.body0.m_Bones.transform;
 
-            foreach (var boneName in TPoseResetIdentityBones)
+            foreach (var boneName in TPoseBonesToReset)
             {
                 Transform transform = CMT.SearchObjName(rootTransform, boneName);
                 transform.localRotation = Quaternion.identity;
@@ -181,62 +184,45 @@ namespace COM3D2.ModelExportMMD.Plugin
             }
         }
 
-        private void ExportObj(object sender, EventArgs args)
+        private void Export(object sender, ModelExportEventArgs args)
         {
             Debug.Assert(sender == this.window);
 
-            try
-            {
-                var filepath = GetExportFilePath(".obj");
-                var skinnedMeshes = GetAllSkinnedMeshes();
-
-                var objBuilder = new ObjBuilder();
-                objBuilder.Export(skinnedMeshes, filepath);
-            }
-            catch (Exception error)
-            {
-                Debug.LogError($"Error exporting OBJ: {error.Message}\n\nStack trace:\n{error.StackTrace}");
-            }
-        }
-
-        private void ExportPmx(object sender, EventArgs args)
-        {
-            Debug.Assert(sender == this.window);
-
-            try
-            {
-                var filepath = GetExportFilePath(".pmx");
-                var skinnedMeshes = GetAllSkinnedMeshes();
-
-                var pmxBuilder = new PmxBuilder();
-                pmxBuilder.PrepareData(skinnedMeshes);
-                pmxBuilder.CreateBoneList();
-
-                foreach (var skinnedMesh in skinnedMeshes)
-                {
-                    pmxBuilder.CreateMeshList(skinnedMesh);
-                }
-
-                pmxBuilder.CreatePmxHeader();
-                pmxBuilder.Save(filepath);
-            }
-            catch (Exception error)
-            {
-                Debug.LogError($"Error exporting PMX: {error.Message}\n\nStack trace:\n{error.StackTrace}");
-            }
-        }
-
-        private string GetExportFilePath(string extension)
-        {
-            return Path.Combine(ModelExportWindow.ExportFolder, ModelExportWindow.ExportName + extension);
-        }
-
-        private List<SkinnedMeshRenderer> GetAllSkinnedMeshes()
-        {
-            return FindObjectsOfType<SkinnedMeshRenderer>()
+            var meshes = FindObjectsOfType<SkinnedMeshRenderer>()
                 .Where(smr => smr.name != "obj1")
                 .Distinct()
                 .ToList();
+
+            try
+            {
+                switch (args.Format)
+                {
+                    case ModelExportFormat.Obj:
+                        {
+                            var objBuilder = new ObjBuilder(args.Folder, args.Name)
+                            {
+                                SavePostion = args.SavePosition,
+                                SaveTexture = args.SaveTexture
+                            };
+                            objBuilder.Export(meshes);
+                        }
+                        break;
+                    case ModelExportFormat.Pmx:
+                        {
+                            var pmxBuilder = new PmxBuilder(args.Folder, args.Name)
+                            {
+                                SavePostion = args.SavePosition,
+                                SaveTexture = args.SaveTexture
+                            };
+                            pmxBuilder.Export(meshes);
+                        }
+                        break;
+                }
+            }
+            catch (Exception error)
+            {
+                Debug.LogError($"Error exporting {args.Format}: {error.Message}\n\nStack trace:\n{error.StackTrace}");
+            }
         }
 
         private void DumpGameObjects()

@@ -47,6 +47,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="COM3D2.ModelExportMMD.Gui\ModelExportEventArgs.cs" />
     <Compile Include="COM3D2.ModelExportMMD.Gui\ModelExportWindow.cs" />
     <Compile Include="COM3D2.ModelExportMMD.Plugin\ModelExportPlugin.cs" />
     <Compile Include="COM3D2.ModelExportMMD\TextureBuilder.cs" />

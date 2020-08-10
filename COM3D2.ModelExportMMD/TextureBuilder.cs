@@ -29,7 +29,7 @@ namespace COM3D2.ModelExportMMD
                 argb32Texture2D.SetPixels(pixels);
                 byte[] bytes = argb32Texture2D.EncodeToPNG();
                 File.WriteAllBytes(path, bytes);
-                Debug.Log("Writing Texture :" + path);
+                Debug.Log($"Texture written to file: {path}");
             }
             catch (Exception error)
             {

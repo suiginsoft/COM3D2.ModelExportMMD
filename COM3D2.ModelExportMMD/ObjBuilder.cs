@@ -1,4 +1,3 @@
-using COM3D2.ModelExportMMD.Gui;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -10,29 +9,46 @@ namespace COM3D2.ModelExportMMD
     {
         #region Types
 
-        public enum SplitType
+        public enum Split
         {
-            By_Mesh,
-            By_Material,
-            By_Submesh,
-            None
+            None,
+            ByMesh,
+            ByMaterial,
+            BySubmesh
         }
 
         #endregion
 
         #region Fields
 
-        private string exportFolder;
-        private string exportName;
-        private List<string> matNameCache;
+        private readonly string exportFolder;
+        private readonly string exportName;
+
+        #endregion
+
+        #region Properties
+
+        public bool SavePostion { get; set; } = true;
+        public bool SaveTexture { get; set; } = true;
+        public Split SplitMethod { get; set; } = Split.ByMesh;
+
+        #endregion
+
+        #region Constructors
+
+        public ObjBuilder(string folder, string name)
+        {
+            this.exportFolder = folder;
+            this.exportName = name;
+        }
 
         #endregion
 
         #region Methods
 
-        private string ConstructFaceString(int i1, int i2, int i3)
+        private string ConstructFace(int index1, int index2, int index3, int vertexOffset)
         {
-            return i1 + "/" + i2 + "/" + i3;
+            return (index1 + vertexOffset) + "/" + (index2 + vertexOffset) + "/" + (index3 + vertexOffset);
         }
 
         private Vector3 RotateAroundPoint(Vector3 point, Vector3 pivot, Quaternion angle)
@@ -40,194 +56,184 @@ namespace COM3D2.ModelExportMMD
             return angle * (point - pivot) + pivot;
         }
 
-        private Vector3 MultiplyVec3s(Vector3 v1, Vector3 v2)
-        {
-            return new Vector3(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z);
-        }
-
         private Texture2D GetShadowTex(Material material)
         {
-            Texture2D result = null;
             if (material.HasProperty("_ShadowTex"))
             {
                 Texture texture = material.GetTexture("_ShadowTex");
-                result = ((texture.GetType() != typeof(RenderTexture)) ? (texture as Texture2D) : TextureBuilder.ConvertToTexture2D(texture as RenderTexture));
+                return ((texture.GetType() != typeof(RenderTexture)) ? (texture as Texture2D) : TextureBuilder.ConvertToTexture2D(texture as RenderTexture));
             }
-            return result;
+            return null;
         }
 
         private Texture GetMainTex(Material material)
         {
-            Texture result = null;
             if (material.HasProperty("_MainTex"))
             {
-                result = material.GetTexture("_MainTex");
+                return material.GetTexture("_MainTex");
             }
-            return result;
+            return null;
         }
 
-        private string GenerateMaterial(ref StringBuilder sbMaterial, Material material)
+        private string GenerateMaterial(StringBuilder matOutput, List<string> matNameCache, Material material)
         {
-            string text = material.name;
-            Debug.Log("Generate Material : " + text);
-            if (text.Contains("Instance"))
+            Debug.Log($"Generating material: {material.name}");
+
+            string matRef = material.name;
+            if (matRef.Contains("Instance"))
             {
-                object obj = text;
-                text = obj + "_(" + material.GetInstanceID() + ")";
+                matRef += "_(" + material.GetInstanceID() + ")";
             }
-            if (!this.matNameCache.Contains(text))
+
+            if (!matNameCache.Contains(matRef))
             {
-                this.matNameCache.Add(text);
-                sbMaterial.AppendLine("newmtl " + text);
+                matNameCache.Add(matRef);
+                matOutput.AppendLine("newmtl " + matRef);
+
                 if (material.HasProperty("_Color"))
                 {
                     Color color = material.color;
-                    sbMaterial.AppendLine("Kd " + color.r + " " + color.g + " " + color.b);
+                    matOutput.AppendLine("Kd " + color.r + " " + color.g + " " + color.b);
                     float num = Mathf.Lerp(1f, 0f, color.a);
-                    sbMaterial.AppendLine("d " + num);
+                    matOutput.AppendLine("d " + num);
                 }
+
                 if (material.mainTexture != null)
                 {
                     Texture mainTex = this.GetMainTex(material);
                     if (mainTex != null)
                     {
-                        Vector2 textureScale = material.GetTextureScale("_MainTex");
                         if (mainTex.wrapMode == TextureWrapMode.Clamp)
                         {
-                            sbMaterial.AppendLine("-clamp on");
+                            matOutput.AppendLine("-clamp on");
                         }
-                        sbMaterial.AppendLine("s " + textureScale.x + " " + textureScale.y);
-                        sbMaterial.AppendLine("map_Kd " + text + "d.png");
-                        if (ModelExportWindow.SaveTexture)
+
+                        Vector2 textureScale = material.GetTextureScale("_MainTex");
+                        matOutput.AppendLine("s " + textureScale.x + " " + textureScale.y);
+                        matOutput.AppendLine("map_Kd " + matRef + "d.png");
+                        if (this.SaveTexture)
                         {
-                            TextureBuilder.WriteTextureToFile(this.exportFolder + "/" + text + "d.png", mainTex);
+                            TextureBuilder.WriteTextureToFile(Path.Combine(this.exportFolder, matRef + "d.png"), mainTex);
                         }
+
                         Texture2D shadowTex = this.GetShadowTex(material);
                         if (shadowTex != null)
                         {
-                            sbMaterial.AppendLine("map_Ka " + text + "a.png");
-                            if (ModelExportWindow.SaveTexture)
+                            matOutput.AppendLine("map_Ka " + matRef + "a.png");
+                            if (this.SaveTexture)
                             {
-                                TextureBuilder.WriteTextureToFile(this.exportFolder + "/" + text + "a.png", shadowTex);
+                                TextureBuilder.WriteTextureToFile(Path.Combine(this.exportFolder, matRef + "a.png"), shadowTex);
                             }
                         }
                     }
                     else
                     {
-                        Debug.LogWarning("No Found Texture " + text);
+                        Debug.LogWarning("No texture found for " + matRef);
                     }
                 }
                 else
                 {
-                    Debug.Log("No Texture " + text);
+                    Debug.Log("No Texture for " + matRef);
                 }
-                sbMaterial.AppendLine();
+
+                matOutput.AppendLine();
             }
-            return text;
+
+            return matRef;
         }
 
-        private void PrepareFileHeader(StringBuilder sb)
+        public void Export(List<SkinnedMeshRenderer> meshesList)
         {
-            sb.AppendLine("mtllib " + this.exportName + ".mtl");
-        }
+            Directory.CreateDirectory(this.exportFolder);
 
-        public void Export(List<SkinnedMeshRenderer> meshesList, string path)
-        {
-            exportFolder = Path.GetDirectoryName(path);
-            exportName = Path.GetFileNameWithoutExtension(path);
-            this.matNameCache = new List<string>();
-            SplitType splitType = SplitType.By_Mesh;
-            if (!Directory.Exists(this.exportFolder))
-            {
-                Directory.CreateDirectory(this.exportFolder);
-            }
-            StringBuilder stringBuilder = new StringBuilder();
-            StringBuilder stringBuilder2 = new StringBuilder();
-            this.PrepareFileHeader(stringBuilder);
+            StringBuilder objOutput = new StringBuilder();
+            objOutput.AppendLine("mtllib " + exportName + ".mtl");
+
+            StringBuilder matOutput = new StringBuilder();
+            var matNameCache = new List<string>();
+
             Debug.Log("SkinnedMeshRenderer number :" + meshesList.Count);
-            int num = 1;
-            if (splitType == SplitType.None)
+
+            if (this.SplitMethod == Split.None)
             {
-                stringBuilder.AppendLine("g default");
+                objOutput.AppendLine("g default");
             }
-            for (int i = 0; i < meshesList.Count; i++)
+
+            int meshVertexCount = 1;
+
+            foreach (var skinnedMesh in meshesList)
             {
-                int num2 = 0;
-                SkinnedMeshRenderer skinnedMeshRenderer = meshesList[i];
+                var gameObject = skinnedMesh.gameObject;
+                var renderer = gameObject.GetComponent<Renderer>();
+
                 Mesh mesh = null;
-                GameObject gameObject = meshesList[i].gameObject;
-                if (ModelExportWindow.SavePostion)
+                if (this.SavePostion)
                 {
-                    Mesh mesh2 = new Mesh();
-                    meshesList[i].BakeMesh(mesh2);
-                    mesh = mesh2;
+                    mesh = new Mesh();
+                    skinnedMesh.BakeMesh(mesh);
                 }
                 else
                 {
-                    mesh = meshesList[i].sharedMesh;
+                    mesh = skinnedMesh.sharedMesh;
                 }
-                if (splitType == SplitType.By_Mesh)
+
+                if (this.SplitMethod == Split.ByMesh)
                 {
-                    stringBuilder.AppendLine("g " + gameObject.name + "[" + gameObject.GetInstanceID() + "]");
+                    objOutput.AppendLine("g " + gameObject.name + "[" + gameObject.GetInstanceID() + "]");
                 }
-                Vector3[] vertices = mesh.vertices;
-                foreach (Vector3 vector in vertices)
+
+                foreach (Vector3 vector in mesh.vertices)
                 {
-                    Vector3 v = vector;
-                    v = this.MultiplyVec3s(v, gameObject.transform.lossyScale);
-                    v = this.RotateAroundPoint(v, Vector3.zero, gameObject.transform.rotation);
+                    Vector3 v = Vector3.Scale(vector, gameObject.transform.lossyScale);
+                    v = RotateAroundPoint(v, Vector3.zero, gameObject.transform.rotation);
                     v += gameObject.transform.position;
-                    stringBuilder.AppendLine("v " + v.x * -1f + " " + v.y + " " + v.z);
-                    num2++;
+                    objOutput.AppendLine("v " + v.x * -1f + " " + v.y + " " + v.z);
                 }
-                vertices = mesh.normals;
-                foreach (Vector3 vector in vertices)
+
+                foreach (Vector3 vector in mesh.normals)
                 {
-                    Vector3 v = vector;
-                    v = this.RotateAroundPoint(vector, Vector3.zero, gameObject.transform.rotation);
-                    stringBuilder.AppendLine("vn " + v.x * -1f + " " + v.y + " " + v.z);
+                    Vector3 v = RotateAroundPoint(vector, Vector3.zero, gameObject.transform.rotation);
+                    objOutput.AppendLine("vn " + v.x * -1f + " " + v.y + " " + v.z);
                 }
-                Vector2[] uv = mesh.uv;
-                for (int j = 0; j < uv.Length; j++)
+
+                for (int j = 0; j < mesh.uv.Length; j++)
                 {
-                    Vector2 vector2 = uv[j];
-                    stringBuilder.AppendLine("vt " + vector2.x + " " + vector2.y);
+                    Vector2 vector2 = mesh.uv[j];
+                    objOutput.AppendLine("vt " + vector2.x + " " + vector2.y);
                 }
-                bool flag = false;
-                Renderer component = gameObject.GetComponent<Renderer>();
-                if (component != null)
-                {
-                    flag = true;
-                }
+
                 for (int k = 0; k < mesh.subMeshCount; k++)
                 {
-                    if (splitType == SplitType.By_Submesh)
+                    if (this.SplitMethod == Split.BySubmesh)
                     {
-                        stringBuilder.AppendLine("g " + gameObject.name + "[" + gameObject.GetInstanceID() + ",SM" + k + "]");
+                        objOutput.AppendLine("g " + gameObject.name + "[" + gameObject.GetInstanceID() + ",SM" + k + "]");
                     }
-                    if (flag && k <= component.sharedMaterials.Length - 1)
+
+                    if (renderer != null && k <= renderer.sharedMaterials.Length - 1)
                     {
-                        Material material = component.materials[k];
-                        string str = this.GenerateMaterial(ref stringBuilder2, material);
-                        if (splitType == SplitType.By_Material)
+                        string matRef = GenerateMaterial(matOutput, matNameCache, renderer.materials[k]);
+                        if (this.SplitMethod == Split.ByMaterial)
                         {
-                            stringBuilder.AppendLine("g " + str);
+                            objOutput.AppendLine("g " + matRef);
                         }
-                        stringBuilder.AppendLine("usemtl " + str);
+                        objOutput.AppendLine("usemtl " + matRef);
                     }
+
                     int[] triangles = mesh.GetTriangles(k);
                     for (int l = 0; l < triangles.Length; l += 3)
                     {
-                        string text = this.ConstructFaceString(triangles[l + 2] + num, triangles[l + 2] + num, triangles[l + 2] + num);
-                        string text2 = this.ConstructFaceString(triangles[l + 1] + num, triangles[l + 1] + num, triangles[l + 1] + num);
-                        string text3 = this.ConstructFaceString(triangles[l] + num, triangles[l] + num, triangles[l] + num);
-                        stringBuilder.AppendLine("f " + text + " " + text2 + " " + text3);
+                        string face1 = ConstructFace(triangles[l + 2], triangles[l + 2], triangles[l + 2], meshVertexCount);
+                        string face2 = ConstructFace(triangles[l + 1], triangles[l + 1], triangles[l + 1], meshVertexCount);
+                        string face3 = ConstructFace(triangles[l], triangles[l], triangles[l], meshVertexCount);
+                        objOutput.AppendLine("f " + face1 + " " + face2 + " " + face3);
                     }
                 }
-                num += num2;
+
+                meshVertexCount += mesh.vertices.Length;
             }
-            File.WriteAllText(this.exportFolder + "\\" + this.exportName + ".obj", stringBuilder.ToString());
-            File.WriteAllText(this.exportFolder + "\\" + this.exportName + ".mtl", stringBuilder2.ToString());
+
+            File.WriteAllText(Path.Combine(this.exportFolder, this.exportName + ".obj"), objOutput.ToString());
+            File.WriteAllText(Path.Combine(this.exportFolder, this.exportName + ".mtl"), matOutput.ToString());
         }
 
         #endregion

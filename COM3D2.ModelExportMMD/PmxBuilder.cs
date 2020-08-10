@@ -1,4 +1,3 @@
-using COM3D2.ModelExportMMD.Gui;
 using PmxLib;
 using System;
 using System.Collections.Generic;
@@ -17,7 +16,9 @@ namespace COM3D2.ModelExportMMD
 
         #region Fields
 
-        private readonly Pmx pmxFile;
+        private readonly string exportFolder;
+        private readonly string exportName;
+        private readonly Pmx pmxFile = new Pmx();
         private readonly List<Transform> boneList = new List<Transform>();
         private readonly List<int> boneParent = new List<int>();
         private readonly List<Matrix4x4> bindposeList = new List<Matrix4x4>();
@@ -26,16 +27,20 @@ namespace COM3D2.ModelExportMMD
 
         #endregion
 
+        #region Properties
+
+        public bool SavePostion { get; set; } = true;
+        public bool SaveTexture { get; set; } = true;
+
+        #endregion
+
         #region Constructors
 
-        public PmxBuilder()
+        public PmxBuilder(string folder, string name)
         {
-            if (!Directory.Exists(ModelExportWindow.ExportFolder))
-            {
-                Directory.CreateDirectory(ModelExportWindow.ExportFolder);
-            }
+            this.exportFolder = folder;
+            this.exportName = name;
 
-            this.pmxFile = new Pmx();
             this.pmxFile.ModelInfo.ModelName = "妹抖";
             this.pmxFile.ModelInfo.ModelNameE = "maid";
             this.pmxFile.ModelInfo.Comment = "我的妹抖";
@@ -46,24 +51,7 @@ namespace COM3D2.ModelExportMMD
 
         #region Methods
 
-        public void CreatePmxHeader()
-        {
-            PmxElementFormat pmxElementFormat = new PmxElementFormat(2.1f);
-            pmxElementFormat.VertexSize = PmxElementFormat.GetUnsignedBufSize(this.pmxFile.VertexList.Count);
-            int val = -2147483648;
-            for (int i = 0; i < this.pmxFile.BoneList.Count; i++)
-                val = Math.Max(val, Math.Abs(this.pmxFile.BoneList[i].IK.LinkList.Count));
-            val = Math.Max(val, this.pmxFile.BoneList.Count);
-            pmxElementFormat.BoneSize = PmxElementFormat.GetSignedBufSize(val);
-            if (pmxElementFormat.BoneSize < 2)
-                pmxElementFormat.BoneSize = 2;
-            pmxElementFormat.MorphSize = PmxElementFormat.GetUnsignedBufSize(this.pmxFile.MorphList.Count);
-            pmxElementFormat.MaterialSize = PmxElementFormat.GetUnsignedBufSize(this.pmxFile.MaterialList.Count);
-            pmxElementFormat.BodySize = PmxElementFormat.GetUnsignedBufSize(this.pmxFile.BodyList.Count);
-            this.pmxFile.Header.FromElementFormat(pmxElementFormat);
-        }
-
-        internal PmxVertex.BoneWeight[] ConvertBoneWeight(BoneWeight unityWeight, Transform[] bones, SkinQuality quality)
+        private PmxVertex.BoneWeight[] ConvertBoneWeight(BoneWeight unityWeight, Transform[] bones, SkinQuality quality)
         {
             int n = (int)quality;
             if (n < 1) n = 1;
@@ -109,12 +97,12 @@ namespace COM3D2.ModelExportMMD
             return new PmxLib.Vector3(-v.x, v.y, -v.z);
         }
 
-        public void CreateMeshList(SkinnedMeshRenderer meshRender)
+        private void CreateMeshList(SkinnedMeshRenderer meshRender)
         {
             GameObject gameObject = meshRender.gameObject;
             Mesh mesh = meshRender.sharedMesh;
             BoneWeight[] boneWeights = mesh.boneWeights;
-            if (ModelExportWindow.SavePostion)
+            if (this.SavePostion)
             {
                 Mesh mesh2 = new Mesh();
                 meshRender.BakeMesh(mesh2);
@@ -177,7 +165,7 @@ namespace COM3D2.ModelExportMMD
             return v;
         }
 
-        public void PrepareData(List<SkinnedMeshRenderer> skinnedMeshes)
+        private void PrepareData(List<SkinnedMeshRenderer> skinnedMeshes)
         {
             this.bonesMap.Clear();
             this.boneList.Clear();
@@ -243,7 +231,7 @@ namespace COM3D2.ModelExportMMD
             Debug.Log($"Bone Count: {this.boneList.Count} Bindpose Count: {this.bindposeList.Count}");
         }
 
-        public void CreateBoneList()
+        private void CreateBoneList()
         {
             for (int i = 0; i < this.boneList.Count; i++)
             {
@@ -261,7 +249,7 @@ namespace COM3D2.ModelExportMMD
             }
         }
 
-        internal PmxBody CreateColliderBody(Collider rigidbody)
+        private PmxBody CreateColliderBody(Collider rigidbody)
         {
             PmxBody pmxBody = new PmxBody();
             pmxBody.Name = rigidbody.name;
@@ -292,9 +280,9 @@ namespace COM3D2.ModelExportMMD
                 }
                 pmxMaterial.Tex = text + ".png";
                 Texture mainTexture = material.mainTexture;
-                if (ModelExportWindow.SaveTexture)
+                if (this.SaveTexture)
                 {
-                    TextureBuilder.WriteTextureToFile(ModelExportWindow.ExportFolder + "/" + pmxMaterial.Tex, mainTexture);
+                    TextureBuilder.WriteTextureToFile(Path.Combine(this.exportFolder, pmxMaterial.Tex), mainTexture);
                 }
             }
             if (material.HasProperty("_Color"))
@@ -325,9 +313,37 @@ namespace COM3D2.ModelExportMMD
             this.pmxFile.MaterialList.Add(pmxMaterial);
         }
 
-        public void Save(string filename)
+        private void Save()
         {
-            this.pmxFile.ToFile(filename);
+            PmxElementFormat pmxElementFormat = new PmxElementFormat(2.1f);
+            pmxElementFormat.VertexSize = PmxElementFormat.GetUnsignedBufSize(this.pmxFile.VertexList.Count);
+            int val = -2147483648;
+            for (int i = 0; i < this.pmxFile.BoneList.Count; i++)
+                val = Math.Max(val, Math.Abs(this.pmxFile.BoneList[i].IK.LinkList.Count));
+            val = Math.Max(val, this.pmxFile.BoneList.Count);
+            pmxElementFormat.BoneSize = PmxElementFormat.GetSignedBufSize(val);
+            if (pmxElementFormat.BoneSize < 2)
+                pmxElementFormat.BoneSize = 2;
+            pmxElementFormat.MorphSize = PmxElementFormat.GetUnsignedBufSize(this.pmxFile.MorphList.Count);
+            pmxElementFormat.MaterialSize = PmxElementFormat.GetUnsignedBufSize(this.pmxFile.MaterialList.Count);
+            pmxElementFormat.BodySize = PmxElementFormat.GetUnsignedBufSize(this.pmxFile.BodyList.Count);
+            this.pmxFile.Header.FromElementFormat(pmxElementFormat);
+            this.pmxFile.ToFile(Path.Combine(this.exportFolder, this.exportName + ".pmx"));
+        }
+
+        public void Export(List<SkinnedMeshRenderer> skinnedMeshes)
+        {
+            Directory.CreateDirectory(this.exportFolder);
+
+            PrepareData(skinnedMeshes);
+            CreateBoneList();
+
+            foreach (var skinnedMesh in skinnedMeshes)
+            {
+                CreateMeshList(skinnedMesh);
+            }
+
+            Save();
         }
 
         #endregion
