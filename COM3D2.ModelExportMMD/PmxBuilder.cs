@@ -249,20 +249,6 @@ namespace COM3D2.ModelExportMMD
             }
         }
 
-        private PmxBody CreateColliderBody(Collider rigidbody)
-        {
-            PmxBody pmxBody = new PmxBody();
-            pmxBody.Name = rigidbody.name;
-            pmxBody.NameE = rigidbody.name;
-            pmxBody.Position.X = rigidbody.transform.position.x;
-            pmxBody.Position.Y = rigidbody.transform.position.y;
-            pmxBody.Position.Z = rigidbody.transform.position.z;
-            pmxBody.Rotation.X = rigidbody.transform.rotation.eulerAngles.x;
-            pmxBody.Rotation.Y = rigidbody.transform.rotation.eulerAngles.y;
-            pmxBody.Rotation.Z = rigidbody.transform.rotation.eulerAngles.z;
-            return pmxBody;
-        }
-
         private void CreateMaterial(Material material, int count)
         {
             PmxMaterial pmxMaterial = new PmxMaterial();
