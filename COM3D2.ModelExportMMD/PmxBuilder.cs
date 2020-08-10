@@ -271,13 +271,13 @@ namespace COM3D2.ModelExportMMD
                     TextureBuilder.WriteTextureToFile(Path.Combine(this.exportFolder, pmxMaterial.Tex), mainTexture);
                 }
             }
-            if (material.HasProperty("_Color"))
-            {
-                pmxMaterial.Diffuse = new PmxLib.Vector4(material.GetColor("_Color"));
-            }
             if (material.HasProperty("_AmbColor"))
             {
                 pmxMaterial.Ambient = new PmxLib.Vector3(material.GetColor("_AmbColor"));
+            }
+            if (material.HasProperty("_Color"))
+            {
+                pmxMaterial.Diffuse = new PmxLib.Vector4(material.GetColor("_Color"));
             }
             if (material.HasProperty("_Opacity"))
             {
@@ -289,6 +289,7 @@ namespace COM3D2.ModelExportMMD
             }
             if (material.HasProperty("_Shininess"))
             {
+                pmxMaterial.Power = material.GetFloat("_Shininess");
             }
             if (material.HasProperty("_OutlineColor"))
             {
