@@ -1,3 +1,4 @@
+using COM3D2.ModelExportMMD.Extensions;
 using COM3D2.ModelExportMMD.Gui;
 using System;
 using System.Collections.Generic;
@@ -26,106 +27,6 @@ namespace COM3D2.ModelExportMMD.Plugin
         private const string IniKeySavePosition = "SavePosition";
         private const string IniKeySaveTextures = "SaveTextures";
 
-        private static readonly string[] TPoseBonesToReset = new string[]
-        {
-            "Bip01",
-            "Bip01 Footsteps",
-            "Bip01 Head",
-            "Bip01 Neck",
-            "Bip01 Spine1a",
-            "Bip01 Spine1",
-            "Bip01 Spine0a",
-            "Bip01 Spine",
-            "Bip01 Pelvis",
-            "Bip01 L Thigh",
-            "Bip01 L Calf",
-            "Bip01 L Foot",
-            "Bip01 L Toe0",
-            "Bip01 L Toe01",
-            "Bip01 L Toe1",
-            "Bip01 L Toe11",
-            "Bip01 L Toe2",
-            "Bip01 L Toe21",
-            "Bip01 R Thigh",
-            "Bip01 R Calf",
-            "Bip01 R Foot",
-            "Bip01 R Toe0",
-            "Bip01 R Toe1",
-            "Bip01 R Toe11",
-            "Bip01 R Toe2",
-            "Bip01 R Toe21",
-            "Bip01 L Clavicle",
-            "Bip01 L UpperArm",
-            "Bip01 L Forearm",
-            "Bip01 L Hand",
-            "_IK_handL",
-            "Bip01 L Finger0",
-            "Bip01 L Finger01",
-            "Bip01 L Finger02",
-            "Bip01 L Finger1",
-            "Bip01 L Finger11",
-            "Bip01 L Finger12",
-            "Bip01 L Finger2",
-            "Bip01 L Finger21",
-            "Bip01 L Finger22",
-            "Bip01 L Finger3",
-            "Bip01 L Finger32",
-            "Bip01 L Finger4",
-            "Bip01 L Finger41",
-            "Bip01 L Finger42",
-            "Bip01 R Clavicle",
-            "Bip01 R UpperArm",
-            "Bip01 R Forearm",
-            "Bip01 R Hand",
-            "_IK_handR",
-            "Bip01 R Finger0",
-            "Bip01 R Finger01",
-            "Bip01 R Finger02",
-            "Bip01 R Finger1",
-            "Bip01 R Finger11",
-            "Bip01 R Finger12",
-            "Bip01 R Finger2",
-            "Bip01 R Finger21",
-            "Bip01 R Finger22",
-            "Bip01 R Finger3",
-            "Bip01 R Finger31",
-            "Bip01 R Finger32",
-            "Bip01 R Finger4",
-            "Bip01 R Finger41",
-            "Bip01 R Finger42"
-        };
-
-        private static readonly Dictionary<string, Quaternion> TPoseBoneTransformRotations = new Dictionary<string, Quaternion>
-        {
-            { "Bip01", Quaternion.Euler(-90f, 0f, 90f) },
-            { "Bip01 Head", Quaternion.Euler(0f, 0f, 15.8494f) },
-            { "Bip01 Neck", Quaternion.Euler(0f, 0f, 342.2753f) },
-            { "Bip01 Spine", Quaternion.Euler(-90f, 180f, -90f) },
-            { "Bip01 R Thigh", Quaternion.Euler(0f, 180f, 0f) },
-            { "Bip01 L Thigh", Quaternion.Euler(0f, 180f, 0f) },
-            { "Bip01 Pelvis", Quaternion.Euler(-90f, 90f, 0f) },
-            { "Bip01 R Clavicle", Quaternion.Euler(180f, -90f, 0f) },
-            { "Bip01 L Clavicle", Quaternion.Euler(180f, 90f, 0f) },
-            { "Bip01 R UpperArm", Quaternion.Euler(0f, 30f, 0f) },
-            { "Bip01 L UpperArm", Quaternion.Euler(0f, -30f, 0f) },
-            { "Bip01 R Hand", Quaternion.Euler(90f, 0f, 0f) },
-            { "Bip01 L Hand", Quaternion.Euler(-90f, 0f, 0f) },
-            { "Bip01 R Finger0", Quaternion.Euler(-70f, 55f, -30f) },
-            { "Bip01 L Finger0", Quaternion.Euler(70f, -55f, -30f) },
-            { "Bip01 L Toe0", Quaternion.Euler(10f, 0f, -80f) },
-            { "Bip01 L Toe01", Quaternion.Euler(0f, 0f, 0f) },
-            { "Bip01 L Toe1", Quaternion.Euler(-5f, 0f, -80f) },
-            { "Bip01 L Toe11", Quaternion.Euler(0f, 0f, 0f) },
-            { "Bip01 L Toe2", Quaternion.Euler(0f, 0f, -80f) },
-            { "Bip01 L Toe21", Quaternion.Euler(0f, 0f, 0f) },
-            { "Bip01 R Toe0", Quaternion.Euler(-10f, 0f, -80f) },
-            { "Bip01 R Toe01", Quaternion.Euler(0f, 0f, 0f) },
-            { "Bip01 R Toe1", Quaternion.Euler(5f, 0f, -80f) },
-            { "Bip01 R Toe11", Quaternion.Euler(0f, 0f, 0f) },
-            { "Bip01 R Toe2", Quaternion.Euler(0f, 0f, -80f) },
-            { "Bip01 R Toe21", Quaternion.Euler(0f, 0f, 0f) },
-        };
-
         #endregion
 
         #region Fields
@@ -142,7 +43,9 @@ namespace COM3D2.ModelExportMMD.Plugin
             {
                 this.window.Show();
             }
-#if DEBUG
+
+        #if DEBUG
+
             if (Input.GetKeyDown(KeyCode.F9))
             {
                 DumpGameObjects();
@@ -152,7 +55,8 @@ namespace COM3D2.ModelExportMMD.Plugin
             {
                 DumpBodyModel();
             }
-#endif
+
+        #endif
         }
 
         public void OnGUI()
@@ -170,7 +74,7 @@ namespace COM3D2.ModelExportMMD.Plugin
 
                 this.window.BrowseClicked += BrowseForExportFolder;
                 this.window.ApplyTPoseClicked += ApplyTPose;
-                this.window.ExportClicked += ExportModel;
+                this.window.ExportClicked += EnqueueExportModel;
                 this.window.CloseClicked += delegate(object s, EventArgs a) { SaveUserPreferences(); };
 
                 LoadUserPreferences();
@@ -197,9 +101,13 @@ namespace COM3D2.ModelExportMMD.Plugin
                     {
                         try
                         {
-                            this.window.ExportFormat = (ModelExportFormat)Enum.Parse(typeof(ModelExportFormat), iniFormat.RawValue, true);
+                            // NOTE: .NET Framework 3.5 doesn't support Enum.TryParse
+                            this.window.ExportFormat = (ModelFormat)Enum.Parse(typeof(ModelFormat), iniFormat.RawValue, true);
                         }
-                        catch { /* ignore and fallthrough*/ }
+                        catch
+                        {
+                            // ignore and fallthrough
+                        }
                     }
 
                     var iniSavePosition = iniSection.GetKey(IniKeySavePosition);
@@ -256,62 +164,59 @@ namespace COM3D2.ModelExportMMD.Plugin
             {
                 this.window.ExportFolderPath = Path.GetDirectoryName(dialog.FileName);
                 this.window.ExportName = Path.GetFileNameWithoutExtension(dialog.FileName);
-                this.window.ExportFormat = (ModelExportFormat)(1 <= dialog.FilterIndex && dialog.FilterIndex <= 2 ? dialog.FilterIndex - 1 : 0);
+                this.window.ExportFormat = (ModelFormat)(1 <= dialog.FilterIndex && dialog.FilterIndex <= 2 ? dialog.FilterIndex - 1 : 0);
             }
         }
 
         private void ApplyTPose(object sender, EventArgs args)
         {
-            Maid maid = GameMain.Instance.CharacterMgr.GetMaid(0);
-            maid.body0.m_Bones.GetComponent<Animation>().Stop();
-
-            Transform rootTransform = maid.body0.m_Bones.transform;
-
-            foreach (var boneName in TPoseBonesToReset)
-            {
-                Transform transform = CMT.SearchObjName(rootTransform, boneName);
-                transform.localRotation = Quaternion.identity;
-            }
-
-            foreach (var entry in TPoseBoneTransformRotations)
-            {
-                CMT.SearchObjName(rootTransform, entry.Key).localRotation *= entry.Value;
-            }
+            var maid = GameMain.Instance.CharacterMgr.GetMaid(0);
+            maid.ApplyTPose();
         }
 
-        private void ExportModel(object sender, ModelExportEventArgs args)
+        private void EnqueueExportModel(object sender, ModelExportEventArgs args)
         {
-            SaveUserPreferences();
-
             try
             {
-                var meshes = FindObjectsOfType<SkinnedMeshRenderer>()
-                    .Where(smr => smr.name != "obj1")
-                    .Distinct()
-                    .ToList();
+                SaveUserPreferences();
 
-                switch (args.Format)
+                var maid = GameMain.Instance.CharacterMgr.GetMaid(0);
+                var materialState = maid.PrepareMaterialsForExport();
+
+                try
                 {
-                    case ModelExportFormat.Pmx:
-                        {
-                            var pmxBuilder = new PmxBuilder(args.Folder, args.Name)
+                    var meshes = FindObjectsOfType<SkinnedMeshRenderer>()
+                        .Where(smr => smr.name != "obj1")
+                        .Distinct()
+                        .ToList();
+
+                    switch (args.Format)
+                    {
+                        case ModelFormat.Pmx:
                             {
-                                SavePostion = args.SavePosition,
-                                SaveTexture = args.SaveTexture
-                            };
-                            pmxBuilder.Export(meshes);
-                        }
-                        break;
-                    case ModelExportFormat.Obj:
-                        {
-                            var objBuilder = new ObjBuilder(args.Folder, args.Name)
+                                var pmxBuilder = new PmxBuilder(args.Folder, args.Name)
+                                {
+                                    SavePostion = args.SavePosition,
+                                    SaveTexture = args.SaveTexture
+                                };
+                                pmxBuilder.Export(meshes);
+                            }
+                            break;
+                        case ModelFormat.Obj:
                             {
-                                SavePostion = args.SavePosition,
-                                SaveTexture = args.SaveTexture
-                            };
-                            objBuilder.Export(meshes);
-                        }
-                        break;
+                                var objBuilder = new ObjBuilder(args.Folder, args.Name)
+                                {
+                                    SavePostion = args.SavePosition,
+                                    SaveTexture = args.SaveTexture
+                                };
+                                objBuilder.Export(meshes);
+                            }
+                            break;
+                    }
+                }
+                finally
+                {
+                    maid.RestoreMaterialsAfterExport(materialState);
                 }
             }
             catch (Exception error)

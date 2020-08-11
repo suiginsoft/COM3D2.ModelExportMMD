@@ -10,7 +10,7 @@ namespace COM3D2.ModelExportMMD.Gui
 
         public string Name { get; }
 
-        public ModelExportFormat Format { get; }
+        public ModelFormat Format { get; }
 
         public bool SavePosition { get; } = true;
 
@@ -20,7 +20,7 @@ namespace COM3D2.ModelExportMMD.Gui
 
         #region Constructors
 
-        public ModelExportEventArgs(string folder, string name, ModelExportFormat format, bool savePosition, bool saveTexture)
+        public ModelExportEventArgs(string folder, string name, ModelFormat format, bool savePosition, bool saveTexture)
         {
             Folder = folder;
             Name = name;

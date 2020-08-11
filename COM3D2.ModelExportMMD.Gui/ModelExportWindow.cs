@@ -52,7 +52,7 @@ namespace COM3D2.ModelExportMMD.Gui
         public string PluginVersion { get; set; }
         public string ExportFolderPath { get; set; }
         public string ExportName { get; set; }
-        public ModelExportFormat ExportFormat { get; set; }
+        public ModelFormat ExportFormat { get; set; }
         public bool SavePostion { get; set; }
         public bool SaveTextures { get; set; }
 
@@ -179,7 +179,7 @@ namespace COM3D2.ModelExportMMD.Gui
 
             position.x += position.width;
             position.width = this.modalRect.width * 0.8f - margin;
-            this.ExportFormat = (ModelExportFormat)GUI.SelectionGrid(position, (int)this.ExportFormat, ExportFormatLabels, ExportFormatLabels.Length, this.selectionGridStyle);
+            this.ExportFormat = (ModelFormat)GUI.SelectionGrid(position, (int)this.ExportFormat, ExportFormatLabels, ExportFormatLabels.Length, this.selectionGridStyle);
 
             position.x = margin;
             position.y += position.height + margin;

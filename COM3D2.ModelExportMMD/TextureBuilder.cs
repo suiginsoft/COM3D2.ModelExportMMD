@@ -10,12 +10,12 @@ namespace COM3D2.ModelExportMMD
 
         public static Texture2D ConvertToTexture2D(RenderTexture renderTexture)
         {
-            RenderTexture priorRenderTexture = RenderTexture.active;
+            var priorRenderTexture = RenderTexture.active;
             RenderTexture.active = renderTexture;
 
             try
             {
-                Texture2D texture2D = new Texture2D(renderTexture.width, renderTexture.height);
+                Texture2D texture2D = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.ARGB32, mipmap: false);
                 texture2D.ReadPixels(new Rect(0f, 0f, texture2D.width, texture2D.height), 0, 0);
                 texture2D.Apply();
                 return texture2D;

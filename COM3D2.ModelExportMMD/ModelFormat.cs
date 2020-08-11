@@ -1,6 +1,6 @@
 ﻿namespace COM3D2.ModelExportMMD
 {
-    public enum ModelExportFormat
+    public enum ModelFormat
     {
         Pmx,
         Obj

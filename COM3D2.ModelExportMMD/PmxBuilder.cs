@@ -116,7 +116,7 @@ namespace COM3D2.ModelExportMMD
             {
                 int[] triangles = mesh.GetTriangles(i);
                 this.AddFaceList(triangles, this.vertexCount);
-                this.CreateMaterial(meshRender.sharedMaterials[i], triangles.Length);
+                this.CreateMaterial(meshRender.materials[i], triangles.Length);
             }
             this.vertexCount += mesh.vertexCount;
             for (int i = 0; i < mesh.vertexCount; i++)
@@ -255,19 +255,22 @@ namespace COM3D2.ModelExportMMD
             pmxMaterial.Name = material.name;
             pmxMaterial.NameE = material.name;
             pmxMaterial.Flags = (PmxMaterial.MaterialFlags.DrawBoth | PmxMaterial.MaterialFlags.Shadow | PmxMaterial.MaterialFlags.SelfShadowMap | PmxMaterial.MaterialFlags.SelfShadow);
-            if (material.mainTexture != null)
+            if (material.HasProperty("_MainTex"))
             {
-                string text = material.name;
-                Debug.Log("Generate Material : " + text);
-                if (text.Contains("Instance"))
+                string textureName = material.name;
+                if (textureName.Contains("Instance"))
                 {
-                    object obj = text;
-                    text = obj + "_(" + material.GetInstanceID() + ")";
+                    textureName = material.name + "_(" + material.GetInstanceID() + ")";
                 }
-                pmxMaterial.Tex = text + ".png";
-                Texture mainTexture = material.mainTexture;
-                if (this.SaveTexture)
+                pmxMaterial.Tex = textureName + ".png";
+                Texture mainTexture = material.GetTexture("_MainTex");
+                if (mainTexture == null)
                 {
+                    mainTexture = material.mainTexture;
+                }
+                if (mainTexture != null && this.SaveTexture)
+                {
+                    Debug.Log($"Generate Material: {material.name} {mainTexture.name}");
                     TextureBuilder.WriteTextureToFile(Path.Combine(this.exportFolder, pmxMaterial.Tex), mainTexture);
                 }
             }

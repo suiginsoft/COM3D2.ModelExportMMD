@@ -209,7 +209,7 @@ namespace COM3D2.ModelExportMMD
                         objOutput.AppendLine("g " + gameObject.name + "[" + gameObject.GetInstanceID() + ",SM" + k + "]");
                     }
 
-                    if (renderer != null && k <= renderer.sharedMaterials.Length - 1)
+                    if (renderer != null && k < renderer.materials.Length)
                     {
                         string matRef = GenerateMaterial(matOutput, matNameCache, renderer.materials[k]);
                         if (this.SplitMethod == Split.ByMaterial)
