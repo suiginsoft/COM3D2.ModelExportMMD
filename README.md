@@ -10,7 +10,7 @@ Things that have been changed or improved from the original plugin to tailor it 
 - Export the specular power to MMD PMX materials instead of leaving it fixed at a value of zero
 - Utilize instance textures instead of shared textures when exporting, capturing instance-specific modifications
 - Restore the prior active RenderTexture when transforming RenderTexture objects to Texture2D objects
-- Workaround for blank face textures being exported due blending modes of composite layers being incompatible with Texture2D.ReadPixels
+- Workaround for blank face textures being exported due to the Multiply blending mode of certain composite layers being incompatible with Texture2D.ReadPixels
 - More robust parent-child bone mapping of armature, fixing a crash when processing COM3D2 meshes
 - Updated the embedded PmxLib to the latest version at 2.57 with support for PMX 2.1 file format features
 - Improved logging and error recovery
