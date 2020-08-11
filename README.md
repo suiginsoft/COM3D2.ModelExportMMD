@@ -5,6 +5,7 @@ A Sybaris plugin for COM3D2 1.48 and later that supports exporting your custom M
 Things that have been changed or improved from the original plugin to tailor it for COM3D2:
 
 - Updated user interface and introduction of a file browser dialog
+- Packaged the window background image as an embedded resource instead of Base64 text, reducing the plugin file size by half
 - Export preferences are now persisted across multiple sessions, saved to the plugin's configuration file
 - Disabled the Maid's head and eye tracking when the T-pose transformation is applied
 - Export the specular power to MMD PMX materials instead of leaving it fixed at a value of zero
