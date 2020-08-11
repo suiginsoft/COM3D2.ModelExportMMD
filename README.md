@@ -21,6 +21,6 @@ Download the latest version, then extract the archive and place the COM3D2.Model
 
 Usage
 -------------------------------------------------------------------------------
-Once you're in game and have made it to the initial Maid customization screen, press `F8` to bring up the Model Export MMD window.
+Once you're in game and have made it to the initial Maid customization screen, press the `F8` key on your keyboard to bring up the Model Export MMD window.
 
 From the export window you may select your export folder on the filesystem, the model file base name and your desired export format (either MMD or OBJ). You can manually enter in the export folder file path and model base name using your keyboard or use the file browser dialog by pressing the `Browse` button. Before you export, ensure that you press the `Apply T-Pose` button to force your Maid into a fixed T-pose. Finally, click the `Export` button to export your Maid to the filesystem, or click `Close` to cancel the export process and close the window.
