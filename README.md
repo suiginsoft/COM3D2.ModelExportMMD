@@ -17,7 +17,7 @@ Things that have been changed or improved from the original plugin to tailor it 
 
 Installation
 -------------------------------------------------------------------------------
-Download the latest version and then extract the archive and place COM3D2.ModelExportMMD.Plugin.dll under your COM3D2\Sybaris\UnityInjector folder.
+Download the latest version and then extract the archive and place the COM3D2.ModelExportMMD.Plugin.dll file under your COM3D2\Sybaris\UnityInjector folder.
 
 Usage
 -------------------------------------------------------------------------------
