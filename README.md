@@ -17,10 +17,10 @@ Things that have been changed or improved from the original plugin to tailor it 
 
 Installation
 -------------------------------------------------------------------------------
-Download the latest version and then extract the archive and place the COM3D2.ModelExportMMD.Plugin.dll file under your COM3D2\Sybaris\UnityInjector folder.
+Download the latest version, then extract the archive and place the COM3D2.ModelExportMMD.Plugin.dll file into your Sybaris UnityInjector folder (typically COM3D2\Sybaris\UnityInjector).
 
 Usage
 -------------------------------------------------------------------------------
-Once you're in game and have made it to the initial maid customization screen press `F8` to bring up the Model Export MMD window.
+Once you're in game and have made it to the initial Maid customization screen press `F8` to bring up the Model Export MMD window.
 
 From the export window you may select your export folder on the filesystem, the model file base name and your desired export format (either MMD or OBJ). You can manually enter in the export folder file path and model base name using your keyboard or use the file browser dialog by pressing the `Browse` button. Before you export, ensure that you press the `Apply T-Pose` button to force your Maid into a fixed T-pose. Finally, click the `Export` button to export your Maid to the filesystem, or click `Close` to cancel the export process and close the window.
