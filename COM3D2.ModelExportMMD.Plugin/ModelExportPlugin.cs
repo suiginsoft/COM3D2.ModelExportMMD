@@ -151,7 +151,7 @@ namespace COM3D2.ModelExportMMD.Plugin
         {
             var dialog = new SaveFileDialog();
             dialog.Title = "Select the folder where the model and textures will be exported";
-            dialog.Filter = "MMD Files(*.pmx)|*.pmx|OBJ Files(*.obj)|*.obj|All files (*.*)|*.*";
+            dialog.Filter = "MikuMikuDance (*.pmx)|*.pmx|Wavefront (*.obj)|*.obj|All files (*.*)|*.*";
             dialog.FilterIndex = (int)this.window.ExportFormat + 1;
             dialog.FileName = this.window.ExportName;
             dialog.InitialDirectory = this.window.ExportFolderPath;
