@@ -173,7 +173,7 @@ namespace COM3D2.ModelExportMMD.Extensions
                     {
                         foreach (var lay in prop.Value.dicLayInProp)
                         {
-                            if (lay.Value.listLayer == null)
+                            if (lay.Value.listLayer != null)
                             {
                                 foreach (var tex in lay.Value.listLayer)
                                 {
