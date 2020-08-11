@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace COM3D2.ModelExportMMD
 {
-    public class ObjBuilder
+    public class ObjBuilder : IExporter
     {
         #region Types
 
@@ -19,28 +19,13 @@ namespace COM3D2.ModelExportMMD
 
         #endregion
 
-        #region Fields
-
-        private readonly string exportFolder;
-        private readonly string exportName;
-
-        #endregion
-
         #region Properties
 
+        public string ExportFolder { get; set; }
+        public string ExportName { get; set; }
         public bool SavePostion { get; set; } = true;
         public bool SaveTexture { get; set; } = true;
         public Split SplitMethod { get; set; } = Split.ByMesh;
-
-        #endregion
-
-        #region Constructors
-
-        public ObjBuilder(string folder, string name)
-        {
-            this.exportFolder = folder;
-            this.exportName = name;
-        }
 
         #endregion
 
@@ -113,7 +98,7 @@ namespace COM3D2.ModelExportMMD
                         matOutput.AppendLine("map_Kd " + matRef + "d.png");
                         if (this.SaveTexture)
                         {
-                            TextureBuilder.WriteTextureToFile(Path.Combine(this.exportFolder, matRef + "d.png"), mainTex);
+                            TextureBuilder.WriteTextureToFile(Path.Combine(this.ExportFolder, matRef + "d.png"), mainTex);
                         }
 
                         Texture2D shadowTex = this.GetShadowTex(material);
@@ -122,7 +107,7 @@ namespace COM3D2.ModelExportMMD
                             matOutput.AppendLine("map_Ka " + matRef + "a.png");
                             if (this.SaveTexture)
                             {
-                                TextureBuilder.WriteTextureToFile(Path.Combine(this.exportFolder, matRef + "a.png"), shadowTex);
+                                TextureBuilder.WriteTextureToFile(Path.Combine(this.ExportFolder, matRef + "a.png"), shadowTex);
                             }
                         }
                     }
@@ -144,10 +129,10 @@ namespace COM3D2.ModelExportMMD
 
         public void Export(List<SkinnedMeshRenderer> meshesList)
         {
-            Directory.CreateDirectory(this.exportFolder);
+            Directory.CreateDirectory(this.ExportFolder);
 
             StringBuilder objOutput = new StringBuilder();
-            objOutput.AppendLine("mtllib " + exportName + ".mtl");
+            objOutput.AppendLine("mtllib " + this.ExportName + ".mtl");
 
             StringBuilder matOutput = new StringBuilder();
             var matNameCache = new List<string>();
@@ -232,8 +217,8 @@ namespace COM3D2.ModelExportMMD
                 meshVertexCount += mesh.vertices.Length;
             }
 
-            File.WriteAllText(Path.Combine(this.exportFolder, this.exportName + ".obj"), objOutput.ToString());
-            File.WriteAllText(Path.Combine(this.exportFolder, this.exportName + ".mtl"), matOutput.ToString());
+            File.WriteAllText(Path.Combine(this.ExportFolder, this.ExportName + ".obj"), objOutput.ToString());
+            File.WriteAllText(Path.Combine(this.ExportFolder, this.ExportName + ".mtl"), matOutput.ToString());
         }
 
         #endregion

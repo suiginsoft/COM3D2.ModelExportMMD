@@ -6,18 +6,16 @@ using UnityEngine;
 
 namespace COM3D2.ModelExportMMD
 {
-    public class PmxBuilder
+    public class PmxBuilder : IExporter
     {
         #region Constants
 
-        private const float ScaleFactor = 8;
+        private const float scaleFactor = 8f;
 
         #endregion
 
         #region Fields
 
-        private readonly string exportFolder;
-        private readonly string exportName;
         private readonly Pmx pmxFile = new Pmx();
         private readonly List<Transform> boneList = new List<Transform>();
         private readonly List<int> boneParent = new List<int>();
@@ -29,6 +27,8 @@ namespace COM3D2.ModelExportMMD
 
         #region Properties
 
+        public string ExportFolder { get; set; }
+        public string ExportName { get; set; }
         public bool SavePostion { get; set; } = true;
         public bool SaveTexture { get; set; } = true;
 
@@ -36,11 +36,8 @@ namespace COM3D2.ModelExportMMD
 
         #region Constructors
 
-        public PmxBuilder(string folder, string name)
+        public PmxBuilder()
         {
-            this.exportFolder = folder;
-            this.exportName = name;
-
             this.pmxFile.ModelInfo.ModelName = "妹抖";
             this.pmxFile.ModelInfo.ModelNameE = "maid";
             this.pmxFile.ModelInfo.Comment = "我的妹抖";
@@ -53,24 +50,31 @@ namespace COM3D2.ModelExportMMD
 
         private PmxVertex.BoneWeight[] ConvertBoneWeight(BoneWeight unityWeight, Transform[] bones, SkinQuality quality)
         {
-            int n = (int)quality;
-            if (n < 1) n = 1;
-            PmxVertex.BoneWeight[] array = new PmxVertex.BoneWeight[n];
-            array[0].Bone = bonesMap[bones[unityWeight.boneIndex0].name];
-            array[0].Value = unityWeight.weight0;
-            if (n >= 2)
+            int boneCount = (int)quality;
+            if (boneCount < 1)
             {
-                array[1].Bone = bonesMap[bones[unityWeight.boneIndex1].name];
-                array[1].Value = unityWeight.weight1;
+                boneCount = 1;
             }
-            if (n >= 4)
+
+            var weights = new PmxVertex.BoneWeight[boneCount];
+            weights[0].Bone = this.bonesMap[bones[unityWeight.boneIndex0].name];
+            weights[0].Value = unityWeight.weight0;
+
+            if (boneCount >= 2)
             {
-                array[2].Bone = bonesMap[bones[unityWeight.boneIndex2].name];
-                array[2].Value = unityWeight.weight2;
-                array[3].Bone = bonesMap[bones[unityWeight.boneIndex3].name];
-                array[3].Value = unityWeight.weight3;
+                weights[1].Bone = this.bonesMap[bones[unityWeight.boneIndex1].name];
+                weights[1].Value = unityWeight.weight1;
             }
-            return array;
+
+            if (boneCount >= 4)
+            {
+                weights[2].Bone = this.bonesMap[bones[unityWeight.boneIndex2].name];
+                weights[2].Value = unityWeight.weight2;
+                weights[3].Bone = this.bonesMap[bones[unityWeight.boneIndex3].name];
+                weights[3].Value = unityWeight.weight3;
+            }
+
+            return weights;
         }
 
         private void AddFaceList(int[] faceList, int count)
@@ -82,17 +86,7 @@ namespace COM3D2.ModelExportMMD
             }
         }
 
-        private UnityEngine.Vector3 MultiplyVec3s(UnityEngine.Vector3 v1, UnityEngine.Vector3 v2)
-        {
-            return new UnityEngine.Vector3(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z);
-        }
-
-        private UnityEngine.Vector3 RotateAroundPoint(UnityEngine.Vector3 point, UnityEngine.Vector3 pivot, UnityEngine.Quaternion angle)
-        {
-            return angle * (point - pivot) + pivot;
-        }
-
-        private PmxLib.Vector3 ToPmxVec3(UnityEngine.Vector3 v)
+        private static PmxLib.Vector3 ToPmxVec3(UnityEngine.Vector3 v)
         {
             return new PmxLib.Vector3(-v.x, v.y, -v.z);
         }
@@ -130,7 +124,7 @@ namespace COM3D2.ModelExportMMD
                 pmxVertex.Normal = ToPmxVec3(n);
                 UnityEngine.Vector3 v = vertices[i];
                 v = t.TransformPoint(v);
-                v *= ScaleFactor;
+                v *= scaleFactor;
                 pmxVertex.Position = ToPmxVec3(v);
                 this.pmxFile.VertexList.Add(pmxVertex);
             }
@@ -151,17 +145,6 @@ namespace COM3D2.ModelExportMMD
                 }
             }
 
-            return v;
-        }
-
-        private UnityEngine.Vector3 CalcPostion(UnityEngine.Vector3 v, BoneWeight boneWeight, Transform[] bones)
-        {
-            Transform key = bones[boneWeight.boneIndex0];
-            if (this.bonesMap.ContainsKey(key.name))
-            {
-                int index = this.bonesMap[key.name];
-                v = this.TransToParent(v, index);
-            }
             return v;
         }
 
@@ -243,7 +226,7 @@ namespace COM3D2.ModelExportMMD
                 {
                     pmxBone.Parent = this.boneParent[i];
                 }
-                UnityEngine.Vector3 vector = bone.position * ScaleFactor;
+                UnityEngine.Vector3 vector = bone.position * scaleFactor;
                 pmxBone.Position = ToPmxVec3(vector);
                 this.pmxFile.BoneList.Add(pmxBone);
             }
@@ -271,7 +254,7 @@ namespace COM3D2.ModelExportMMD
                 if (mainTexture != null && this.SaveTexture)
                 {
                     Debug.Log($"Generate Material: {material.name} {mainTexture.name}");
-                    TextureBuilder.WriteTextureToFile(Path.Combine(this.exportFolder, pmxMaterial.Tex), mainTexture);
+                    TextureBuilder.WriteTextureToFile(Path.Combine(this.ExportFolder, pmxMaterial.Tex), mainTexture);
                 }
             }
             if (material.HasProperty("_AmbColor"))
@@ -318,12 +301,12 @@ namespace COM3D2.ModelExportMMD
             pmxElementFormat.MaterialSize = PmxElementFormat.GetUnsignedBufSize(this.pmxFile.MaterialList.Count);
             pmxElementFormat.BodySize = PmxElementFormat.GetUnsignedBufSize(this.pmxFile.BodyList.Count);
             this.pmxFile.Header.FromElementFormat(pmxElementFormat);
-            this.pmxFile.ToFile(Path.Combine(this.exportFolder, this.exportName + ".pmx"));
+            this.pmxFile.ToFile(Path.Combine(this.ExportFolder, this.ExportName + ".pmx"));
         }
 
         public void Export(List<SkinnedMeshRenderer> skinnedMeshes)
         {
-            Directory.CreateDirectory(this.exportFolder);
+            Directory.CreateDirectory(this.ExportFolder);
 
             PrepareData(skinnedMeshes);
             CreateBoneList();

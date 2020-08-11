@@ -190,29 +190,25 @@ namespace COM3D2.ModelExportMMD.Plugin
                         .Distinct()
                         .ToList();
 
+                    IExporter exporter;
+
                     switch (args.Format)
                     {
                         case ModelFormat.Pmx:
-                            {
-                                var pmxBuilder = new PmxBuilder(args.Folder, args.Name)
-                                {
-                                    SavePostion = args.SavePosition,
-                                    SaveTexture = args.SaveTexture
-                                };
-                                pmxBuilder.Export(meshes);
-                            }
+                            exporter = new PmxBuilder();
                             break;
                         case ModelFormat.Obj:
-                            {
-                                var objBuilder = new ObjBuilder(args.Folder, args.Name)
-                                {
-                                    SavePostion = args.SavePosition,
-                                    SaveTexture = args.SaveTexture
-                                };
-                                objBuilder.Export(meshes);
-                            }
+                            exporter = new ObjBuilder();
                             break;
+                        default:
+                            throw new Exception($"Unknown model format: {args.Format}");
                     }
+
+                    exporter.ExportFolder = args.Folder;
+                    exporter.ExportName = args.Name;
+                    exporter.SavePostion = args.SavePosition;
+                    exporter.SaveTexture = args.SaveTexture;
+                    exporter.Export(meshes);
                 }
                 finally
                 {
