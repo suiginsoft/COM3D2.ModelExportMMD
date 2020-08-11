@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace COM3D2.ModelExportMMD
 {
-    public class ObjBuilder : IExporter
+    public class ObjExporter : IExporter
     {
         #region Types
 
@@ -21,6 +21,7 @@ namespace COM3D2.ModelExportMMD
 
         #region Properties
 
+        public ModelFormat ExportFormat { get { return ModelFormat.Obj; } }
         public string ExportFolder { get; set; }
         public string ExportName { get; set; }
         public bool SavePostion { get; set; } = true;

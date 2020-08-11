@@ -39,8 +39,9 @@ namespace COM3D2.ModelExportMMD.Plugin
 
         public void Update()
         {
-            if (Input.GetKeyDown(KeyCode.F8) && window != null)
+            if (Input.GetKeyDown(KeyCode.F8))
             {
+                Debug.Assert(this.window != null);
                 this.window.Show();
             }
 
@@ -74,7 +75,7 @@ namespace COM3D2.ModelExportMMD.Plugin
 
                 this.window.BrowseClicked += BrowseForExportFolder;
                 this.window.ApplyTPoseClicked += ApplyTPose;
-                this.window.ExportClicked += EnqueueExportModel;
+                this.window.ExportClicked += ExportModel;
                 this.window.CloseClicked += delegate(object s, EventArgs a) { SaveUserPreferences(); };
 
                 LoadUserPreferences();
@@ -170,11 +171,18 @@ namespace COM3D2.ModelExportMMD.Plugin
 
         private void ApplyTPose(object sender, EventArgs args)
         {
-            var maid = GameMain.Instance.CharacterMgr.GetMaid(0);
-            maid.ApplyTPose();
+            try
+            {
+                var maid = GameMain.Instance.CharacterMgr.GetMaid(0);
+                maid.ApplyTPose();
+            }
+            catch (Exception error)
+            {
+                Debug.LogError($"Error applying T-pose: {error.Message}\n\nStack trace:\n{error.StackTrace}");
+            }
         }
 
-        private void EnqueueExportModel(object sender, ModelExportEventArgs args)
+        private void ExportModel(object sender, ModelExportEventArgs args)
         {
             try
             {
@@ -195,10 +203,10 @@ namespace COM3D2.ModelExportMMD.Plugin
                     switch (args.Format)
                     {
                         case ModelFormat.Pmx:
-                            exporter = new PmxBuilder();
+                            exporter = new PmxExporter();
                             break;
                         case ModelFormat.Obj:
-                            exporter = new ObjBuilder();
+                            exporter = new ObjExporter();
                             break;
                         default:
                             throw new Exception($"Unknown model format: {args.Format}");

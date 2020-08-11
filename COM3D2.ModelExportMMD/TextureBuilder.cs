@@ -31,7 +31,7 @@ namespace COM3D2.ModelExportMMD
             try
             {
                 Texture2D texture2D = ((!(tex is RenderTexture)) ? (tex as Texture2D) : ConvertToTexture2D(tex as RenderTexture));
-                Texture2D argb32Texture2D = new Texture2D(texture2D.width, texture2D.height, TextureFormat.ARGB32, false);
+                Texture2D argb32Texture2D = new Texture2D(texture2D.width, texture2D.height, TextureFormat.ARGB32, mipmap: false);
                 Color[] pixels = texture2D.GetPixels();
                 argb32Texture2D.SetPixels(pixels);
                 byte[] bytes = argb32Texture2D.EncodeToPNG();

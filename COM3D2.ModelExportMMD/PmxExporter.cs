@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace COM3D2.ModelExportMMD
 {
-    public class PmxBuilder : IExporter
+    public class PmxExporter : IExporter
     {
         #region Constants
 
@@ -27,6 +27,7 @@ namespace COM3D2.ModelExportMMD
 
         #region Properties
 
+        public ModelFormat ExportFormat { get { return ModelFormat.Pmx; } }
         public string ExportFolder { get; set; }
         public string ExportName { get; set; }
         public bool SavePostion { get; set; } = true;
@@ -36,7 +37,7 @@ namespace COM3D2.ModelExportMMD
 
         #region Constructors
 
-        public PmxBuilder()
+        public PmxExporter()
         {
             this.pmxFile.ModelInfo.ModelName = "妹抖";
             this.pmxFile.ModelInfo.ModelNameE = "maid";

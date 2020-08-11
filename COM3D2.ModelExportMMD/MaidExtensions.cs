@@ -126,7 +126,7 @@ namespace COM3D2.ModelExportMMD.Extensions
         #region Methods
 
         // Stops all animations, locks eye & head position so that the Maid
-        // is looking straight-forward and applies transformations to a Maid's
+        // is looking straight forward and applies transformations to a Maid's
         // armature to put her into a T-pose.
         public static void ApplyTPose(this Maid maid)
         {

@@ -7,6 +7,8 @@ namespace COM3D2.ModelExportMMD
     {
         #region Properties
 
+        ModelFormat ExportFormat { get; }
+
         string ExportFolder { get; set; }
 
         string ExportName { get; set; }
