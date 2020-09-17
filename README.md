@@ -1,6 +1,6 @@
 COM3D2.ModelExportMMD
 -------------------------------------------------------------------------------
-A Sybaris plugin for COM3D2 1.48 and later that supports exporting your custom Maids as MikuMikuDance (MMD) or Wavefront (OBJ) models. This project was reverse engineered from the older CM3D2 ModelExportMMD plugin originally authored by 伊丽丝喵 and then heavily revised and reworked to fix a number of bugs and deficiences.
+A BepInEx plugin for COM3D2 1.48 and later that supports exporting your custom Maids as MikuMikuDance (MMD) or Wavefront (OBJ) models. This project was reverse engineered from the older CM3D2 ModelExportMMD plugin originally authored by 伊丽丝喵 and then heavily revised and reworked to fix a number of bugs and deficiences.
 
 Things that have been changed or improved from the original plugin to tailor it for COM3D2:
 
@@ -15,12 +15,13 @@ Things that have been changed or improved from the original plugin to tailor it 
 - More robust parent-child bone mapping of armature, fixing a crash when processing COM3D2 meshes
 - Updated the embedded PmxLib to the latest version at 2.57 with support for PMX 2.1 file format features
 - Improved logging and error recovery
+- Updated the plugin to BepInEx, you need version 5.0.1 at least, check out "MaidEx AIO"
 
 Installation
 -------------------------------------------------------------------------------
-**Download the latest version here: [COM3D2.ModelExportMMD](https://github.com/suiginsoft/COM3D2.ModelExportMMD/releases/download/v2.0.0.0/COM3D2.ModelExportMMD-2.0.0.0.7z)**
+Compile it yourself, lol. When I'm arsed there will be release.
 
-Once you have downloaded the above archive, extract its contents and place the COM3D2.ModelExportMMD.Plugin.dll file into your Sybaris UnityInjector folder (typically COM3D2\Sybaris\UnityInjector).
+Once you have the .dll, drop it in BepInEx/plugins
 
 Usage
 -------------------------------------------------------------------------------
