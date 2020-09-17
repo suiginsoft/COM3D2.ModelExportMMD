@@ -39,10 +39,10 @@ namespace COM3D2.ModelExportMMD
 
         public PmxExporter()
         {
-            this.pmxFile.ModelInfo.ModelName = "妹抖";
-            this.pmxFile.ModelInfo.ModelNameE = "maid";
-            this.pmxFile.ModelInfo.Comment = "我的妹抖";
-            this.pmxFile.ModelInfo.CommentE = "my maid";
+            pmxFile.ModelInfo.ModelName = "妹抖";
+            pmxFile.ModelInfo.ModelNameE = "maid";
+            pmxFile.ModelInfo.Comment = "我的妹抖";
+            pmxFile.ModelInfo.CommentE = "my maid";
         }
 
         #endregion
@@ -58,20 +58,20 @@ namespace COM3D2.ModelExportMMD
             }
 
             var weights = new PmxVertex.BoneWeight[boneCount];
-            weights[0].Bone = this.bonesMap[bones[unityWeight.boneIndex0].name];
+            weights[0].Bone = bonesMap[bones[unityWeight.boneIndex0].name];
             weights[0].Value = unityWeight.weight0;
 
             if (boneCount >= 2)
             {
-                weights[1].Bone = this.bonesMap[bones[unityWeight.boneIndex1].name];
+                weights[1].Bone = bonesMap[bones[unityWeight.boneIndex1].name];
                 weights[1].Value = unityWeight.weight1;
             }
 
             if (boneCount >= 4)
             {
-                weights[2].Bone = this.bonesMap[bones[unityWeight.boneIndex2].name];
+                weights[2].Bone = bonesMap[bones[unityWeight.boneIndex2].name];
                 weights[2].Value = unityWeight.weight2;
-                weights[3].Bone = this.bonesMap[bones[unityWeight.boneIndex3].name];
+                weights[3].Bone = bonesMap[bones[unityWeight.boneIndex3].name];
                 weights[3].Value = unityWeight.weight3;
             }
 
@@ -83,7 +83,7 @@ namespace COM3D2.ModelExportMMD
             for (int i = 0; i < faceList.Length; i++)
             {
                 faceList[i] += count;
-                this.pmxFile.FaceList.Add(faceList[i]);
+                pmxFile.FaceList.Add(faceList[i]);
             }
         }
 
@@ -97,7 +97,7 @@ namespace COM3D2.ModelExportMMD
             GameObject gameObject = meshRender.gameObject;
             Mesh mesh = meshRender.sharedMesh;
             BoneWeight[] boneWeights = mesh.boneWeights;
-            if (this.SavePostion)
+            if (SavePostion)
             {
                 Mesh mesh2 = new Mesh();
                 meshRender.BakeMesh(mesh2);
@@ -110,15 +110,15 @@ namespace COM3D2.ModelExportMMD
             for (int i = 0; i < mesh.subMeshCount; i++)
             {
                 int[] triangles = mesh.GetTriangles(i);
-                this.AddFaceList(triangles, this.vertexCount);
-                this.CreateMaterial(meshRender.materials[i], triangles.Length);
+                AddFaceList(triangles, vertexCount);
+                CreateMaterial(meshRender.materials[i], triangles.Length);
             }
-            this.vertexCount += mesh.vertexCount;
+            vertexCount += mesh.vertexCount;
             for (int i = 0; i < mesh.vertexCount; i++)
             {
                 PmxVertex pmxVertex = new PmxVertex();
                 pmxVertex.UV = new PmxLib.Vector2(uv[i].x, -uv[i].y);
-                pmxVertex.Weight = this.ConvertBoneWeight(boneWeights[i], meshRender.bones, meshRender.quality);
+                pmxVertex.Weight = ConvertBoneWeight(boneWeights[i], meshRender.bones, meshRender.quality);
                 Transform t = gameObject.transform;
                 UnityEngine.Vector3 n = normals[i];
                 n = t.TransformDirection(n);
@@ -127,22 +127,22 @@ namespace COM3D2.ModelExportMMD
                 v = t.TransformPoint(v);
                 v *= scaleFactor;
                 pmxVertex.Position = ToPmxVec3(v);
-                this.pmxFile.VertexList.Add(pmxVertex);
+                pmxFile.VertexList.Add(pmxVertex);
             }
         }
 
         private UnityEngine.Vector3 TransToParent(UnityEngine.Vector3 v, int index)
         {
-            var transform = this.boneList[index];
+            var transform = boneList[index];
 
-            if (this.bonesMap.ContainsKey(transform.parent.name))
+            if (bonesMap.ContainsKey(transform.parent.name))
             {
-                int parentIndex = this.bonesMap[transform.parent.name];
+                int parentIndex = bonesMap[transform.parent.name];
                 if (parentIndex != -1)
                 {
-                    Matrix4x4 matrix4x = this.bindposeList[index] * this.boneList[parentIndex].worldToLocalMatrix.inverse;
+                    Matrix4x4 matrix4x = bindposeList[index] * boneList[parentIndex].worldToLocalMatrix.inverse;
                     v = matrix4x.MultiplyVector(v);
-                    v = this.TransToParent(v, parentIndex);
+                    v = TransToParent(v, parentIndex);
                 }
             }
 
@@ -151,10 +151,10 @@ namespace COM3D2.ModelExportMMD
 
         private void PrepareData(List<SkinnedMeshRenderer> skinnedMeshes)
         {
-            this.bonesMap.Clear();
-            this.boneList.Clear();
-            this.boneParent.Clear();
-            this.bindposeList.Clear();
+            bonesMap.Clear();
+            boneList.Clear();
+            boneParent.Clear();
+            bindposeList.Clear();
 
             foreach (var skinnedMesh in skinnedMeshes)
             {
@@ -168,12 +168,12 @@ namespace COM3D2.ModelExportMMD
                                 !bone.name.Equals(skinnedMesh.name) &&
                                 !bone.name.Equals(skinnedMesh.sharedMesh.name) &&
                                 !bone.name.StartsWith("_SM_") &&
-                                !this.bonesMap.ContainsKey(bone.name))
+                                !bonesMap.ContainsKey(bone.name))
                         {
-                            this.bonesMap[bone.name] = this.boneList.Count;
-                            this.boneList.Add(bone);
-                            this.boneParent.Add(-1);
-                            this.bindposeList.Add(skinnedMesh.sharedMesh.bindposes[i]);
+                            bonesMap[bone.name] = boneList.Count;
+                            boneList.Add(bone);
+                            boneParent.Add(-1);
+                            bindposeList.Add(skinnedMesh.sharedMesh.bindposes[i]);
                         }
                     }
                 }
@@ -185,24 +185,24 @@ namespace COM3D2.ModelExportMMD
                     Transform bone = skinnedMesh.bones[i];
                     if (bone == null || string.IsNullOrEmpty(bone.name))
                         continue;
-                    if (!this.bonesMap.TryGetValue(bone.name, out int j))
+                    if (!bonesMap.TryGetValue(bone.name, out int j))
                         continue;
                     if (bone.parent == null || string.IsNullOrEmpty(bone.parent.name) || bone.parent.name.StartsWith("_SM_"))
                     {
                         Debug.Log($"Bone {bone.name} has no parent");
                         continue;
                     }
-                    if (this.bonesMap.ContainsKey(bone.parent.name))
+                    if (bonesMap.ContainsKey(bone.parent.name))
                     {
-                        int k = this.bonesMap[bone.parent.name];
-                        if (this.boneParent[j] == -1)
+                        int k = bonesMap[bone.parent.name];
+                        if (boneParent[j] == -1)
                         {
                             Debug.Log($"Bone {bone.name} parented to {bone.parent.name}({k})");
-                            this.boneParent[j] = k;
+                            boneParent[j] = k;
                         }
-                        else if (this.boneParent[j] != k)
+                        else if (boneParent[j] != k)
                         {
-                            Debug.Log($"Warning: bone {bone.name} was parented to {this.boneList[this.boneParent[j]].name} but was also found parented to {bone.parent.name}");
+                            Debug.Log($"Warning: bone {bone.name} was parented to {boneList[boneParent[j]].name} but was also found parented to {bone.parent.name}");
                         }
                     }
                     else
@@ -212,24 +212,24 @@ namespace COM3D2.ModelExportMMD
                 }
             }
 
-            Debug.Log($"Bone Count: {this.boneList.Count} Bindpose Count: {this.bindposeList.Count}");
+            Debug.Log($"Bone Count: {boneList.Count} Bindpose Count: {bindposeList.Count}");
         }
 
         private void CreateBoneList()
         {
-            for (int i = 0; i < this.boneList.Count; i++)
+            for (int i = 0; i < boneList.Count; i++)
             {
-                Transform bone = this.boneList[i];
+                Transform bone = boneList[i];
                 PmxBone pmxBone = new PmxBone();
                 pmxBone.Name = bone.name;
                 pmxBone.NameE = bone.name;
-                if (this.boneParent[i] >= 0)
+                if (boneParent[i] >= 0)
                 {
-                    pmxBone.Parent = this.boneParent[i];
+                    pmxBone.Parent = boneParent[i];
                 }
                 UnityEngine.Vector3 vector = bone.position * scaleFactor;
                 pmxBone.Position = ToPmxVec3(vector);
-                this.pmxFile.BoneList.Add(pmxBone);
+                pmxFile.BoneList.Add(pmxBone);
             }
         }
 
@@ -252,10 +252,10 @@ namespace COM3D2.ModelExportMMD
                 {
                     mainTexture = material.mainTexture;
                 }
-                if (mainTexture != null && this.SaveTexture)
+                if (mainTexture != null && SaveTexture)
                 {
                     Debug.Log($"Generate Material: {material.name} {mainTexture.name}");
-                    TextureBuilder.WriteTextureToFile(Path.Combine(this.ExportFolder, pmxMaterial.Tex), mainTexture);
+                    TextureBuilder.WriteTextureToFile(Path.Combine(ExportFolder, pmxMaterial.Tex), mainTexture);
                 }
             }
             if (material.HasProperty("_AmbColor"))
@@ -284,30 +284,30 @@ namespace COM3D2.ModelExportMMD
                 pmxMaterial.EdgeColor = new PmxLib.Vector4(material.GetColor("_OutlineColor"));
             }
             pmxMaterial.FaceCount = count;
-            this.pmxFile.MaterialList.Add(pmxMaterial);
+            pmxFile.MaterialList.Add(pmxMaterial);
         }
 
         private void Save()
         {
             PmxElementFormat pmxElementFormat = new PmxElementFormat(2.1f);
-            pmxElementFormat.VertexSize = PmxElementFormat.GetUnsignedBufSize(this.pmxFile.VertexList.Count);
+            pmxElementFormat.VertexSize = PmxElementFormat.GetUnsignedBufSize(pmxFile.VertexList.Count);
             int val = -2147483648;
-            for (int i = 0; i < this.pmxFile.BoneList.Count; i++)
-                val = Math.Max(val, Math.Abs(this.pmxFile.BoneList[i].IK.LinkList.Count));
-            val = Math.Max(val, this.pmxFile.BoneList.Count);
+            for (int i = 0; i < pmxFile.BoneList.Count; i++)
+                val = Math.Max(val, Math.Abs(pmxFile.BoneList[i].IK.LinkList.Count));
+            val = Math.Max(val, pmxFile.BoneList.Count);
             pmxElementFormat.BoneSize = PmxElementFormat.GetSignedBufSize(val);
             if (pmxElementFormat.BoneSize < 2)
                 pmxElementFormat.BoneSize = 2;
-            pmxElementFormat.MorphSize = PmxElementFormat.GetUnsignedBufSize(this.pmxFile.MorphList.Count);
-            pmxElementFormat.MaterialSize = PmxElementFormat.GetUnsignedBufSize(this.pmxFile.MaterialList.Count);
-            pmxElementFormat.BodySize = PmxElementFormat.GetUnsignedBufSize(this.pmxFile.BodyList.Count);
-            this.pmxFile.Header.FromElementFormat(pmxElementFormat);
-            this.pmxFile.ToFile(Path.Combine(this.ExportFolder, this.ExportName + ".pmx"));
+            pmxElementFormat.MorphSize = PmxElementFormat.GetUnsignedBufSize(pmxFile.MorphList.Count);
+            pmxElementFormat.MaterialSize = PmxElementFormat.GetUnsignedBufSize(pmxFile.MaterialList.Count);
+            pmxElementFormat.BodySize = PmxElementFormat.GetUnsignedBufSize(pmxFile.BodyList.Count);
+            pmxFile.Header.FromElementFormat(pmxElementFormat);
+            pmxFile.ToFile(Path.Combine(ExportFolder, ExportName + ".pmx"));
         }
 
         public void Export(List<SkinnedMeshRenderer> skinnedMeshes)
         {
-            Directory.CreateDirectory(this.ExportFolder);
+            Directory.CreateDirectory(ExportFolder);
 
             PrepareData(skinnedMeshes);
             CreateBoneList();

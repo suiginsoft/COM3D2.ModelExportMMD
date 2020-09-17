@@ -12,8 +12,8 @@ namespace PmxLib
 
 		public Point(int x, int y)
 		{
-			this.X = x;
-			this.Y = y;
+			X = x;
+			Y = y;
 		}
 	}
 }

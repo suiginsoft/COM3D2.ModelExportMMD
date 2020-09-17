@@ -34,8 +34,8 @@
       <HintPath>Dependencies\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="ExIni">
-      <HintPath>Dependencies\ExIni.dll</HintPath>
+    <Reference Include="BepInEx">
+      <HintPath>Dependencies\BepInEx.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -44,10 +44,6 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="UnityEngine">
       <HintPath>Dependencies\UnityEngine.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityInjector">
-      <HintPath>Dependencies\UnityInjector.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>

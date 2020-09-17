@@ -51,22 +51,22 @@ namespace PmxLib
 		{
 			return new float[16]
 			{
-				this.M11,
-				this.M12,
-				this.M13,
-				this.M14,
-				this.M21,
-				this.M22,
-				this.M23,
-				this.M24,
-				this.M31,
-				this.M32,
-				this.M33,
-				this.M34,
-				this.M41,
-				this.M42,
-				this.M43,
-				this.M44
+				M11,
+				M12,
+				M13,
+				M14,
+				M21,
+				M22,
+				M23,
+				M24,
+				M31,
+				M32,
+				M33,
+				M34,
+				M41,
+				M42,
+				M43,
+				M44
 			};
 		}
 	}
