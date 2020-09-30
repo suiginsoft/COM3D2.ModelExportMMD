@@ -81,7 +81,7 @@ namespace COM3D2.ModelExportMMD
         public string Export(string folderPath, Material material, string propertyName, Texture tex)
         {
             string fileName;
-            if (string.IsNullOrEmpty(tex.name))
+            if (string.IsNullOrEmpty(tex.name) || tex.name.Contains(":") /* for rt: textures */)
             {
                 fileName = material.name.Replace("Instance", material.GetInstanceID().ToString()) + propertyName + ".png";
             }
