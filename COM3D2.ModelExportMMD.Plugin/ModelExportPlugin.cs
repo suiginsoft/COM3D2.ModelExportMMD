@@ -147,39 +147,30 @@ namespace COM3D2.ModelExportMMD.Plugin
                 SaveUserPreferences();
 
                 var maid = GameMain.Instance.CharacterMgr.GetMaid(0);
-                var materialState = maid.PrepareMaterialsForExport();
+                var meshes = FindObjectsOfType<SkinnedMeshRenderer>()
+                    .Where(smr => smr.name != "obj1")
+                    .Distinct()
+                    .ToList();
 
-                try
+                IExporter exporter;
+
+                switch (args.Format)
                 {
-                    var meshes = FindObjectsOfType<SkinnedMeshRenderer>()
-                        .Where(smr => smr.name != "obj1")
-                        .Distinct()
-                        .ToList();
-
-                    IExporter exporter;
-
-                    switch (args.Format)
-                    {
-                        case ModelFormat.Pmx:
-                            exporter = new PmxExporter();
-                            break;
-                        case ModelFormat.Obj:
-                            exporter = new ObjExporter();
-                            break;
-                        default:
-                            throw new Exception($"Unknown model format: {args.Format}");
-                    }
-
-                    exporter.ExportFolder = args.Folder;
-                    exporter.ExportName = args.Name;
-                    exporter.SavePostion = args.SavePosition;
-                    exporter.SaveTexture = args.SaveTexture;
-                    exporter.Export(meshes);
+                    case ModelFormat.Pmx:
+                        exporter = new PmxExporter();
+                        break;
+                    case ModelFormat.Obj:
+                        exporter = new ObjExporter();
+                        break;
+                    default:
+                        throw new Exception($"Unknown model format: {args.Format}");
                 }
-                finally
-                {
-                    maid.RestoreMaterialsAfterExport(materialState);
-                }
+
+                exporter.ExportFolder = args.Folder;
+                exporter.ExportName = args.Name;
+                exporter.SavePostion = args.SavePosition;
+                exporter.SaveTexture = args.SaveTexture;
+                exporter.Export(meshes);
             }
             catch (Exception error)
             {
