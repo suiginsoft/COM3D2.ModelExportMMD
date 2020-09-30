@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using Newtonsoft.Json;
 
 namespace COM3D2.ModelExportMMD
 {
@@ -60,17 +61,18 @@ namespace COM3D2.ModelExportMMD
             var weights = new PmxVertex.BoneWeight[boneCount];
             weights[0].Bone = bonesMap[bones[unityWeight.boneIndex0].name];
             weights[0].Value = unityWeight.weight0;
-
-            if (boneCount >= 2)
+            if (boneCount > 1)
             {
                 weights[1].Bone = bonesMap[bones[unityWeight.boneIndex1].name];
                 weights[1].Value = unityWeight.weight1;
             }
-
-            if (boneCount >= 4)
+            if (boneCount > 2)
             {
                 weights[2].Bone = bonesMap[bones[unityWeight.boneIndex2].name];
                 weights[2].Value = unityWeight.weight2;
+            }
+            if (boneCount > 3)
+            {
                 weights[3].Bone = bonesMap[bones[unityWeight.boneIndex3].name];
                 weights[3].Value = unityWeight.weight3;
             }
@@ -239,6 +241,53 @@ namespace COM3D2.ModelExportMMD
             pmxMaterial.Name = material.name;
             pmxMaterial.NameE = material.name;
             pmxMaterial.Flags = (PmxMaterial.MaterialFlags.DrawBoth | PmxMaterial.MaterialFlags.Shadow | PmxMaterial.MaterialFlags.SelfShadowMap | PmxMaterial.MaterialFlags.SelfShadow);
+            /*
+            _Color [color]
+            _MainTex
+            _MultiColTex "Multi Color Table (RGBA)"
+            _UseMulticolTex
+
+            _ShadowColor [color]
+            _ShadowTex
+            _ShadowRateToon [tex]
+            _RimColor
+            _RimPower
+            _RimShift
+            _HiTex "Hilight (RGB)"
+            _HiRate "Hilight rate"
+            _HiPow
+
+            _ToonRamp
+            _Ramp "Toon Ramp (RGB)"
+
+            _OutlineColor [color]
+            _OutlineTex
+            _OutlineToonRamp
+
+            _OutlineWidth [float]
+            _OutlineWidthTex
+
+            _EdgeLength "Edge length"
+            _Phong "Phong Strengh"
+
+
+
+             */
+            /* Uncomment to dump list of material textures
+            if (true)//material.name.StartsWith("Face011_GP_Skin"))
+            {
+                Debug.Log($"Material {material.name} uses shader {material.shader.name} ({material.shader.GetInstanceID()}) and textures:");
+                for (int i = 0; i < 99999; i++)
+                {
+                    Texture t = material.GetTexture(i);
+                    if (t == null)
+                    {
+                        continue;
+                    }
+                    Debug.Log($"  ({i,5}) {t.name} [{t.GetType().Name}]");
+                }
+            }
+            // */
             if (material.HasProperty("_MainTex"))
             {
                 string textureName = material.name;

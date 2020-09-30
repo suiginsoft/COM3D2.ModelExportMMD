@@ -180,7 +180,7 @@ namespace COM3D2.ModelExportMMD.Extensions
                                     if (mat.Key == "head" && prop.Key == 5 && tex.mode == GameUty.SystemMaterial.Multiply)
                                     {
                                         layerStates.Add(new MaterialLayerState() { Layer = tex, OriginalBlendMode = tex.mode });
-                                        tex.mode = GameUty.SystemMaterial.Alpha;
+                                        //tex.mode = GameUty.SystemMaterial.Alpha;
                                     }
                                 }
                             }
@@ -204,6 +204,7 @@ namespace COM3D2.ModelExportMMD.Extensions
         // Should be passed the resulting list from PrepareMaterialsForExport.
         public static void RestoreMaterialsAfterExport(this Maid maid, List<MaterialLayerState> layerStates)
         {
+            return;
             foreach (var layerState in layerStates)
             {
                 layerState.Layer.mode = layerState.OriginalBlendMode;
