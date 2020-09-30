@@ -78,12 +78,12 @@ namespace COM3D2.ModelExportMMD
         /// <param name="materialName"></param>
         /// <param name="tex"></param>
         /// <returns>File name without folder</returns>
-        public string Export(string folderPath, string materialName, string propertyName, Texture tex)
+        public string Export(string folderPath, Material material, string propertyName, Texture tex)
         {
             string fileName;
-            if (materialName.Contains("Instance"))
+            if (string.IsNullOrEmpty(tex.name))
             {
-                fileName = MakeUniqueFileName(materialName, propertyName);
+                fileName = material.name.Replace("Instance", material.GetInstanceID().ToString()) + propertyName + ".png";
             }
             else
             {
@@ -94,19 +94,6 @@ namespace COM3D2.ModelExportMMD
                 WriteTextureToFile(Path.Combine(folderPath, fileName), tex);
             }
             return fileName;
-        }
-
-        private string MakeUniqueFileName(string materialName, string propertyName)
-        {
-            for (int i = 0; i < 99999; i++)
-            {
-                string name = $"{materialName}{i}{propertyName}.png";
-                if (!exportedFileNames.Contains(name))
-                {
-                    return name;
-                }
-            }
-            return null;
         }
 
         #endregion

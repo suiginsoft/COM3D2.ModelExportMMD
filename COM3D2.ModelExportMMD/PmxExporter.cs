@@ -297,21 +297,29 @@ namespace COM3D2.ModelExportMMD
                 if (mainTexture != null && SaveTexture)
                 {
                     Debug.Log($"Generate Material: {material.name} {mainTexture.name}");
-                    pmxMaterial.Tex = textureBuilder.Export(ExportFolder, material.name, "_MainTex", mainTexture);
+                    pmxMaterial.Tex = textureBuilder.Export(ExportFolder, material, "_MainTex", mainTexture);
+                }
+            }
+            if (material.HasProperty("_ToonRamp"))
+            {
+                Texture toonRampTex = material.GetTexture("_ToonRamp");
+                if (toonRampTex)
+                {
+                    pmxMaterial.Toon = textureBuilder.Export(ExportFolder, material, "_ToonRamp", toonRampTex);
                 }
             }
             string[] additionalTextureProperties =
             {
                 "_ShadowTex",
-                "_ToonRamp",
                 "_OutlineWidthTex",
+                "_HiTex",
             };
             foreach (string prop in additionalTextureProperties)
             {
                 Texture tex = material.GetTexture(prop);
                 if (tex)
                 {
-                    textureBuilder.Export(ExportFolder, material.name, prop, tex);
+                    textureBuilder.Export(ExportFolder, material, prop, tex);
                 }
             }
             if (material.HasProperty("_AmbColor"))
