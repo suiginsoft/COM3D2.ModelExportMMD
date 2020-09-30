@@ -1,11 +1,15 @@
 using System;
 using System.IO;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace COM3D2.ModelExportMMD
 {
-    public static class TextureBuilder
+    public class TextureBuilder
     {
+
+        private HashSet<string> exportedFileNames = new HashSet<string>();
+
         #region Methods
 
         public static Texture2D ConvertToTexture2D(RenderTexture renderTexture)
@@ -65,6 +69,44 @@ namespace COM3D2.ModelExportMMD
             {
                 Debug.Log($"Error writing texture to file: {error.Message}\n\nStack trace:\n{error.StackTrace}");
             }
+        }
+
+        /// <summary>
+        /// Export texture to file in folder if not already exported and return filename without folder path
+        /// </summary>
+        /// <param name="folderPath"></param>
+        /// <param name="materialName"></param>
+        /// <param name="tex"></param>
+        /// <returns>File name without folder</returns>
+        public string Export(string folderPath, string materialName, string propertyName, Texture tex)
+        {
+            string fileName;
+            if (materialName.Contains("Instance"))
+            {
+                fileName = MakeUniqueFileName(materialName, propertyName);
+            }
+            else
+            {
+                fileName = tex.name + ".png";
+            }
+            if (exportedFileNames.Add(fileName))
+            {
+                WriteTextureToFile(Path.Combine(folderPath, fileName), tex);
+            }
+            return fileName;
+        }
+
+        private string MakeUniqueFileName(string materialName, string propertyName)
+        {
+            for (int i = 0; i < 99999; i++)
+            {
+                string name = $"{materialName}{i}{propertyName}.png";
+                if (!exportedFileNames.Contains(name))
+                {
+                    return name;
+                }
+            }
+            return null;
         }
 
         #endregion

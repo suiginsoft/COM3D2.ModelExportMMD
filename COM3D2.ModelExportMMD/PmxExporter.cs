@@ -22,6 +22,7 @@ namespace COM3D2.ModelExportMMD
         private readonly List<int> boneParent = new List<int>();
         private readonly List<Matrix4x4> bindposeList = new List<Matrix4x4>();
         private readonly Dictionary<string, int> bonesMap = new Dictionary<string, int>();
+        private readonly TextureBuilder textureBuilder = new TextureBuilder();
         private int vertexCount = 0;
 
         #endregion
@@ -257,7 +258,6 @@ namespace COM3D2.ModelExportMMD
             _HiRate "Hilight rate"
             _HiPow
 
-            _ToonRamp
             _Ramp "Toon Ramp (RGB)"
 
             _OutlineColor [color]
@@ -265,7 +265,6 @@ namespace COM3D2.ModelExportMMD
             _OutlineToonRamp
 
             _OutlineWidth [float]
-            _OutlineWidthTex
 
             _EdgeLength "Edge length"
             _Phong "Phong Strengh"
@@ -290,12 +289,6 @@ namespace COM3D2.ModelExportMMD
             // */
             if (material.HasProperty("_MainTex"))
             {
-                string textureName = material.name;
-                if (textureName.Contains("Instance"))
-                {
-                    textureName = material.name + "_(" + material.GetInstanceID() + ")";
-                }
-                pmxMaterial.Tex = textureName + ".png";
                 Texture mainTexture = material.GetTexture("_MainTex");
                 if (mainTexture == null)
                 {
@@ -304,7 +297,21 @@ namespace COM3D2.ModelExportMMD
                 if (mainTexture != null && SaveTexture)
                 {
                     Debug.Log($"Generate Material: {material.name} {mainTexture.name}");
-                    TextureBuilder.WriteTextureToFile(Path.Combine(ExportFolder, pmxMaterial.Tex), mainTexture);
+                    pmxMaterial.Tex = textureBuilder.Export(ExportFolder, material.name, "_MainTex", mainTexture);
+                }
+            }
+            string[] additionalTextureProperties =
+            {
+                "_ShadowTex",
+                "_ToonRamp",
+                "_OutlineWidthTex",
+            };
+            foreach (string prop in additionalTextureProperties)
+            {
+                Texture tex = material.GetTexture(prop);
+                if (tex)
+                {
+                    textureBuilder.Export(ExportFolder, material.name, prop, tex);
                 }
             }
             if (material.HasProperty("_AmbColor"))
