@@ -96,6 +96,18 @@ namespace COM3D2.ModelExportMMD
             return fileName;
         }
 
+        public string Export(string folderPath, Material material, string propertyName)
+        {
+            Texture tex = material.GetTexture(propertyName);
+            if (tex == null)
+            {
+                return null;
+            }
+            else
+            {
+                return Export(folderPath, material, propertyName, tex);
+            }
+        }
         #endregion
     }
 }

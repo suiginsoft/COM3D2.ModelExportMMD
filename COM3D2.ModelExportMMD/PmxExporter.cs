@@ -9,6 +9,27 @@ namespace COM3D2.ModelExportMMD
 {
     public class PmxExporter : IExporter
     {
+        #region Types
+        private class MaterialInfo
+        {
+            public string shader;
+            public float[] color;
+            public string mainTex;
+            public string shadowTex;
+            public float[] shadowColor;
+            public string shadowRateToon;
+            public string toonRamp;
+            public float[] rimColor;
+            public float rimPower;
+            public float rimShift;
+            public string hiTex;
+            public float hiRate;
+            public float hiPow;
+            public float[] outlineColor;
+            public float outlineWidth;
+        };
+        #endregion
+
         #region Constants
 
         private const float scaleFactor = 8f;
@@ -23,6 +44,7 @@ namespace COM3D2.ModelExportMMD
         private readonly List<Matrix4x4> bindposeList = new List<Matrix4x4>();
         private readonly Dictionary<string, int> bonesMap = new Dictionary<string, int>();
         private readonly TextureBuilder textureBuilder = new TextureBuilder();
+        private readonly Dictionary<string, MaterialInfo> materialInfo = new Dictionary<string, MaterialInfo>();
         private int vertexCount = 0;
 
         #endregion
@@ -236,12 +258,45 @@ namespace COM3D2.ModelExportMMD
             }
         }
 
+        private void SetMaterialInfoProperty(out float value, Material material, string property)
+        {
+            if (material.HasProperty(property))
+            {
+                value = material.GetFloat(property);
+            }
+            else
+            {
+                value = 0;
+            }
+        }
+
+        private void SetMaterialInfoProperty(out float[] value, Material material, string property)
+        {
+            if (material.HasProperty(property))
+            {
+                UnityEngine.Vector4 v;
+                v = material.GetVector(property);
+                value = new float[4];
+                value[0] = v.x;
+                value[1] = v.y;
+                value[2] = v.z;
+                value[3] = v.w;
+            }
+            else
+            {
+                value = null;
+            }
+        }
+
         private void CreateMaterial(Material material, int count)
         {
             PmxMaterial pmxMaterial = new PmxMaterial();
             pmxMaterial.Name = material.name;
             pmxMaterial.NameE = material.name;
             pmxMaterial.Flags = (PmxMaterial.MaterialFlags.DrawBoth | PmxMaterial.MaterialFlags.Shadow | PmxMaterial.MaterialFlags.SelfShadowMap | PmxMaterial.MaterialFlags.SelfShadow);
+            MaterialInfo info = new MaterialInfo();
+            materialInfo[material.name] = info;
+            info.shader = material.shader.name;
             /*
             _Color [color]
             _MainTex
@@ -299,29 +354,23 @@ namespace COM3D2.ModelExportMMD
                     Debug.Log($"Generate Material: {material.name} {mainTexture.name}");
                     pmxMaterial.Tex = textureBuilder.Export(ExportFolder, material, "_MainTex", mainTexture);
                 }
+                info.mainTex = pmxMaterial.Tex;
             }
-            if (material.HasProperty("_ToonRamp"))
-            {
-                Texture toonRampTex = material.GetTexture("_ToonRamp");
-                if (toonRampTex)
-                {
-                    pmxMaterial.Toon = textureBuilder.Export(ExportFolder, material, "_ToonRamp", toonRampTex);
-                }
-            }
-            string[] additionalTextureProperties =
-            {
-                "_ShadowTex",
-                "_OutlineWidthTex",
-                "_HiTex",
-            };
-            foreach (string prop in additionalTextureProperties)
-            {
-                Texture tex = material.GetTexture(prop);
-                if (tex)
-                {
-                    textureBuilder.Export(ExportFolder, material, prop, tex);
-                }
-            }
+            SetMaterialInfoProperty(out info.color, material, "_Color");
+            info.shadowTex = textureBuilder.Export(ExportFolder, material, "_ShadowTex");
+            SetMaterialInfoProperty(out info.shadowColor, material, "_ShadowColor");
+            info.shadowRateToon= textureBuilder.Export(ExportFolder, material, "_ShadowRateToon");
+            pmxMaterial.Toon = textureBuilder.Export(ExportFolder, material, "_ToonRamp");
+            info.toonRamp = pmxMaterial.Toon;
+            SetMaterialInfoProperty(out info.rimColor, material, "_RimColor");
+            SetMaterialInfoProperty(out info.rimPower, material, "_RimPower");
+            SetMaterialInfoProperty(out info.rimShift, material, "_RimShift");
+            info.hiTex = textureBuilder.Export(ExportFolder, material, "_HiTex");
+            SetMaterialInfoProperty(out info.hiRate, material, "_HiRate");
+            SetMaterialInfoProperty(out info.hiPow, material, "_HiPow");
+            SetMaterialInfoProperty(out info.outlineColor, material, "_OutlineColor");
+            SetMaterialInfoProperty(out info.outlineWidth, material, "_OutlineWidth");
+
             if (material.HasProperty("_AmbColor"))
             {
                 pmxMaterial.Ambient = new PmxLib.Vector3(material.GetColor("_AmbColor"));
@@ -367,6 +416,10 @@ namespace COM3D2.ModelExportMMD
             pmxElementFormat.BodySize = PmxElementFormat.GetUnsignedBufSize(pmxFile.BodyList.Count);
             pmxFile.Header.FromElementFormat(pmxElementFormat);
             pmxFile.ToFile(Path.Combine(ExportFolder, ExportName + ".pmx"));
+            StreamWriter writer = new StreamWriter(Path.Combine(ExportFolder, ExportName + ".json"));
+            string jsonInfo = JsonConvert.SerializeObject(materialInfo, Formatting.Indented);
+            writer.Write(jsonInfo);
+            writer.Close();
         }
 
         public void Export(List<SkinnedMeshRenderer> skinnedMeshes)
