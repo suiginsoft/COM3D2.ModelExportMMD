@@ -200,40 +200,40 @@ namespace COM3D2.ModelExportMMD
                             boneParent.Add(-1);
                             bindposeList.Add(skinnedMesh.sharedMesh.bindposes[i]);
                         }
+                        else
+                        {
+                            break;
+                        }
                     }
                 }
+            }
 
-                Debug.Log($"Mapping bone parents of {skinnedMesh.name}");
+            Debug.Log($"Mapping bone parents");
 
-                for (int i = 0; i < skinnedMesh.bones.Length; i++)
+            for (int i = 0; i < boneList.Count; i++)
+            {
+                Transform bone = boneList[i];
+                if (bone.parent == null || string.IsNullOrEmpty(bone.parent.name) || bone.parent.name.StartsWith("_SM_"))
                 {
-                    Transform bone = skinnedMesh.bones[i];
-                    if (bone == null || string.IsNullOrEmpty(bone.name))
-                        continue;
-                    if (!bonesMap.TryGetValue(bone.name, out int j))
-                        continue;
-                    if (bone.parent == null || string.IsNullOrEmpty(bone.parent.name) || bone.parent.name.StartsWith("_SM_"))
+                    Debug.Log($"Bone {bone.name} has no parent");
+                    continue;
+                }
+                if (bonesMap.ContainsKey(bone.parent.name))
+                {
+                    int k = bonesMap[bone.parent.name];
+                    if (boneParent[i] == -1)
                     {
-                        Debug.Log($"Bone {bone.name} has no parent");
-                        continue;
+                        Debug.Log($"Bone {bone.name} parented to {bone.parent.name}({k})");
+                        boneParent[i] = k;
                     }
-                    if (bonesMap.ContainsKey(bone.parent.name))
+                    else if (boneParent[i] != k)
                     {
-                        int k = bonesMap[bone.parent.name];
-                        if (boneParent[j] == -1)
-                        {
-                            Debug.Log($"Bone {bone.name} parented to {bone.parent.name}({k})");
-                            boneParent[j] = k;
-                        }
-                        else if (boneParent[j] != k)
-                        {
-                            Debug.Log($"Warning: bone {bone.name} was parented to {boneList[boneParent[j]].name} but was also found parented to {bone.parent.name}");
-                        }
+                        Debug.Log($"Warning: bone {bone.name} was parented to {boneList[boneParent[i]].name} but was also found parented to {bone.parent.name}");
                     }
-                    else
-                    {
-                        Debug.LogWarning($"Bone {bone.name} parented to {bone.parent.name} but bone parent index not found");
-                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"Bone {bone.name} parented to {bone.parent.name} but bone parent index not found");
                 }
             }
 
