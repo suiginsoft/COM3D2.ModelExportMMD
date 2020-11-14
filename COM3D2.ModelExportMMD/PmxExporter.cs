@@ -360,8 +360,8 @@ namespace COM3D2.ModelExportMMD
             info.shadowTex = textureBuilder.Export(ExportFolder, material, "_ShadowTex");
             SetMaterialInfoProperty(out info.shadowColor, material, "_ShadowColor");
             info.shadowRateToon= textureBuilder.Export(ExportFolder, material, "_ShadowRateToon");
-            pmxMaterial.Toon = textureBuilder.Export(ExportFolder, material, "_ToonRamp");
-            info.toonRamp = pmxMaterial.Toon;
+            info.toonRamp = textureBuilder.Export(ExportFolder, material, "_ToonRamp");
+            pmxMaterial.Toon = info.toonRamp ?? "";
             SetMaterialInfoProperty(out info.rimColor, material, "_RimColor");
             SetMaterialInfoProperty(out info.rimPower, material, "_RimPower");
             SetMaterialInfoProperty(out info.rimShift, material, "_RimShift");
