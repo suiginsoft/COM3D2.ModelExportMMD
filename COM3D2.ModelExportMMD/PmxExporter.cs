@@ -45,6 +45,8 @@ namespace COM3D2.ModelExportMMD
         private readonly Dictionary<string, int> bonesMap = new Dictionary<string, int>();
         private readonly TextureBuilder textureBuilder = new TextureBuilder();
         private readonly Dictionary<string, MaterialInfo> materialInfo = new Dictionary<string, MaterialInfo>();
+        private readonly Dictionary<string, int> vertexIndexMap = new Dictionary<string, int>();
+        private readonly Dictionary<string, PmxMorph> morphMap = new Dictionary<string, PmxMorph>();
         private int vertexCount = 0;
 
         #endregion
@@ -122,6 +124,7 @@ namespace COM3D2.ModelExportMMD
             GameObject gameObject = meshRender.gameObject;
             Mesh mesh = meshRender.sharedMesh;
             BoneWeight[] boneWeights = mesh.boneWeights;
+            vertexIndexMap.Add(gameObject.transform.parent.gameObject.name, pmxFile.VertexList.Count);
             if (SavePostion)
             {
                 Mesh mesh2 = new Mesh();
@@ -180,6 +183,8 @@ namespace COM3D2.ModelExportMMD
             boneList.Clear();
             boneParent.Clear();
             bindposeList.Clear();
+            vertexIndexMap.Clear();
+            morphMap.Clear();
 
             foreach (var skinnedMesh in skinnedMeshes)
             {
@@ -428,11 +433,70 @@ namespace COM3D2.ModelExportMMD
             pmxFile.MaterialList.Add(pmxMaterial);
         }
 
+        private PmxMorph GetOrCreateMorph(string name)
+        {
+            if (morphMap.ContainsKey(name))
+            {
+                return morphMap[name];
+            }
+            PmxMorph pmxMorph = new PmxMorph();
+            pmxMorph.Name = name;
+            pmxMorph.NameE = name;
+            pmxMorph.Panel = 1;
+            pmxMorph.Kind = PmxMorph.OffsetKind.Vertex;
+            pmxFile.MorphList.Add(pmxMorph);
+            morphMap.Add(name, pmxMorph);
+            return pmxMorph;
+        }
+
+        private void CreateMorphs(TBodySkin skin)
+        {
+            if (skin == null || skin.morph == null || skin.morph.BlendDatas.Count <= 0)
+            {
+                return;
+            }
+            if (!vertexIndexMap.ContainsKey(skin.obj.name))
+            {
+                Debug.Log($"Morph: {skin.obj.name} -> Missing vertex base!");
+                return;
+            }
+            int vertexBase = vertexIndexMap[skin.obj.name];
+            Debug.Log($"Morph: {skin.obj.name} -> {skin.morph.BlendDatas.Count} ({vertexBase})");
+            for (int j = 0; j < skin.morph.BlendDatas.Count; j++)
+            {
+                BlendData blendData = skin.morph.BlendDatas[j];
+                if (blendData != null)
+                {
+                    PmxMorph pmxMorph = GetOrCreateMorph(blendData.name);
+                    for (int k = 0; k < blendData.v_index.Length; k++)
+                    {
+                        PmxVertexMorph pmxVertexMorph = new PmxVertexMorph(blendData.v_index[k] + vertexBase, new PmxLib.Vector3(-blendData.vert[k].x, blendData.vert[k].z, blendData.vert[k].y));
+                        pmxVertexMorph.Offset *= scaleFactor;
+                        pmxMorph.OffsetList.Add(pmxVertexMorph);
+                    }
+                }
+            }
+        }
+
+        private void CreateMorphs()
+        {
+            Maid maid = GameMain.Instance.CharacterMgr.GetMaid(0);
+            CreateMorphs(maid.body0.Face);
+            for (int i = 0; i < maid.body0.goSlot.Count; i++)
+            {
+                TBodySkin skin = maid.body0.goSlot[i];
+                if (skin != maid.body0.Face)
+                {
+                    CreateMorphs(skin);
+                }
+            }
+        }
+
         private void Save()
         {
             PmxElementFormat pmxElementFormat = new PmxElementFormat(2.1f);
             pmxElementFormat.VertexSize = PmxElementFormat.GetUnsignedBufSize(pmxFile.VertexList.Count);
-            int val = -2147483648;
+            int val = int.MinValue;
             for (int i = 0; i < pmxFile.BoneList.Count; i++)
                 val = Math.Max(val, Math.Abs(pmxFile.BoneList[i].IK.LinkList.Count));
             val = Math.Max(val, pmxFile.BoneList.Count);
@@ -461,6 +525,8 @@ namespace COM3D2.ModelExportMMD
             {
                 CreateMeshList(skinnedMesh);
             }
+
+            CreateMorphs();
 
             Save();
         }
