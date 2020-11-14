@@ -242,6 +242,7 @@ namespace COM3D2.ModelExportMMD
 
         private void CreateBoneList()
         {
+            List<PmxBone> pmxBoneList = pmxFile.BoneList;
             for (int i = 0; i < boneList.Count; i++)
             {
                 Transform bone = boneList[i];
@@ -254,7 +255,34 @@ namespace COM3D2.ModelExportMMD
                 }
                 UnityEngine.Vector3 vector = bone.position * scaleFactor;
                 pmxBone.Position = ToPmxVec3(vector);
-                pmxFile.BoneList.Add(pmxBone);
+                pmxBone.To_Offset = ToPmxVec3(bone.rotation * UnityEngine.Vector3.left * scaleFactor / 16f);
+                if (bone.name.EndsWith("_SCL_") || bone.name.Contains("twist"))
+                {
+                    pmxBone.SetFlag(PmxBone.BoneFlags.Visible, false);
+                }
+                pmxBoneList.Add(pmxBone);
+            }
+
+            for (int i = 0; i < pmxBoneList.Count; i++)
+            {
+                PmxBone pmxBone = pmxBoneList[i];
+                int children = 0;
+                int lastChildIndex = -1;
+                for (int j = 0; j < pmxBoneList.Count; j++)
+                {
+                    PmxBone pmxOtherBone = pmxBoneList[j];
+                    if (pmxOtherBone.Parent == i && pmxOtherBone.GetFlag(PmxBone.BoneFlags.Visible))
+                    {
+                        children++;
+                        lastChildIndex = j;
+                    }
+                }
+                if (children == 1)
+                {
+                    Debug.Log($"Pointing Bone {pmxBone.NameE} to {pmxBoneList[lastChildIndex].NameE}");
+                    pmxBone.SetFlag(PmxBone.BoneFlags.ToBone, true);
+                    pmxBone.To_Bone = lastChildIndex;
+                }
             }
         }
 
