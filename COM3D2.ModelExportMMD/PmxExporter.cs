@@ -213,27 +213,26 @@ namespace COM3D2.ModelExportMMD
             for (int i = 0; i < boneList.Count; i++)
             {
                 Transform bone = boneList[i];
-                if (bone.parent == null || string.IsNullOrEmpty(bone.parent.name) || bone.parent.name.StartsWith("_SM_"))
+                for (Transform parent = bone.parent; parent != null; parent = parent.parent)
+                {
+                    if (bonesMap.ContainsKey(parent.name))
+                    {
+                        int k = bonesMap[parent.name];
+                        if (boneParent[i] == -1)
+                        {
+                            Debug.Log($"Bone {bone.name} parented to {parent.name}({k})");
+                            boneParent[i] = k;
+                        }
+                        else if (boneParent[i] != k)
+                        {
+                            Debug.Log($"Warning: bone {bone.name} was parented to {boneList[boneParent[i]].name} but was also found parented to {parent.name}");
+                        }
+                        break;
+                    }
+                }
+                if (boneParent[i] == -1)
                 {
                     Debug.Log($"Bone {bone.name} has no parent");
-                    continue;
-                }
-                if (bonesMap.ContainsKey(bone.parent.name))
-                {
-                    int k = bonesMap[bone.parent.name];
-                    if (boneParent[i] == -1)
-                    {
-                        Debug.Log($"Bone {bone.name} parented to {bone.parent.name}({k})");
-                        boneParent[i] = k;
-                    }
-                    else if (boneParent[i] != k)
-                    {
-                        Debug.Log($"Warning: bone {bone.name} was parented to {boneList[boneParent[i]].name} but was also found parented to {bone.parent.name}");
-                    }
-                }
-                else
-                {
-                    Debug.LogWarning($"Bone {bone.name} parented to {bone.parent.name} but bone parent index not found");
                 }
             }
 
