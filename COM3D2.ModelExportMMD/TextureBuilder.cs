@@ -22,26 +22,6 @@ namespace COM3D2.ModelExportMMD
                 Texture2D texture2D = new Texture2D(renderTexture.width, renderTexture.height);
                 texture2D.Apply();
                 texture2D.ReadPixels(new Rect(0f, 0f, texture2D.width, texture2D.height), 0, 0);
-                // In some cases textures are rendered with all transparent pixels
-                // That doesn't affect the game's shader because it ignores alpha, but it's troublesome for using the texture in other applications
-                // Remove the alpha if over 90% of pixels are transparent
-                Color[] pixels = texture2D.GetPixels();
-                int numTransparent = 0;
-                for (int i = 0; i < pixels.Length; i++)
-                {
-                    if (pixels[i].a < 0.01)
-                    {
-                        numTransparent++;
-                    }
-                }
-                if (numTransparent > (9 * pixels.Length) / 10)
-                {
-                    for (int i = 0; i < pixels.Length; i++)
-                    {
-                        pixels[i].a = 1;
-                    }
-                    texture2D.SetPixels(pixels);
-                }
                 return texture2D;
             }
             finally
@@ -50,7 +30,7 @@ namespace COM3D2.ModelExportMMD
             }
         }
 
-        public static void WriteTextureToFile(string path, Texture tex)
+        public static void WriteTextureToFile(string path, Texture tex, bool keepAlpha)
         {
             try
             {
@@ -61,6 +41,18 @@ namespace COM3D2.ModelExportMMD
                 } else {
                     texture2D = tex as Texture2D;
                 }
+                if (!keepAlpha)
+                {
+                    // In some cases textures are rendered with all transparent pixels
+                    // That doesn't affect the game's shader because it ignores alpha, but it's troublesome for using the texture in other applications
+                    // Remove the alpha if the shader isn't a transparent shader
+                    Color[] pixels = texture2D.GetPixels();
+                    for (int i = 0; i < pixels.Length; i++)
+                    {
+                        pixels[i].a = 1;
+                    }
+                    texture2D.SetPixels(pixels);
+                }
                 byte[] bytes = texture2D.EncodeToPNG();
                 File.WriteAllBytes(path, bytes);
                 Debug.Log($"Texture written to file: {path}");
@@ -69,6 +61,11 @@ namespace COM3D2.ModelExportMMD
             {
                 Debug.Log($"Error writing texture to file: {error.Message}\n\nStack trace:\n{error.StackTrace}");
             }
+        }
+
+        public static void WriteTextureToFile(string path, Texture tex)
+        {
+            WriteTextureToFile(path, tex, true);
         }
 
         /// <summary>
@@ -91,7 +88,7 @@ namespace COM3D2.ModelExportMMD
             }
             if (exportedFileNames.Add(fileName))
             {
-                WriteTextureToFile(Path.Combine(folderPath, fileName), tex);
+                WriteTextureToFile(Path.Combine(folderPath, fileName), tex, material.shader.renderQueue >= 2450);
             }
             return fileName;
         }
