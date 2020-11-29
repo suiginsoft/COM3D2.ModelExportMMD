@@ -19,6 +19,7 @@ namespace COM3D2.ModelExportMMD
             public float[] shadowColor;
             public string shadowRateToon;
             public string toonRamp;
+            public float shininess;
             public float[] rimColor;
             public float rimPower;
             public float rimShift;
@@ -26,7 +27,10 @@ namespace COM3D2.ModelExportMMD
             public float hiRate;
             public float hiPow;
             public float[] outlineColor;
+            public string outlineTex;
+            public string outlineToonRamp;
             public float outlineWidth;
+            public string outlineWidthTex;
         };
         #endregion
 
@@ -362,6 +366,7 @@ namespace COM3D2.ModelExportMMD
             info.shadowRateToon= textureBuilder.Export(ExportFolder, material, "_ShadowRateToon");
             pmxMaterial.Toon = textureBuilder.Export(ExportFolder, material, "_ToonRamp");
             info.toonRamp = pmxMaterial.Toon;
+            SetMaterialInfoProperty(out info.shininess, material, "_Shininess");
             SetMaterialInfoProperty(out info.rimColor, material, "_RimColor");
             SetMaterialInfoProperty(out info.rimPower, material, "_RimPower");
             SetMaterialInfoProperty(out info.rimShift, material, "_RimShift");
@@ -369,8 +374,10 @@ namespace COM3D2.ModelExportMMD
             SetMaterialInfoProperty(out info.hiRate, material, "_HiRate");
             SetMaterialInfoProperty(out info.hiPow, material, "_HiPow");
             SetMaterialInfoProperty(out info.outlineColor, material, "_OutlineColor");
+            info.outlineTex = textureBuilder.Export(ExportFolder, material, "_OutlineTex");
+            info.outlineToonRamp = textureBuilder.Export(ExportFolder, material, "_OutlineToonRamp");
             SetMaterialInfoProperty(out info.outlineWidth, material, "_OutlineWidth");
-
+            info.outlineWidthTex = textureBuilder.Export(ExportFolder, material, "_OutlineWidthTex");
             if (material.HasProperty("_AmbColor"))
             {
                 pmxMaterial.Ambient = new PmxLib.Vector3(material.GetColor("_AmbColor"));
