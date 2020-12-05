@@ -96,13 +96,10 @@ namespace COM3D2.ModelExportMMD
                 weights[1].Bone = bonesMap[bones[unityWeight.boneIndex1].name];
                 weights[1].Value = unityWeight.weight1;
             }
-            if (boneCount > 2)
+            if (boneCount > 3)
             {
                 weights[2].Bone = bonesMap[bones[unityWeight.boneIndex2].name];
                 weights[2].Value = unityWeight.weight2;
-            }
-            if (boneCount > 3)
-            {
                 weights[3].Bone = bonesMap[bones[unityWeight.boneIndex3].name];
                 weights[3].Value = unityWeight.weight3;
             }
@@ -304,36 +301,6 @@ namespace COM3D2.ModelExportMMD
             MaterialInfo info = new MaterialInfo();
             materialInfo[material.name] = info;
             info.shader = material.shader.name;
-            /*
-            _Color [color]
-            _MainTex
-            _MultiColTex "Multi Color Table (RGBA)"
-            _UseMulticolTex
-
-            _ShadowColor [color]
-            _ShadowTex
-            _ShadowRateToon [tex]
-            _RimColor
-            _RimPower
-            _RimShift
-            _HiTex "Hilight (RGB)"
-            _HiRate "Hilight rate"
-            _HiPow
-
-            _Ramp "Toon Ramp (RGB)"
-
-            _OutlineColor [color]
-            _OutlineTex
-            _OutlineToonRamp
-
-            _OutlineWidth [float]
-
-            _EdgeLength "Edge length"
-            _Phong "Phong Strengh"
-
-
-
-             */
             /* Uncomment to dump list of material textures
             if (true)//material.name.StartsWith("Face011_GP_Skin"))
             {
@@ -384,10 +351,6 @@ namespace COM3D2.ModelExportMMD
             SetMaterialInfoProperty(out info.zTest, material, "_ZTest");
             SetMaterialInfoProperty(out info.zTest2, material, "_ZTest2");
             SetMaterialInfoProperty(out info.zTest2Alpha, material, "_ZTest2Alpha");
-            if (material.HasProperty("_AmbColor"))
-            {
-                pmxMaterial.Ambient = new PmxLib.Vector3(material.GetColor("_AmbColor"));
-            }
             if (material.HasProperty("_Color"))
             {
                 pmxMaterial.Diffuse = new PmxLib.Vector4(material.GetColor("_Color"));
@@ -395,19 +358,6 @@ namespace COM3D2.ModelExportMMD
             if (material.HasProperty("_Opacity"))
             {
                 pmxMaterial.Diffuse.Alpha = material.GetFloat("_Opacity");
-            }
-            if (material.HasProperty("_SpecularColor"))
-            {
-                pmxMaterial.Specular = new PmxLib.Vector3(material.GetColor("_SpecularColor"));
-            }
-            if (material.HasProperty("_Shininess"))
-            {
-                pmxMaterial.Power = material.GetFloat("_Shininess");
-            }
-            if (material.HasProperty("_OutlineColor"))
-            {
-                pmxMaterial.EdgeSize = material.GetFloat("_OutlineWidth");
-                pmxMaterial.EdgeColor = new PmxLib.Vector4(material.GetColor("_OutlineColor"));
             }
             pmxMaterial.FaceCount = count;
             pmxFile.MaterialList.Add(pmxMaterial);
