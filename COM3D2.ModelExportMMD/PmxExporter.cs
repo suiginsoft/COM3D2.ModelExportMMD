@@ -301,7 +301,7 @@ namespace COM3D2.ModelExportMMD
             MaterialInfo info = new MaterialInfo();
             materialInfo[material.name] = info;
             info.shader = material.shader.name;
-            /* Uncomment to dump list of material textures
+            /* Uncomment to dump list of material textures (put one / at the start of this line)
             if (true)//material.name.StartsWith("Face011_GP_Skin"))
             {
                 Debug.Log($"Material {material.name} uses shader {material.shader.name} ({material.shader.GetInstanceID()}) and textures:");

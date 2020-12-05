@@ -130,7 +130,9 @@ namespace COM3D2.ModelExportMMD
             Texture tex = material.GetTexture(propertyName);
             if (tex == null)
             {
-                return null;
+                // return empty string NOT null!
+                // PmxMaterial breaks if you set null.
+                return "";
             }
             else
             {
