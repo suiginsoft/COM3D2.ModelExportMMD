@@ -10,38 +10,38 @@ namespace PmxLib
 
 		public float X
 		{
-			get { return this.x; }
-			set { this.x = value; }
+			get { return x; }
+			set { x = value; }
 		}
 
 		public float Y
 		{
-			get { return this.y; }
-			set { this.y = value; }
+			get { return y; }
+			set { y = value; }
 		}
 
 		public float Z
 		{
-			get { return this.z; }
-			set { this.z = value; }
+			get { return z; }
+			set { z = value; }
 		}
 
 		public float Red
 		{
-			get { return this.x; }
-			set { this.x = value; }
+			get { return x; }
+			set { x = value; }
 		}
 
 		public float Green
 		{
-			get { return this.y; }
-			set { this.y = value; }
+			get { return y; }
+			set { y = value; }
 		}
 
 		public float Blue
 		{
-			get { return this.z; }
-			set { this.z = value; }
+			get { return z; }
+			set { z = value; }
 		}
 
 		public static Vector3 Zero
@@ -75,28 +75,28 @@ namespace PmxLib
 		{
 			this.x = x;
 			this.y = y;
-			this.z = 0f;
+			z = 0f;
 		}
 
 		public Vector3(System.Drawing.Color c)
 		{
-			this.x = (float)((double)c.R / 255.0);
-			this.y = (float)((double)c.G / 255.0);
-			this.z = (float)((double)c.B / 255.0);
+			x = (float)((double)c.R / 255.0);
+			y = (float)((double)c.G / 255.0);
+			z = (float)((double)c.B / 255.0);
 		}
 
 		public Vector3(UnityEngine.Color c)
 		{
-			this.x = c.r;
-			this.y = c.g;
-			this.z = c.b;
+			x = c.r;
+			y = c.g;
+			z = c.b;
 		}
 
 		public Vector3(UnityEngine.Vector3 v)
 		{
-			this.x = v.x;
-			this.y = v.y;
-			this.z = v.z;
+			x = v.x;
+			y = v.y;
+			z = v.z;
 		}
 
 		public static float Dot(Vector3 lhs, Vector3 rhs)
@@ -116,9 +116,9 @@ namespace PmxLib
 
 		public float Length()
 		{
-			double num = (double)this.Y;
-			double num2 = (double)this.X;
-			double num3 = (double)this.Z;
+			double num = (double)Y;
+			double num2 = (double)X;
+			double num3 = (double)Z;
 			double num4 = num2;
 			double num5 = num4 * num4;
 			double num6 = num;
@@ -129,13 +129,13 @@ namespace PmxLib
 
 		public void Normalize()
 		{
-			float num = this.Length();
+			float num = Length();
 			if (num != 0f)
 			{
 				float num2 = (float)(1.0 / (double)num);
-				this.X = (float)((double)this.X * (double)num2);
-				this.Y = (float)((double)this.Y * (double)num2);
-				this.Z = (float)((double)this.Z * (double)num2);
+				X = (float)((double)X * (double)num2);
+				Y = (float)((double)Y * (double)num2);
+				Z = (float)((double)Z * (double)num2);
 			}
 		}
 
@@ -183,9 +183,9 @@ namespace PmxLib
 		{
 			return string.Format("X:{0} Y:{1} Z:{2}", new object[3]
 			{
-				this.X.ToString(),
-				this.Y.ToString(),
-				this.Z.ToString()
+				X.ToString(),
+				Y.ToString(),
+				Z.ToString()
 			});
 		}
 
@@ -196,12 +196,12 @@ namespace PmxLib
 				return false;
 			}
 			Vector3 vector = (Vector3)other;
-			return this.x.Equals(vector.x) && this.y.Equals(vector.y) && this.z.Equals(vector.z);
+			return x.Equals(vector.x) && y.Equals(vector.y) && z.Equals(vector.z);
 		}
 
 		public override int GetHashCode()
 		{
-			return this.x.GetHashCode() ^ this.y.GetHashCode() << 2 ^ this.z.GetHashCode() >> 2;
+			return x.GetHashCode() ^ y.GetHashCode() << 2 ^ z.GetHashCode() >> 2;
 		}
 	}
 }
