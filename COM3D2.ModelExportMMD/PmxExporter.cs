@@ -91,12 +91,12 @@ namespace COM3D2.ModelExportMMD
             var weights = new PmxVertex.BoneWeight[boneCount];
             weights[0].Bone = bonesMap[bones[unityWeight.boneIndex0].name];
             weights[0].Value = unityWeight.weight0;
-            if (boneCount > 1)
+            if (quality >= SkinQuality.Bone2)
             {
                 weights[1].Bone = bonesMap[bones[unityWeight.boneIndex1].name];
                 weights[1].Value = unityWeight.weight1;
             }
-            if (boneCount > 3)
+            if (quality >= SkinQuality.Bone4)
             {
                 weights[2].Bone = bonesMap[bones[unityWeight.boneIndex2].name];
                 weights[2].Value = unityWeight.weight2;
