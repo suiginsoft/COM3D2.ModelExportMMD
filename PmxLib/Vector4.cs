@@ -9,50 +9,50 @@ namespace PmxLib
 
 		public float X
 		{
-			get { return x; }
-			set { x = value; }
+			get { return this.x; }
+			set { this.x = value; }
 		}
 
 		public float Y
 		{
-			get { return y; }
-			set { y = value; }
+			get { return this.y; }
+			set { this.y = value; }
 		}
 
 		public float Z
 		{
-			get { return z; }
-			set { z = value; }
+			get { return this.z; }
+			set { this.z = value; }
 		}
 
 		public float W
 		{
-			get { return w; }
-			set { w = value; }
+			get { return this.w; }
+			set { this.w = value; }
 		}
 
 		public float Red
 		{
-			get { return x; }
-			set { x = value; }
+			get { return this.x; }
+			set { this.x = value; }
 		}
 
 		public float Green
 		{
-			get { return y; }
-			set { y = value; }
+			get { return this.y; }
+			set { this.y = value; }
 		}
 
 		public float Blue
 		{
-			get { return z; }
-			set { z = value; }
+			get { return this.z; }
+			set { this.z = value; }
 		}
 
 		public float Alpha
 		{
-			get { return w; }
-			set { w = value; }
+			get { return this.w; }
+			set { this.w = value; }
 		}
 
 		public static Vector4 Zero
@@ -93,39 +93,39 @@ namespace PmxLib
 			this.x = x;
 			this.y = y;
 			this.z = z;
-			w = 0f;
+			this.w = 0f;
 		}
 
 		public Vector4(float x, float y)
 		{
 			this.x = x;
 			this.y = y;
-			z = 0f;
-			w = 0f;
+			this.z = 0f;
+			this.w = 0f;
 		}
 
 		public Vector4(System.Drawing.Color c)
 		{
-			x = (float)((double)c.R / 255.0);
-			y = (float)((double)c.G / 255.0);
-			z = (float)((double)c.B / 255.0);
-			w = (float)((double)c.A / 255.0);
+			this.x = (float)((double)c.R / 255.0);
+			this.y = (float)((double)c.G / 255.0);
+			this.z = (float)((double)c.B / 255.0);
+			this.w = (float)((double)c.A / 255.0);
 		}
 
 		public Vector4(UnityEngine.Color c)
 		{
-			x = c.r;
-			y = c.g;
-			z = c.b;
-			w = c.a;
+			this.x = c.r;
+			this.y = c.g;
+			this.z = c.b;
+			this.w = c.a;
 		}
 
 		public Vector4(UnityEngine.Vector4 v)
 		{
-			x = v.x;
-			y = v.y;
-			z = v.z;
-			w = v.w;
+			this.x = v.x;
+			this.y = v.y;
+			this.z = v.z;
+			this.w = v.w;
 		}
 
 		public static float Dot(Vector4 a, Vector4 b)
@@ -205,12 +205,12 @@ namespace PmxLib
 				return false;
 			}
 			Vector4 vector = (Vector4)other;
-			return x.Equals(vector.x) && y.Equals(vector.y) && z.Equals(vector.z) && w.Equals(vector.w);
+			return this.x.Equals(vector.x) && this.y.Equals(vector.y) && this.z.Equals(vector.z) && this.w.Equals(vector.w);
 		}
 
 		public override int GetHashCode()
 		{
-			return x.GetHashCode() ^ y.GetHashCode() << 2 ^ z.GetHashCode() >> 2 ^ w.GetHashCode() >> 1;
+			return this.x.GetHashCode() ^ this.y.GetHashCode() << 2 ^ this.z.GetHashCode() >> 2 ^ this.w.GetHashCode() >> 1;
 		}
 	}
 }
