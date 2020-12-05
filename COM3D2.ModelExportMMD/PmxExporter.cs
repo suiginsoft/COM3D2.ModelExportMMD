@@ -70,10 +70,10 @@ namespace COM3D2.ModelExportMMD
 
         public PmxExporter()
         {
-            pmxFile.ModelInfo.ModelName = "妹抖";
-            pmxFile.ModelInfo.ModelNameE = "maid";
-            pmxFile.ModelInfo.Comment = "我的妹抖";
-            pmxFile.ModelInfo.CommentE = "my maid";
+            this.pmxFile.ModelInfo.ModelName = "妹抖";
+            this.pmxFile.ModelInfo.ModelNameE = "maid";
+            this.pmxFile.ModelInfo.Comment = "我的妹抖";
+            this.pmxFile.ModelInfo.CommentE = "my maid";
         }
 
         #endregion
@@ -89,18 +89,18 @@ namespace COM3D2.ModelExportMMD
             }
 
             var weights = new PmxVertex.BoneWeight[boneCount];
-            weights[0].Bone = bonesMap[bones[unityWeight.boneIndex0].name];
+            weights[0].Bone = this.bonesMap[bones[unityWeight.boneIndex0].name];
             weights[0].Value = unityWeight.weight0;
             if (quality >= SkinQuality.Bone2)
             {
-                weights[1].Bone = bonesMap[bones[unityWeight.boneIndex1].name];
+                weights[1].Bone = this.bonesMap[bones[unityWeight.boneIndex1].name];
                 weights[1].Value = unityWeight.weight1;
             }
             if (quality >= SkinQuality.Bone4)
             {
-                weights[2].Bone = bonesMap[bones[unityWeight.boneIndex2].name];
+                weights[2].Bone = this.bonesMap[bones[unityWeight.boneIndex2].name];
                 weights[2].Value = unityWeight.weight2;
-                weights[3].Bone = bonesMap[bones[unityWeight.boneIndex3].name];
+                weights[3].Bone = this.bonesMap[bones[unityWeight.boneIndex3].name];
                 weights[3].Value = unityWeight.weight3;
             }
 
@@ -112,7 +112,7 @@ namespace COM3D2.ModelExportMMD
             for (int i = 0; i < faceList.Length; i++)
             {
                 faceList[i] += count;
-                pmxFile.FaceList.Add(faceList[i]);
+                this.pmxFile.FaceList.Add(faceList[i]);
             }
         }
 
@@ -126,7 +126,7 @@ namespace COM3D2.ModelExportMMD
             GameObject gameObject = meshRender.gameObject;
             Mesh mesh = meshRender.sharedMesh;
             BoneWeight[] boneWeights = mesh.boneWeights;
-            if (SavePostion)
+            if (this.SavePostion)
             {
                 Mesh mesh2 = new Mesh();
                 meshRender.BakeMesh(mesh2);
@@ -139,15 +139,15 @@ namespace COM3D2.ModelExportMMD
             for (int i = 0; i < mesh.subMeshCount; i++)
             {
                 int[] triangles = mesh.GetTriangles(i);
-                AddFaceList(triangles, vertexCount);
-                CreateMaterial(meshRender.materials[i], triangles.Length);
+                this.AddFaceList(triangles, this.vertexCount);
+                this.CreateMaterial(meshRender.materials[i], triangles.Length);
             }
-            vertexCount += mesh.vertexCount;
+            this.vertexCount += mesh.vertexCount;
             for (int i = 0; i < mesh.vertexCount; i++)
             {
                 PmxVertex pmxVertex = new PmxVertex();
                 pmxVertex.UV = new PmxLib.Vector2(uv[i].x, -uv[i].y);
-                pmxVertex.Weight = ConvertBoneWeight(boneWeights[i], meshRender.bones, meshRender.quality);
+                pmxVertex.Weight = this.ConvertBoneWeight(boneWeights[i], meshRender.bones, meshRender.quality);
                 Transform t = gameObject.transform;
                 UnityEngine.Vector3 n = normals[i];
                 n = t.TransformDirection(n);
@@ -156,22 +156,22 @@ namespace COM3D2.ModelExportMMD
                 v = t.TransformPoint(v);
                 v *= scaleFactor;
                 pmxVertex.Position = ToPmxVec3(v);
-                pmxFile.VertexList.Add(pmxVertex);
+                this.pmxFile.VertexList.Add(pmxVertex);
             }
         }
 
         private UnityEngine.Vector3 TransToParent(UnityEngine.Vector3 v, int index)
         {
-            var transform = boneList[index];
+            var transform = this.boneList[index];
 
-            if (bonesMap.ContainsKey(transform.parent.name))
+            if (this.bonesMap.ContainsKey(transform.parent.name))
             {
-                int parentIndex = bonesMap[transform.parent.name];
+                int parentIndex = this.bonesMap[transform.parent.name];
                 if (parentIndex != -1)
                 {
-                    Matrix4x4 matrix4x = bindposeList[index] * boneList[parentIndex].worldToLocalMatrix.inverse;
+                    Matrix4x4 matrix4x = this.bindposeList[index] * this.boneList[parentIndex].worldToLocalMatrix.inverse;
                     v = matrix4x.MultiplyVector(v);
-                    v = TransToParent(v, parentIndex);
+                    v = this.TransToParent(v, parentIndex);
                 }
             }
 
@@ -180,10 +180,10 @@ namespace COM3D2.ModelExportMMD
 
         private void PrepareData(List<SkinnedMeshRenderer> skinnedMeshes)
         {
-            bonesMap.Clear();
-            boneList.Clear();
-            boneParent.Clear();
-            bindposeList.Clear();
+            this.bonesMap.Clear();
+            this.boneList.Clear();
+            this.boneParent.Clear();
+            this.bindposeList.Clear();
 
             foreach (var skinnedMesh in skinnedMeshes)
             {
@@ -197,12 +197,12 @@ namespace COM3D2.ModelExportMMD
                                 !bone.name.Equals(skinnedMesh.name) &&
                                 !bone.name.Equals(skinnedMesh.sharedMesh.name) &&
                                 !bone.name.StartsWith("_SM_") &&
-                                !bonesMap.ContainsKey(bone.name))
+                                !this.bonesMap.ContainsKey(bone.name))
                         {
-                            bonesMap[bone.name] = boneList.Count;
-                            boneList.Add(bone);
-                            boneParent.Add(-1);
-                            bindposeList.Add(skinnedMesh.sharedMesh.bindposes[i]);
+                            this.bonesMap[bone.name] = this.boneList.Count;
+                            this.boneList.Add(bone);
+                            this.boneParent.Add(-1);
+                            this.bindposeList.Add(skinnedMesh.sharedMesh.bindposes[i]);
                         }
                     }
                 }
@@ -214,24 +214,24 @@ namespace COM3D2.ModelExportMMD
                     Transform bone = skinnedMesh.bones[i];
                     if (bone == null || string.IsNullOrEmpty(bone.name))
                         continue;
-                    if (!bonesMap.TryGetValue(bone.name, out int j))
+                    if (!this.bonesMap.TryGetValue(bone.name, out int j))
                         continue;
                     if (bone.parent == null || string.IsNullOrEmpty(bone.parent.name) || bone.parent.name.StartsWith("_SM_"))
                     {
                         Debug.Log($"Bone {bone.name} has no parent");
                         continue;
                     }
-                    if (bonesMap.ContainsKey(bone.parent.name))
+                    if (this.bonesMap.ContainsKey(bone.parent.name))
                     {
-                        int k = bonesMap[bone.parent.name];
-                        if (boneParent[j] == -1)
+                        int k = this.bonesMap[bone.parent.name];
+                        if (this.boneParent[j] == -1)
                         {
                             Debug.Log($"Bone {bone.name} parented to {bone.parent.name}({k})");
-                            boneParent[j] = k;
+                            this.boneParent[j] = k;
                         }
-                        else if (boneParent[j] != k)
+                        else if (this.boneParent[j] != k)
                         {
-                            Debug.Log($"Warning: bone {bone.name} was parented to {boneList[boneParent[j]].name} but was also found parented to {bone.parent.name}");
+                            Debug.Log($"Warning: bone {bone.name} was parented to {this.boneList[this.boneParent[j]].name} but was also found parented to {bone.parent.name}");
                         }
                     }
                     else
@@ -241,24 +241,24 @@ namespace COM3D2.ModelExportMMD
                 }
             }
 
-            Debug.Log($"Bone Count: {boneList.Count} Bindpose Count: {bindposeList.Count}");
+            Debug.Log($"Bone Count: {this.boneList.Count} Bindpose Count: {this.bindposeList.Count}");
         }
 
         private void CreateBoneList()
         {
-            for (int i = 0; i < boneList.Count; i++)
+            for (int i = 0; i < this.boneList.Count; i++)
             {
-                Transform bone = boneList[i];
+                Transform bone = this.boneList[i];
                 PmxBone pmxBone = new PmxBone();
                 pmxBone.Name = bone.name;
                 pmxBone.NameE = bone.name;
-                if (boneParent[i] >= 0)
+                if (this.boneParent[i] >= 0)
                 {
-                    pmxBone.Parent = boneParent[i];
+                    pmxBone.Parent = this.boneParent[i];
                 }
                 UnityEngine.Vector3 vector = bone.position * scaleFactor;
                 pmxBone.Position = ToPmxVec3(vector);
-                pmxFile.BoneList.Add(pmxBone);
+                this.pmxFile.BoneList.Add(pmxBone);
             }
         }
 
