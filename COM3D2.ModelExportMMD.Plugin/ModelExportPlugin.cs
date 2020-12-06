@@ -168,7 +168,7 @@ namespace COM3D2.ModelExportMMD.Plugin
 
                 exporter.ExportFolder = args.Folder;
                 exporter.ExportName = args.Name;
-                exporter.SavePostion = args.SavePosition;
+                exporter.SavePosition = args.SavePosition;
                 exporter.SaveTexture = args.SaveTexture;
                 exporter.Export(meshes);
             }

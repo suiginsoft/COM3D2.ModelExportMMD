@@ -13,7 +13,7 @@ namespace COM3D2.ModelExportMMD
 
         string ExportName { get; set; }
 
-        bool SavePostion { get; set; }
+        bool SavePosition { get; set; }
 
         bool SaveTexture { get; set; }
 

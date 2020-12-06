@@ -24,7 +24,7 @@ namespace COM3D2.ModelExportMMD
         public ModelFormat ExportFormat { get { return ModelFormat.Obj; } }
         public string ExportFolder { get; set; }
         public string ExportName { get; set; }
-        public bool SavePostion { get; set; } = true;
+        public bool SavePosition { get; set; } = true;
         public bool SaveTexture { get; set; } = true;
         public Split SplitMethod { get; set; } = Split.ByMesh;
 
@@ -153,7 +153,7 @@ namespace COM3D2.ModelExportMMD
                 var renderer = gameObject.GetComponent<Renderer>();
 
                 Mesh mesh = null;
-                if (SavePostion)
+                if (SavePosition)
                 {
                     mesh = new Mesh();
                     skinnedMesh.BakeMesh(mesh);

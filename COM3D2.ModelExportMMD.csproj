@@ -117,6 +117,7 @@
     <Compile Include="PmxLib\Vector2.cs" />
     <Compile Include="PmxLib\Vector3.cs" />
     <Compile Include="PmxLib\Vector4.cs" />
+    <Compile Include="PmxLib\Vers.cs" />
     <Compile Include="PmxLib\Vmd.cs" />
     <Compile Include="PmxLib\VmdCamera.cs" />
     <Compile Include="PmxLib\VmdCameraIPL.cs" />

@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace COM3D2.ModelExportMMD
 {
-    public class PmxExporter : IExporter
+    public class PmxExporterOld : IExporter
     {
         #region Types
         private class MaterialInfo
@@ -61,14 +61,14 @@ namespace COM3D2.ModelExportMMD
         public ModelFormat ExportFormat { get { return ModelFormat.Pmx; } }
         public string ExportFolder { get; set; }
         public string ExportName { get; set; }
-        public bool SavePostion { get; set; } = true;
+        public bool SavePosition { get; set; } = true;
         public bool SaveTexture { get; set; } = true;
 
         #endregion
 
         #region Constructors
 
-        public PmxExporter()
+        public PmxExporterOld()
         {
             pmxFile.ModelInfo.ModelName = "妹抖";
             pmxFile.ModelInfo.ModelNameE = "maid";
@@ -126,7 +126,7 @@ namespace COM3D2.ModelExportMMD
             GameObject gameObject = meshRender.gameObject;
             Mesh mesh = meshRender.sharedMesh;
             BoneWeight[] boneWeights = mesh.boneWeights;
-            if (SavePostion)
+            if (SavePosition)
             {
                 Mesh mesh2 = new Mesh();
                 meshRender.BakeMesh(mesh2);
@@ -199,7 +199,6 @@ namespace COM3D2.ModelExportMMD
                                 !bone.name.StartsWith("_SM_") &&
                                 !bonesMap.ContainsKey(bone.name))
                         {
-                            bonesMap[bone.name] = boneList.Count;
                             boneList.Add(bone);
                             boneParent.Add(-1);
                             bindposeList.Add(skinnedMesh.sharedMesh.bindposes[i]);
