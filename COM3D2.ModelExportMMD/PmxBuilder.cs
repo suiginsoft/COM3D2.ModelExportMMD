@@ -363,68 +363,44 @@ namespace COM3D.ModelExportMMD
 			{
 				for (int j = 0; j < tlist.Length; j++)
 				{
-					if (pmxFile.BoneList[i].Name == tlist[j].name && ((UnityEngine.Object)tlist[j].parent != (UnityEngine.Object)null || serchBone(tlist[j].parent.name) != null))
+					if (pmxFile.BoneList[i].Name == tlist[j].name && ((UnityEngine.Object)tlist[j].parent != (UnityEngine.Object)null || FindBone(tlist[j].parent.name) != null))
 					{
-						pmxFile.BoneList[i].Parent = serchBonei(tlist[j].parent.name);
+						pmxFile.BoneList[i].Parent = FindBoneIndex(tlist[j].parent.name);
 					}
 				}
 			}
 		}
 
-		private int serchBonei(string name)
+		public void Sbp()
 		{
-			for (int i = 0; i < pmxFile.BoneList.Count; i++)
-			{
-				if (pmxFile.BoneList[i].Name == name)
-				{
-					return i;
-				}
-			}
-			return -1;
-		}
-
-		private PmxBone serchBone(string name)
-		{
-			for (int i = 0; i < pmxFile.BoneList.Count; i++)
-			{
-				if (pmxFile.BoneList[i].Name == name)
-				{
-					return pmxFile.BoneList[i];
-				}
-			}
-			return null;
-		}
-
-		public void sbp()
-		{
-			PmxBone pmxBone = serchBone("Bone_Face");
+			PmxBone pmxBone = FindBone("Bone_Face");
 			if (pmxBone != null)
 			{
-				pmxBone.Parent = serchBonei("Bip01 Neck");
+				pmxBone.Parent = FindBoneIndex("Bip01 Neck");
 			}
-			pmxBone = serchBone("Hair_F");
+			pmxBone = FindBone("Hair_F");
 			if (pmxBone != null)
 			{
-				pmxBone.Parent = serchBonei("Bone_Face");
+				pmxBone.Parent = FindBoneIndex("Bone_Face");
 			}
-			pmxBone = serchBone("Hair_R");
+			pmxBone = FindBone("Hair_R");
 			if (pmxBone != null)
 			{
-				pmxBone.Parent = serchBonei("Bone_Face");
+				pmxBone.Parent = FindBoneIndex("Bone_Face");
 			}
-			if (serchBone("Skirt") == null)
+			if (FindBone("Skirt") == null)
 			{
 				for (int i = 0; i < pmxFile.BoneList.Count; i++)
 				{
 					if (pmxFile.BoneList[i].Name.Contains("Skirt") && pmxFile.BoneList[i].Name[8] == 'A')
 					{
-						pmxFile.BoneList[i].Parent = serchBonei("Bip01 Pelvis");
+						pmxFile.BoneList[i].Parent = FindBoneIndex("Bip01 Pelvis");
 					}
 				}
 			}
 		}
 
-		public void createMorph()
+		public void CreateMorph()
 		{
 			Maid maid = GameMain.Instance.CharacterMgr.GetMaid(0);
 			for (int i = 0; i < maid.body0.Face.morph.BlendDatas.Count; i++)
@@ -458,7 +434,7 @@ namespace COM3D.ModelExportMMD
 			}
 		}
 
-		public void createMorphKupa()
+		public void CreateMorphKupa()
 		{
 			Maid maid = GameMain.Instance.CharacterMgr.GetMaid(0);
 			for (int i = 0; i < maid.body0.goSlot.Count; i++)
@@ -489,7 +465,7 @@ namespace COM3D.ModelExportMMD
 			}
 		}
 
-		public void change_bone_name()
+		public void ChangeBoneNames()
 		{
 			if (FindBone("Bip01") != null)
 			{
@@ -589,55 +565,55 @@ namespace COM3D.ModelExportMMD
 			PmxBone pmxBone = new PmxBone();
 			pmxBone.Name = "全ての親";
 			pmxBone.Flags = (PmxBone.BoneFlags.Rotation | PmxBone.BoneFlags.Translation | PmxBone.BoneFlags.Visible);
-			insertbone(0, pmxBone);
+			InsertBone(0, pmxBone);
 			pmxBone = new PmxBone();
 			pmxBone.Name = "センタ\u30fc";
 			pmxBone.Position = new PmxLib.Vector3(0f, FindBone("Bip01").Position.Y * 0.75f, 0f);
 			pmxBone.Flags = (PmxBone.BoneFlags.Rotation | PmxBone.BoneFlags.Translation | PmxBone.BoneFlags.Visible);
-			insertbone(1, pmxBone);
+			InsertBone(1, pmxBone);
 			if (FindBone("Bip01") != null)
 			{
 				pmxBone = new PmxBone();
 				pmxBone.Name = "左つま先";
-				insertbone(pmxFile.BoneList.IndexOf(FindBone("左足首")) + 1, pmxBone);
+				InsertBone(pmxFile.BoneList.IndexOf(FindBone("左足首")) + 1, pmxBone);
 				pmxBone = new PmxBone();
 				pmxBone.Name = "左足ＩＫ";
-				insertbone(pmxFile.BoneList.IndexOf(FindBone("左つま先")) + 1, pmxBone);
+				InsertBone(pmxFile.BoneList.IndexOf(FindBone("左つま先")) + 1, pmxBone);
 				pmxBone = new PmxBone();
 				pmxBone.Name = "左つま先ＩＫ";
-				insertbone(pmxFile.BoneList.IndexOf(FindBone("左足ＩＫ")) + 1, pmxBone);
+				InsertBone(pmxFile.BoneList.IndexOf(FindBone("左足ＩＫ")) + 1, pmxBone);
 				pmxBone = new PmxBone();
 				pmxBone.Name = "左手捩";
-				insertbone(pmxFile.BoneList.IndexOf(FindBone("左ひじ")) + 1, pmxBone);
+				InsertBone(pmxFile.BoneList.IndexOf(FindBone("左ひじ")) + 1, pmxBone);
 				pmxBone = new PmxBone();
 				pmxBone.Name = "右つま先";
-				insertbone(pmxFile.BoneList.IndexOf(FindBone("右足首")) + 1, pmxBone);
+				InsertBone(pmxFile.BoneList.IndexOf(FindBone("右足首")) + 1, pmxBone);
 				pmxBone = new PmxBone();
 				pmxBone.Name = "右足ＩＫ";
-				insertbone(pmxFile.BoneList.IndexOf(FindBone("右つま先")) + 1, pmxBone);
+				InsertBone(pmxFile.BoneList.IndexOf(FindBone("右つま先")) + 1, pmxBone);
 				pmxBone = new PmxBone();
 				pmxBone.Name = "右つま先ＩＫ";
-				insertbone(pmxFile.BoneList.IndexOf(FindBone("右足ＩＫ")) + 1, pmxBone);
+				InsertBone(pmxFile.BoneList.IndexOf(FindBone("右足ＩＫ")) + 1, pmxBone);
 				pmxBone = new PmxBone();
 				pmxBone.Name = "右手捩";
-				insertbone(pmxFile.BoneList.IndexOf(FindBone("右ひじ")) + 1, pmxBone);
+				InsertBone(pmxFile.BoneList.IndexOf(FindBone("右ひじ")) + 1, pmxBone);
 				pmxBone = new PmxBone();
 				pmxBone.Name = "胸親";
-				insertbone(pmxFile.BoneList.IndexOf(FindBone("Mune_L")), pmxBone);
+				InsertBone(pmxFile.BoneList.IndexOf(FindBone("Mune_L")), pmxBone);
 				pmxBone = new PmxBone();
 				pmxBone.Name = "左AH2";
-				insertbone(pmxFile.BoneList.IndexOf(FindBone("Mune_L_sub")) + 1, pmxBone);
+				InsertBone(pmxFile.BoneList.IndexOf(FindBone("Mune_L_sub")) + 1, pmxBone);
 				pmxBone = new PmxBone();
 				pmxBone.Name = "右AH2";
-				insertbone(pmxFile.BoneList.IndexOf(FindBone("Mune_R_sub")) + 1, pmxBone);
+				InsertBone(pmxFile.BoneList.IndexOf(FindBone("Mune_R_sub")) + 1, pmxBone);
 			}
-			sortbone2(FindBoneIndex("左腕"), FindBoneIndex("左肩") + 1);
-			sortbone2(FindBoneIndex("右腕"), FindBoneIndex("右肩") + 1);
+			SortBone2(FindBoneIndex("左腕"), FindBoneIndex("左肩") + 1);
+			SortBone2(FindBoneIndex("右腕"), FindBoneIndex("右肩") + 1);
 			if (FindBone("Bone_Face") != null)
 			{
 				pmxBone = new PmxBone();
 				pmxBone.Name = "両目";
-				insertbone(pmxFile.BoneList.IndexOf(FindBone("Bone_Face")) + 1, pmxBone);
+				InsertBone(pmxFile.BoneList.IndexOf(FindBone("Bone_Face")) + 1, pmxBone);
 			}
 			if (FindBone("Bip01") != null)
 			{
@@ -733,7 +709,7 @@ namespace COM3D.ModelExportMMD
 			}
 		}
 
-		public void change_bone_info()
+		public void ChangeBoneInfo()
 		{
 			PmxBone pmxBone;
 			if (FindBone("Bip01") != null)
@@ -930,68 +906,68 @@ namespace COM3D.ModelExportMMD
 			pmxBone.Parent = FindBoneIndex("全ての親");
 		}
 
-		public void change_morph_name()
+		public void ChangeMorphName()
 		{
 			if (FindBone("Bone_Face") != null)
 			{
-				PmxMorph pmxMorph = sm("moutha");
+				PmxMorph pmxMorph = FindMorph("moutha");
 				pmxMorph.Name = "あa";
 				pmxMorph.Panel = 3;
-				pmxMorph = sm("mouthc");
+				pmxMorph = FindMorph("mouthc");
 				pmxMorph.Name = "うu";
 				pmxMorph.Panel = 3;
-				pmxMorph = sm("mouthi");
+				pmxMorph = FindMorph("mouthi");
 				pmxMorph.Name = "いi";
 				pmxMorph.Panel = 3;
-				pmxMorph = sm("mouths");
+				pmxMorph = FindMorph("mouths");
 				pmxMorph.Name = "ワ";
 				pmxMorph.Panel = 3;
-				pmxMorph = sm("mouthup");
+				pmxMorph = FindMorph("mouthup");
 				pmxMorph.Name = "にやり";
 				pmxMorph.Panel = 3;
-				pmxMorph = sm("eyeclose");
+				pmxMorph = FindMorph("eyeclose");
 				pmxMorph.Name = "まばたき";
 				pmxMorph.Panel = 2;
-				pmxMorph = sm("eyeclose2");
+				pmxMorph = FindMorph("eyeclose2");
 				pmxMorph.Name = "笑い";
 				pmxMorph.Panel = 2;
-				pmxMorph = sm("eyeclose5");
+				pmxMorph = FindMorph("eyeclose5");
 				pmxMorph.Name = "ウィンク";
 				pmxMorph.Panel = 2;
-				pmxMorph = sm("eyeclose6");
+				pmxMorph = FindMorph("eyeclose6");
 				pmxMorph.Name = "ウィンク2";
 				pmxMorph.Panel = 2;
-				pmxMorph = sm("eyebig");
+				pmxMorph = FindMorph("eyebig");
 				pmxMorph.Name = "びっくり";
 				pmxMorph.Panel = 2;
-				pmxMorph = sm("eyeclose3");
+				pmxMorph = FindMorph("eyeclose3");
 				pmxMorph.Name = "ジト目";
 				pmxMorph.Panel = 2;
-				pmxMorph = sm("mayuha");
+				pmxMorph = FindMorph("mayuha");
 				pmxMorph.Name = "困る";
 				pmxMorph.Panel = 1;
-				pmxMorph = sm("mayuup");
+				pmxMorph = FindMorph("mayuup");
 				pmxMorph.Name = "にこり";
 				pmxMorph.Panel = 1;
-				pmxMorph = sm("mayuw");
+				pmxMorph = FindMorph("mayuw");
 				pmxMorph.Name = "怒り";
 				pmxMorph.Panel = 1;
-				pmxMorph = sm("mayuv");
+				pmxMorph = FindMorph("mayuv");
 				pmxMorph.Name = "真面目";
 				pmxMorph.Panel = 1;
-				pmxMorph = sm("hohos");
+				pmxMorph = FindMorph("hohos");
 				pmxMorph.Name = "照れ";
 				pmxMorph.Panel = 4;
-				pmxMorph = sm("hoho");
+				pmxMorph = FindMorph("hoho");
 				pmxMorph.Name = "照れ2";
 				pmxMorph.Panel = 4;
-				pmxMorph = sm("namida");
+				pmxMorph = FindMorph("namida");
 				pmxMorph.Name = "涙";
 				pmxMorph.Panel = 4;
 			}
 		}
 
-		private PmxMorph sm(string name)
+		private PmxMorph FindMorph(string name)
 		{
 			for (int i = 0; i < pmxFile.MorphList.Count; i++)
 			{
@@ -1003,7 +979,7 @@ namespace COM3D.ModelExportMMD
 			return null;
 		}
 
-		private int smi(string name)
+		private int FindMorphIndex(string name)
 		{
 			for (int i = 0; i < pmxFile.MorphList.Count; i++)
 			{
@@ -1015,14 +991,14 @@ namespace COM3D.ModelExportMMD
 			return -1;
 		}
 
-		public void add_morph()
+		public void AddMorph()
 		{
 			PmxMorph pmxMorph = new PmxMorph();
 			pmxMorph.Kind = PmxMorph.OffsetKind.Group;
 			pmxMorph.Name = "あ";
 			pmxMorph.Panel = 3;
 			PmxGroupMorph pmxGroupMorph = new PmxGroupMorph();
-			pmxGroupMorph.Index = smi("あa");
+			pmxGroupMorph.Index = FindMorphIndex("あa");
 			pmxGroupMorph.Ratio = 0.6f;
 			pmxMorph.OffsetList.Add(pmxGroupMorph);
 			pmxFile.MorphList.Add(pmxMorph);
@@ -1031,7 +1007,7 @@ namespace COM3D.ModelExportMMD
 			pmxMorph.Name = "い";
 			pmxMorph.Panel = 3;
 			pmxGroupMorph = new PmxGroupMorph();
-			pmxGroupMorph.Index = smi("いi");
+			pmxGroupMorph.Index = FindMorphIndex("いi");
 			pmxGroupMorph.Ratio = 0.5f;
 			pmxMorph.OffsetList.Add(pmxGroupMorph);
 			pmxFile.MorphList.Add(pmxMorph);
@@ -1040,11 +1016,11 @@ namespace COM3D.ModelExportMMD
 			pmxMorph.Name = "う";
 			pmxMorph.Panel = 3;
 			pmxGroupMorph = new PmxGroupMorph();
-			pmxGroupMorph.Index = smi("うu");
+			pmxGroupMorph.Index = FindMorphIndex("うu");
 			pmxGroupMorph.Ratio = 0.6f;
 			pmxMorph.OffsetList.Add(pmxGroupMorph);
 			pmxGroupMorph = new PmxGroupMorph();
-			pmxGroupMorph.Index = smi("あa");
+			pmxGroupMorph.Index = FindMorphIndex("あa");
 			pmxGroupMorph.Ratio = 0.4f;
 			pmxMorph.OffsetList.Add(pmxGroupMorph);
 			pmxFile.MorphList.Add(pmxMorph);
@@ -1053,11 +1029,11 @@ namespace COM3D.ModelExportMMD
 			pmxMorph.Name = "え";
 			pmxMorph.Panel = 3;
 			pmxGroupMorph = new PmxGroupMorph();
-			pmxGroupMorph.Index = smi("いi");
+			pmxGroupMorph.Index = FindMorphIndex("いi");
 			pmxGroupMorph.Ratio = 0.4f;
 			pmxMorph.OffsetList.Add(pmxGroupMorph);
 			pmxGroupMorph = new PmxGroupMorph();
-			pmxGroupMorph.Index = smi("あa");
+			pmxGroupMorph.Index = FindMorphIndex("あa");
 			pmxGroupMorph.Ratio = 0.4f;
 			pmxMorph.OffsetList.Add(pmxGroupMorph);
 			pmxFile.MorphList.Add(pmxMorph);
@@ -1066,11 +1042,11 @@ namespace COM3D.ModelExportMMD
 			pmxMorph.Name = "お";
 			pmxMorph.Panel = 3;
 			pmxGroupMorph = new PmxGroupMorph();
-			pmxGroupMorph.Index = smi("うu");
+			pmxGroupMorph.Index = FindMorphIndex("うu");
 			pmxGroupMorph.Ratio = 0.6f;
 			pmxMorph.OffsetList.Add(pmxGroupMorph);
 			pmxGroupMorph = new PmxGroupMorph();
-			pmxGroupMorph.Index = smi("あa");
+			pmxGroupMorph.Index = FindMorphIndex("あa");
 			pmxGroupMorph.Ratio = 0.4f;
 			pmxMorph.OffsetList.Add(pmxGroupMorph);
 			pmxFile.MorphList.Add(pmxMorph);
@@ -1086,94 +1062,94 @@ namespace COM3D.ModelExportMMD
 				{
 					if (i < pmxFile.BoneList[i].Parent)
 					{
-						sortbone(i, pmxFile.BoneList[i].Parent);
+						SortBone(i, pmxFile.BoneList[i].Parent);
 						flag = true;
 					}
 				}
 			}
 		}
 
-		private void sortbone(int boneindex, int index)
+		private void SortBone(int boneindex, int parentindex)
 		{
 			for (int i = 0; i < pmxFile.VertexList.Count; i++)
 			{
 				for (int j = 0; j < pmxFile.VertexList[i].Weight.Length; j++)
 				{
-					if (index >= pmxFile.VertexList[i].Weight[j].Bone && pmxFile.VertexList[i].Weight[j].Bone > boneindex)
+					if (parentindex >= pmxFile.VertexList[i].Weight[j].Bone && pmxFile.VertexList[i].Weight[j].Bone > boneindex)
 					{
 						pmxFile.VertexList[i].Weight[j].Bone--;
 					}
 					else if (pmxFile.VertexList[i].Weight[j].Bone == boneindex)
 					{
-						pmxFile.VertexList[i].Weight[j].Bone = index;
+						pmxFile.VertexList[i].Weight[j].Bone = parentindex;
 					}
 				}
 			}
 			for (int i = 0; i < pmxFile.BoneList.Count; i++)
 			{
-				if (index >= pmxFile.BoneList[i].Parent && pmxFile.BoneList[i].Parent > boneindex)
+				if (parentindex >= pmxFile.BoneList[i].Parent && pmxFile.BoneList[i].Parent > boneindex)
 				{
 					pmxFile.BoneList[i].Parent--;
 				}
 				else if (pmxFile.BoneList[i].Parent == boneindex)
 				{
-					pmxFile.BoneList[i].Parent = index;
+					pmxFile.BoneList[i].Parent = parentindex;
 				}
-				if (index >= pmxFile.BoneList[i].To_Bone && pmxFile.BoneList[i].To_Bone > boneindex)
+				if (parentindex >= pmxFile.BoneList[i].To_Bone && pmxFile.BoneList[i].To_Bone > boneindex)
 				{
 					pmxFile.BoneList[i].To_Bone--;
 				}
 				else if (pmxFile.BoneList[i].To_Bone == boneindex)
 				{
-					pmxFile.BoneList[i].To_Bone = index;
+					pmxFile.BoneList[i].To_Bone = parentindex;
 				}
 			}
 			PmxBone item = pmxFile.BoneList[boneindex];
 			pmxFile.BoneList.RemoveAt(boneindex);
-			pmxFile.BoneList.Insert(index, item);
+			pmxFile.BoneList.Insert(parentindex, item);
 		}
 
-		private void sortbone2(int boneindex, int index)
+		private void SortBone2(int boneindex, int parentindex)
 		{
 			for (int i = 0; i < pmxFile.VertexList.Count; i++)
 			{
 				for (int j = 0; j < pmxFile.VertexList[i].Weight.Length; j++)
 				{
-					if (index <= pmxFile.VertexList[i].Weight[j].Bone && pmxFile.VertexList[i].Weight[j].Bone < boneindex)
+					if (parentindex <= pmxFile.VertexList[i].Weight[j].Bone && pmxFile.VertexList[i].Weight[j].Bone < boneindex)
 					{
 						pmxFile.VertexList[i].Weight[j].Bone++;
 					}
 					else if (pmxFile.VertexList[i].Weight[j].Bone == boneindex)
 					{
-						pmxFile.VertexList[i].Weight[j].Bone = index;
+						pmxFile.VertexList[i].Weight[j].Bone = parentindex;
 					}
 				}
 			}
 			for (int i = 0; i < pmxFile.BoneList.Count; i++)
 			{
-				if (index <= pmxFile.BoneList[i].Parent && pmxFile.BoneList[i].Parent < boneindex)
+				if (parentindex <= pmxFile.BoneList[i].Parent && pmxFile.BoneList[i].Parent < boneindex)
 				{
 					pmxFile.BoneList[i].Parent++;
 				}
 				else if (pmxFile.BoneList[i].Parent == boneindex)
 				{
-					pmxFile.BoneList[i].Parent = index;
+					pmxFile.BoneList[i].Parent = parentindex;
 				}
-				if (index <= pmxFile.BoneList[i].To_Bone && pmxFile.BoneList[i].To_Bone < boneindex)
+				if (parentindex <= pmxFile.BoneList[i].To_Bone && pmxFile.BoneList[i].To_Bone < boneindex)
 				{
 					pmxFile.BoneList[i].To_Bone++;
 				}
 				else if (pmxFile.BoneList[i].To_Bone == boneindex)
 				{
-					pmxFile.BoneList[i].To_Bone = index;
+					pmxFile.BoneList[i].To_Bone = parentindex;
 				}
 			}
 			PmxBone item = pmxFile.BoneList[boneindex];
 			pmxFile.BoneList.RemoveAt(boneindex);
-			pmxFile.BoneList.Insert(index, item);
+			pmxFile.BoneList.Insert(parentindex, item);
 		}
 
-		private void insertbone(int index, PmxBone b)
+		private void InsertBone(int index, PmxBone b)
 		{
 			for (int i = 0; i < pmxFile.VertexList.Count; i++)
 			{
@@ -1475,9 +1451,9 @@ namespace COM3D.ModelExportMMD
 			}
 		}
 
-		private float t(double d)
+		private float ToRadians(double degrees)
 		{
-			return (float)(d * 3.1415926535897931 / 180.0);
+			return (float)(degrees * 3.1415926535897931 / 180.0);
 		}
 
 		private PmxLib.Vector3 getDirection(PmxLib.Vector3 first, PmxLib.Vector3 last)
@@ -1494,7 +1470,7 @@ namespace COM3D.ModelExportMMD
 			return (float)Math.Sqrt((double)((one.X - two.X) * (one.X - two.X) + (one.Y - two.Y) * (one.Y - two.Y) + (one.Z - two.Z) * (one.Z - two.Z)));
 		}
 
-		public void sortmaterial()
+		public void SortMaterial()
 		{
 			int num = 0;
 			for (int i = 0; i < pmxFile.MaterialList.Count; i++)
@@ -1533,7 +1509,7 @@ namespace COM3D.ModelExportMMD
 				{
 					PmxBone pmxBone = pmxFile.BoneList[list2[i].Parent];
 					PmxLib.Vector3 vector = default(PmxLib.Vector3);
-					int num = serchchild(list2[i].Name);
+					int num = FindChildIndex(list2[i].Name);
 					vector = ((num == -1) ? (new PmxLib.Vector3(0f, -0.5f, 0f) + list2[i].Position) : pmxFile.BoneList[num].Position);
 					PmxBody pmxBody = new PmxBody();
 					pmxBody.Name = list2[i].Name;
@@ -1555,7 +1531,7 @@ namespace COM3D.ModelExportMMD
 					pmxBody.BoxSize = new PmxLib.Vector3(0.2f, getDistance(list2[i].Position, vector) / 2f, 0f);
 					pmxBody.Rotation = getDirection(list2[i].Position, vector);
 					pmxFile.BodyList.Add(pmxBody);
-					if (sbdi(pmxBone.Name) == -1)
+					if (FindBodyIndex(pmxBone.Name) == -1)
 					{
 						pmxBody.Mode = PmxBody.ModeType.Static;
 					}
@@ -1565,8 +1541,8 @@ namespace COM3D.ModelExportMMD
 						pmxJoint.Name = list2[i].Name;
 						pmxJoint.Position = list2[i].Position;
 						pmxJoint.Rotation = pmxBody.Rotation;
-						pmxJoint.BodyA = sbdi(pmxBone.Name);
-						pmxJoint.BodyB = sbdi(pmxBody.Name);
+						pmxJoint.BodyA = FindBodyIndex(pmxBone.Name);
+						pmxJoint.BodyB = FindBodyIndex(pmxBody.Name);
 						pmxJoint.Limit_AngleLow = new PmxLib.Vector3(-0.17453292f, -0.08726646f, -0.17453292f);
 						pmxJoint.Limit_AngleHigh = new PmxLib.Vector3(0.17453292f, 0.08726646f, 0.17453292f);
 						pmxFile.JointList.Add(pmxJoint);
@@ -1577,7 +1553,7 @@ namespace COM3D.ModelExportMMD
 			{
 				PmxBone pmxBone = pmxFile.BoneList[list[i].Parent];
 				PmxLib.Vector3 vector = default(PmxLib.Vector3);
-				int num = serchchild(list[i].Name);
+				int num = FindChildIndex(list[i].Name);
 				vector = ((num == -1) ? (new PmxLib.Vector3(0f, -0.5f, 0f) + list[i].Position) : pmxFile.BoneList[num].Position);
 				PmxBody pmxBody = new PmxBody();
 				pmxBody.Name = list[i].Name;
@@ -1605,8 +1581,8 @@ namespace COM3D.ModelExportMMD
 					pmxJoint.Name = list[i].Name;
 					pmxJoint.Position = list[i].Position;
 					pmxJoint.Rotation = pmxBody.Rotation;
-					pmxJoint.BodyA = sbdi(pmxBone.Name);
-					pmxJoint.BodyB = sbdi(pmxBody.Name);
+					pmxJoint.BodyA = FindBodyIndex(pmxBone.Name);
+					pmxJoint.BodyB = FindBodyIndex(pmxBody.Name);
 					pmxJoint.Limit_AngleLow = new PmxLib.Vector3(-0.5235988f, -0.2617994f, -0.5235988f);
 					pmxJoint.Limit_AngleHigh = new PmxLib.Vector3(0.5235988f, 0.2617994f, 0.5235988f);
 					pmxFile.JointList.Add(pmxJoint);
@@ -1643,9 +1619,9 @@ namespace COM3D.ModelExportMMD
 					PmxJoint pmxJoint = new PmxJoint();
 					pmxJoint.Name = list[i].Name + "[side]";
 					pmxJoint.Position = list[i].Position;
-					pmxJoint.Rotation = pmxFile.BodyList[sbdi(list[i].Name)].Rotation;
-					pmxJoint.BodyA = sbdi(list[i].Name);
-					pmxJoint.BodyB = sbdi(pmxBone2.Name);
+					pmxJoint.Rotation = pmxFile.BodyList[FindBodyIndex(list[i].Name)].Rotation;
+					pmxJoint.BodyA = FindBodyIndex(list[i].Name);
+					pmxJoint.BodyB = FindBodyIndex(pmxBone2.Name);
 					pmxJoint.Limit_MoveLow = new PmxLib.Vector3(0f, 0f, 0f);
 					pmxJoint.Limit_MoveHigh = new PmxLib.Vector3(0f, 0f, 0f);
 					pmxJoint.Limit_AngleLow = new PmxLib.Vector3(-0.5235988f, -0.2617994f, -0.5235988f);
@@ -1655,7 +1631,7 @@ namespace COM3D.ModelExportMMD
 			}
 		}
 
-		private int serchchild(string name)
+		private int FindChildIndex(string name)
 		{
 			for (int i = 0; i < pmxFile.BoneList.Count; i++)
 			{
@@ -1667,7 +1643,7 @@ namespace COM3D.ModelExportMMD
 			return -1;
 		}
 
-		private int sbdi(string name)
+		private int FindBodyIndex(string name)
 		{
 			for (int i = 0; i < pmxFile.BodyList.Count; i++)
 			{
