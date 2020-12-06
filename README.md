@@ -19,12 +19,16 @@ Things that have been changed or improved from the original plugin to tailor it 
 
 Installation
 -------------------------------------------------------------------------------
-Compile it yourself, lol. When I'm arsed there will be release.
-
-Once you have the .dll, drop it in BepInEx/plugins
+Extract the archive in BepInEx/plugins folder.
 
 Usage
 -------------------------------------------------------------------------------
 Once you're in game and have made it to the initial Maid customization screen, press the `F8` key on your keyboard to activate the Model Export MMD window.
 
 From the export window you may select your export folder on the filesystem, the model file base name and your desired export format (either MMD or OBJ). You can manually enter in the export folder file path and model base name using your keyboard or use the file browser dialog by pressing the `Browse` button. Before you export, ensure that you press the `Apply T-Pose` button to force your Maid into a fixed T-pose. Finally, click the `Export` button to export your Maid to the filesystem, or click `Close` to cancel the export process and close the window.
+
+Hacking
+-------------------------------------------------------------------------------
+To whoever wishes to hack and work with this code. I apologise. This apology is not sincere. Fuck you. Fuck me. Fuck whoever wrote this originally. Fuck the PMX file format. I have done the minimum amount of work to smash together some decompiled pile of garbage I found on a site with the fork from suiginsoft and add some more code to export materials in a richer way. Shit's fucked. I feel no remorse and zero regrets, though I do feel slightly sorry for just dumping a pile of shit on top of a somewhat well-designed codebase. It was required for proper bone and shape keys (aka morphs) export.
+
+The actual file you want to edit to add features to the PMX export is PmxBuilder.cs, in which the PmxExporter class is. PmxExporter.cs contains PmxExporterOld, which is the old class originally from suiginsoft. You will notice a lot of confusing things happening in PmxBuilder.cs. I wish you the best of luck in your endeavours.
