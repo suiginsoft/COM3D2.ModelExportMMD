@@ -64,6 +64,13 @@ namespace PmxLib
 			get { return new Vector3(0f, 0f, 1f); }
 		}
 
+        public Vector3(Vector3 v)
+        {
+            x = v.x;
+            y = v.y;
+            z = v.z;
+        }
+
 		public Vector3(float x, float y, float z)
 		{
 			this.x = x;

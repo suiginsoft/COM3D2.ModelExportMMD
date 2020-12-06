@@ -57,10 +57,12 @@
     <Compile Include="COM3D2.ModelExportMMD\IExporter.cs" />
     <Compile Include="COM3D2.ModelExportMMD\MaidExtensions.cs" />
     <Compile Include="COM3D2.ModelExportMMD\ModelFormat.cs" />
+    <Compile Include="COM3D2.ModelExportMMD\PmxBuilder.cs" />
     <Compile Include="COM3D2.ModelExportMMD\TextureBuilder.cs" />
     <Compile Include="COM3D2.ModelExportMMD\ObjExporter.cs" />
     <Compile Include="COM3D2.ModelExportMMD\PmxExporter.cs" />
     <Compile Include="PmxLib\BitConverterAp.cs" />
+    <Compile Include="PmxLib\Bones.cs" />
     <Compile Include="PmxLib\BytesStringProc.cs" />
     <Compile Include="PmxLib\CExt.cs" />
     <Compile Include="PmxLib\CMath.cs" />

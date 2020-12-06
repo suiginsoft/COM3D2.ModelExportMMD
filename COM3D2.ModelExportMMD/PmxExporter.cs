@@ -365,7 +365,7 @@ namespace COM3D2.ModelExportMMD
 
         private void Save()
         {
-            PmxElementFormat pmxElementFormat = new PmxElementFormat(2.1f);
+            PmxElementFormat pmxElementFormat = new PmxElementFormat(1f);
             pmxElementFormat.VertexSize = PmxElementFormat.GetUnsignedBufSize(pmxFile.VertexList.Count);
             int val = -2147483648;
             for (int i = 0; i < pmxFile.BoneList.Count; i++)

@@ -122,7 +122,7 @@ namespace PmxLib
 				f = ElementFormat;
 			}
 			byte[] array = new byte[4];
-			array = ((!(f.Ver <= 1f)) ? Encoding.ASCII.GetBytes(PmxKey) : Encoding.ASCII.GetBytes(PmxKey_v1));
+			array = f.Ver > 1f ? Encoding.ASCII.GetBytes(PmxKey) : Encoding.ASCII.GetBytes(PmxKey_v1);
 			s.Write(array, 0, array.Length);
 			array = BitConverter.GetBytes(Ver);
 			s.Write(array, 0, array.Length);
