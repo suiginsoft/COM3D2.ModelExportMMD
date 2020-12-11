@@ -26,9 +26,10 @@ namespace COM3D2.ModelExportMMD.Gui
             "Close"
         };
 
-        private static readonly string[] ExportFormatLabels =
+        private static readonly string[] ExportClassLabels =
         {
-            "MMD (*.pmx)",
+            "MMD A (*.pmx)",
+            "MMD B (*.pmx)",
             "OBJ (*.obj)"
         };
 
@@ -52,7 +53,7 @@ namespace COM3D2.ModelExportMMD.Gui
         public string PluginVersion { get; set; }
         public string ExportFolderPath { get; set; }
         public string ExportName { get; set; }
-        public ModelFormat ExportFormat { get; set; }
+        public ModelExportEventArgs.ExporterClass ExportClass { get; set; }
         public bool SavePostion { get; set; }
         public bool SaveTextures { get; set; }
 
@@ -179,7 +180,7 @@ namespace COM3D2.ModelExportMMD.Gui
 
             position.x += position.width;
             position.width = modalRect.width * 0.8f - margin;
-            ExportFormat = (ModelFormat)GUI.SelectionGrid(position, (int)ExportFormat, ExportFormatLabels, ExportFormatLabels.Length, selectionGridStyle);
+            ExportClass = (ModelExportEventArgs.ExporterClass)GUI.SelectionGrid(position, (int)ExportClass, ExportClassLabels, ExportClassLabels.Length, selectionGridStyle);
 
             position.x = margin;
             position.y += position.height + margin;
@@ -205,7 +206,7 @@ namespace COM3D2.ModelExportMMD.Gui
                 var args = new ModelExportEventArgs(
                     ExportFolderPath,
                     ExportName,
-                    ExportFormat,
+                    ExportClass,
                     SavePostion,
                     SaveTextures);
                 ExportClicked(this, args);

@@ -25,6 +25,7 @@ namespace COM3D2.ModelExportMMD
         public static Texture2D makePowerOfTwo(Texture2D tex)
         {
             return tex;
+            /*
             // doesn't work right now
             int w = tex.width;
             int h = tex.height;
@@ -38,6 +39,7 @@ namespace COM3D2.ModelExportMMD
             copy.SetPixels32(tex.GetPixels32());
             copy.Resize(w2, h2);
             return copy;
+            */
         }
 
         public static Texture2D ConvertToTexture2D(RenderTexture renderTexture)

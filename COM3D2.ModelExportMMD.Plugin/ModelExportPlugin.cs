@@ -11,7 +11,7 @@ using BepInEx.Configuration;
 
 namespace COM3D2.ModelExportMMD.Plugin
 {
-    [BepInPlugin("pleaserespond.mmdexport", "COM3D2 Model Export to MMD", "3.0")]
+    [BepInPlugin("pleaserespond.mmdexport", "COM3D2 Model Export to MMD", "3.1")]
     public class ModelExportPlugin : BaseUnityPlugin
     {
         #region Constants
@@ -28,7 +28,7 @@ namespace COM3D2.ModelExportMMD.Plugin
 
         private ModelExportWindow window;
         private ConfigEntry<string> configFolderPath;
-        private ConfigEntry<ModelFormat> configFormat;
+        private ConfigEntry<ModelExportEventArgs.ExporterClass> configFormat;
         private ConfigEntry<bool> configSavePosition;
         private ConfigEntry<bool> configSaveTextures;
 
@@ -40,7 +40,7 @@ namespace COM3D2.ModelExportMMD.Plugin
         {
             string defaultPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Maids");
             configFolderPath = Config.Bind(IniSection, IniKeyFolderPath, defaultPath, "Output folder");
-            configFormat = Config.Bind(IniSection, IniKeyFormat, ModelFormat.Pmx, "File format");
+            configFormat = Config.Bind(IniSection, IniKeyFormat, ModelExportEventArgs.ExporterClass.PmxA, "File format");
             configSavePosition = Config.Bind(IniSection, IniKeySavePosition, true, "Save position");
             configSaveTextures = Config.Bind(IniSection, IniKeySaveTextures, true, "Save textures");
         }
@@ -76,7 +76,7 @@ namespace COM3D2.ModelExportMMD.Plugin
                     PluginVersion = ((BepInPlugin)GetType().GetCustomAttributes(typeof(BepInPlugin), false)[0]).Version.ToString(),
                     ExportFolderPath = configFolderPath.Value,
                     ExportName = "Maid",
-                    ExportFormat = configFormat.Value,
+                    ExportClass = configFormat.Value,
                     SavePostion = configSavePosition.Value,
                     SaveTextures = configSaveTextures.Value,
                 };
@@ -94,7 +94,7 @@ namespace COM3D2.ModelExportMMD.Plugin
             try
             {
                 configFolderPath.Value = window.ExportFolderPath;
-                configFormat.Value = window.ExportFormat;
+                configFormat.Value = window.ExportClass;
                 configSavePosition.Value = window.SavePostion;
                 configSaveTextures.Value = window.SaveTextures;
                 Config.Save();
@@ -110,7 +110,14 @@ namespace COM3D2.ModelExportMMD.Plugin
             var dialog = new SaveFileDialog();
             dialog.Title = "Select the folder where the model and textures will be exported";
             dialog.Filter = "MikuMikuDance (*.pmx)|*.pmx|Wavefront (*.obj)|*.obj|All files (*.*)|*.*";
-            dialog.FilterIndex = (int)window.ExportFormat + 1;
+            if (window.ExportClass == ModelExportEventArgs.ExporterClass.Obj)
+            {
+                dialog.FilterIndex = 2;
+            }
+            else
+            {
+                dialog.FilterIndex = 1;
+            }
             dialog.FileName = window.ExportName;
             dialog.InitialDirectory = window.ExportFolderPath;
             if (!Directory.Exists(dialog.InitialDirectory))
@@ -123,7 +130,6 @@ namespace COM3D2.ModelExportMMD.Plugin
             {
                 window.ExportFolderPath = Path.GetDirectoryName(dialog.FileName);
                 window.ExportName = Path.GetFileNameWithoutExtension(dialog.FileName);
-                window.ExportFormat = (ModelFormat)(1 <= dialog.FilterIndex && dialog.FilterIndex <= 2 ? dialog.FilterIndex - 1 : 0);
             }
         }
 
@@ -154,16 +160,19 @@ namespace COM3D2.ModelExportMMD.Plugin
 
                 IExporter exporter;
 
-                switch (args.Format)
+                switch (args.Exporter)
                 {
-                    case ModelFormat.Pmx:
-                        exporter = new PmxExporter();
-                        break;
-                    case ModelFormat.Obj:
+                    case ModelExportEventArgs.ExporterClass.Obj:
                         exporter = new ObjExporter();
                         break;
+                    case ModelExportEventArgs.ExporterClass.PmxA:
+                        exporter = new PmxExporter();
+                        break;
+                    case ModelExportEventArgs.ExporterClass.PmxB:
+                        exporter = new PmxBuilder();
+                        break;
                     default:
-                        throw new Exception($"Unknown model format: {args.Format}");
+                        throw new Exception($"Unknown model format: {args.Exporter}");
                 }
 
                 exporter.ExportFolder = args.Folder;
@@ -174,7 +183,7 @@ namespace COM3D2.ModelExportMMD.Plugin
             }
             catch (Exception error)
             {
-                Debug.LogError($"Error exporting {args.Format}: {error.Message}\n\nStack trace:\n{error.StackTrace}");
+                Debug.LogError($"Error exporting {args.Exporter}: {error.Message}\n\nStack trace:\n{error.StackTrace}");
             }
         }
 

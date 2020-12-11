@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace COM3D2.ModelExportMMD
 {
-    public class PmxExporter : IExporter
+    public class PmxBuilder : IExporter
     {
         private class MaterialInfo
         {
@@ -56,7 +56,7 @@ namespace COM3D2.ModelExportMMD
         public bool SavePosition { get; set; } = true;
         public bool SaveTexture { get; set; } = true;
 
-        public PmxExporter()
+        public PmxBuilder()
         {
         }
 
