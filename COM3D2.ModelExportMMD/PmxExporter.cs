@@ -84,25 +84,44 @@ namespace COM3D2.ModelExportMMD
 
         private void ConvertBoneWeight(PmxVertex.BoneWeight[] weights, BoneWeight unityWeight, Transform[] bones)
         {
-            weights[0].Value = unityWeight.weight0;
-            if (unityWeight.weight0 != 0f)
+            try
             {
-                weights[0].Bone = bonesMap[bones[unityWeight.boneIndex0].name];
+                weights[0].Value = unityWeight.weight0;
+                if (unityWeight.weight0 != 0f)
+                {
+                    weights[0].Bone = bonesMap[bones[unityWeight.boneIndex0].name];
+                }
+                weights[1].Value = unityWeight.weight1;
+                if (unityWeight.weight1 != 0f)
+                {
+                    weights[1].Bone = bonesMap[bones[unityWeight.boneIndex1].name];
+                }
+                weights[2].Value = unityWeight.weight2;
+                if (unityWeight.weight2 != 0f)
+                {
+                    weights[2].Bone = bonesMap[bones[unityWeight.boneIndex2].name];
+                }
+                weights[3].Value = unityWeight.weight3;
+                if (unityWeight.weight3 != 0f)
+                {
+                    weights[3].Bone = bonesMap[bones[unityWeight.boneIndex3].name];
+                }
             }
-            weights[1].Value = unityWeight.weight1;
-            if (unityWeight.weight1 != 0f)
+            catch (Exception e)
             {
-                weights[1].Bone = bonesMap[bones[unityWeight.boneIndex1].name];
-            }
-            weights[2].Value = unityWeight.weight2;
-            if (unityWeight.weight2 != 0f)
-            {
-                weights[2].Bone = bonesMap[bones[unityWeight.boneIndex2].name];
-            }
-            weights[3].Value = unityWeight.weight3;
-            if (unityWeight.weight3 != 0f)
-            {
-                weights[3].Bone = bonesMap[bones[unityWeight.boneIndex3].name];
+                Debug.LogError("Error converting bone weights");
+                string[] names =
+                {
+                    bones[unityWeight.boneIndex0].name,
+                    bones[unityWeight.boneIndex1].name,
+                    bones[unityWeight.boneIndex2].name,
+                    bones[unityWeight.boneIndex3].name,
+                };
+                Debug.LogError($"0: {unityWeight.weight0} {unityWeight.boneIndex0} {names[0]} {bonesMap.ContainsKey(names[0])}");
+                Debug.LogError($"1: {unityWeight.weight1} {unityWeight.boneIndex1} {names[1]} {bonesMap.ContainsKey(names[1])}");
+                Debug.LogError($"2: {unityWeight.weight2} {unityWeight.boneIndex2} {names[2]} {bonesMap.ContainsKey(names[2])}");
+                Debug.LogError($"3: {unityWeight.weight3} {unityWeight.boneIndex3} {names[3]} {bonesMap.ContainsKey(names[3])}");
+                throw;
             }
         }
 
