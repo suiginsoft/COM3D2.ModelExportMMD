@@ -109,14 +109,13 @@ namespace COM3D2.ModelExportMMD.Plugin
         {
             var dialog = new SaveFileDialog();
             dialog.Title = "Select the folder where the model and textures will be exported";
-            dialog.Filter = "MikuMikuDance (*.pmx)|*.pmx|Wavefront (*.obj)|*.obj|All files (*.*)|*.*";
             if (window.ExportClass == ModelExportEventArgs.ExporterClass.Obj)
             {
-                dialog.FilterIndex = 2;
+                dialog.Filter = "Wavefront (*.obj)|*.obj|All files (*.*)|*.*";
             }
             else
             {
-                dialog.FilterIndex = 1;
+                dialog.Filter = "MikuMikuDance (*.pmx)|*.pmx|All files (*.*)|*.*";
             }
             dialog.FileName = window.ExportName;
             dialog.InitialDirectory = window.ExportFolderPath;
@@ -154,7 +153,7 @@ namespace COM3D2.ModelExportMMD.Plugin
 
                 var maid = GameMain.Instance.CharacterMgr.GetMaid(0);
                 var meshes = FindObjectsOfType<SkinnedMeshRenderer>()
-                    .Where(smr => smr.name != "obj1")
+                    .Where(smr => smr.name != "obj1" && smr.name != "moza")
                     .Distinct()
                     .ToList();
 
