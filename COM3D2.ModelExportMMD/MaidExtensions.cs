@@ -130,22 +130,48 @@ namespace COM3D2.ModelExportMMD.Extensions
         // armature to put her into a T-pose.
         public static void ApplyTPose(this Maid maid)
         {
-            maid.body0.m_Bones.GetComponent<Animation>().Stop();
-            maid.body0.Face.AnimationStop();
-            maid.EyeToReset();
-            maid.LockHeadAndEye(true);
-
-            Transform rootTransform = maid.body0.m_Bones.transform;
-
-            foreach (var boneName in TPoseBonesToReset)
+            Animation anim = maid.body0.m_Bones.GetComponent<Animation>();
+            if (anim.enabled)
             {
-                Transform transform = CMT.SearchObjName(rootTransform, boneName);
-                transform.localRotation = Quaternion.identity;
+                maid.body0.m_Bones.GetComponent<Animation>().enabled = false;
+                maid.body0.Face.AnimationStop();
+                maid.EyeToReset();
+                maid.LockHeadAndEye(true);
+                maid.boMabataki = false;
+                maid.body0.Face.morph.EyeMabataki = 0f;
+                maid.body0.Face.morph.FixBlendValues_Face();
+
+                Transform rootTransform = maid.body0.m_Bones.transform;
+
+                foreach (var boneName in TPoseBonesToReset)
+                {
+                    Transform transform = CMT.SearchObjName(rootTransform, boneName);
+                    transform.localRotation = Quaternion.identity;
+                }
+
+                foreach (var entry in TPoseBoneTransformRotations)
+                {
+                    CMT.SearchObjName(rootTransform, entry.Key).localRotation *= entry.Value;
+                }
+
+                foreach (var dbone in maid.body0.m_Bones.GetComponentsInChildren<DynamicBone>())
+                {
+                    if (!dbone.enabled)
+                    {
+                        Debug.Log($"Dynamic Bone {dbone.name} is already disabled");
+                    }
+                    dbone.enabled = false;
+                }
             }
-
-            foreach (var entry in TPoseBoneTransformRotations)
+            else
             {
-                CMT.SearchObjName(rootTransform, entry.Key).localRotation *= entry.Value;
+                maid.body0.m_Bones.GetComponent<Animation>().enabled = true;
+                maid.LockHeadAndEye(false);
+                maid.boMabataki = true;
+                foreach (var dbone in maid.body0.m_Bones.GetComponentsInChildren<DynamicBone>())
+                {
+                    dbone.enabled = true;
+                }
             }
         }
 
