@@ -82,27 +82,27 @@ namespace COM3D2.ModelExportMMD
 
         #region Methods
 
-        private void ConvertBoneWeight(PmxVertex.BoneWeight[] weights, BoneWeight unityWeight, Transform[] bones, SkinQuality quality)
+        private void ConvertBoneWeight(PmxVertex.BoneWeight[] weights, BoneWeight unityWeight, Transform[] bones)
         {
-            int boneCount = (int)quality;
-            if (boneCount < 1)
-            {
-                boneCount = 1;
-            }
-
-            weights[0].Bone = bonesMap[bones[unityWeight.boneIndex0].name];
             weights[0].Value = unityWeight.weight0;
-            if (quality >= SkinQuality.Bone2)
+            if (unityWeight.weight0 != 0f)
+            {
+                weights[0].Bone = bonesMap[bones[unityWeight.boneIndex0].name];
+            }
+            weights[1].Value = unityWeight.weight1;
+            if (unityWeight.weight1 != 0f)
             {
                 weights[1].Bone = bonesMap[bones[unityWeight.boneIndex1].name];
-                weights[1].Value = unityWeight.weight1;
             }
-            if (quality >= SkinQuality.Bone4)
+            weights[2].Value = unityWeight.weight2;
+            if (unityWeight.weight2 != 0f)
             {
                 weights[2].Bone = bonesMap[bones[unityWeight.boneIndex2].name];
-                weights[2].Value = unityWeight.weight2;
+            }
+            weights[3].Value = unityWeight.weight3;
+            if (unityWeight.weight3 != 0f)
+            {
                 weights[3].Bone = bonesMap[bones[unityWeight.boneIndex3].name];
-                weights[3].Value = unityWeight.weight3;
             }
         }
 
@@ -147,7 +147,7 @@ namespace COM3D2.ModelExportMMD
             {
                 PmxVertex pmxVertex = new PmxVertex();
                 pmxVertex.UV = new PmxLib.Vector2(uv[i].x, -uv[i].y);
-                ConvertBoneWeight(pmxVertex.Weight, boneWeights[i], meshRender.bones, meshRender.quality);
+                ConvertBoneWeight(pmxVertex.Weight, boneWeights[i], meshRender.bones);
                 Transform t = gameObject.transform;
                 UnityEngine.Vector3 n = normals[i];
                 n = t.TransformDirection(n);
