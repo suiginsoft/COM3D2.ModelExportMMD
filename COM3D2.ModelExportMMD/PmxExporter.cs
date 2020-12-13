@@ -257,7 +257,7 @@ namespace COM3D2.ModelExportMMD
                 }
                 if (boneParent[i] == -1)
                 {
-                    Debug.Log($"Bone {bone.name} has no parent");
+                    //Debug.Log($"Bone {bone.name} has no parent");
                 }
             }
 
