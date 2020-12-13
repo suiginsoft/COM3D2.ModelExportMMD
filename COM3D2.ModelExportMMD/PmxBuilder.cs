@@ -1549,7 +1549,7 @@ namespace COM3D2.ModelExportMMD
 
         private float getDistance(PmxLib.Vector3 one, PmxLib.Vector3 two)
         {
-            return (float)Math.Sqrt((one.X - two.X) * (one.X - two.X) + (one.Y - two.Y) * (one.Y - two.Y) + (one.Z - two.Z) * (one.Z - two.Z));
+            return (one - two).Length();
         }
 
         public void SortMaterial()
