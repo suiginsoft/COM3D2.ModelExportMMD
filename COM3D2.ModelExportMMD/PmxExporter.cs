@@ -54,6 +54,7 @@ namespace COM3D2.ModelExportMMD
         private readonly Dictionary<string, MaterialInfo> materialInfo = new Dictionary<string, MaterialInfo>();
         private readonly Dictionary<string, int> vertexIndexMap = new Dictionary<string, int>();
         private readonly Dictionary<string, PmxMorph> morphMap = new Dictionary<string, PmxMorph>();
+
         private int vertexCount = 0;
 
         #endregion
@@ -212,19 +213,20 @@ namespace COM3D2.ModelExportMMD
                 {
                     for (Transform bone = skinnedMesh.bones[i]; bone != null; bone = bone.parent)
                     {
-                        if (!string.IsNullOrEmpty(bone.name) &&
-                                !bone.name.Equals(skinnedMesh.name) &&
-                                !bone.name.Equals(skinnedMesh.sharedMesh.name) &&
-                                !bone.name.StartsWith("_SM_") &&
-                                !bonesMap.ContainsKey(bone.name))
+                        bool badBone =
+                            string.IsNullOrEmpty(bone.name) ||
+                            bone.name.Equals(skinnedMesh.name) ||
+                            bone.name.Equals(skinnedMesh.sharedMesh.name) ||
+                            bone.name.StartsWith("_SM_");
+                        if (badBone)
+                        {
+                            break;
+                        }
+                        if (!bonesMap.ContainsKey(bone.name))
                         {
                             boneList.Add(bone);
                             boneParent.Add(-1);
                             bindposeList.Add(skinnedMesh.sharedMesh.bindposes[i]);
-                        }
-                        else
-                        {
-                            break;
                         }
                     }
                 }
