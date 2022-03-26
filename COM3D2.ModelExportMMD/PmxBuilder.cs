@@ -1575,31 +1575,31 @@ namespace COM3D2.ModelExportMMD
 
         public void AddPhysics()
         {
-            List<PmxBone> list = new List<PmxBone>();
-            List<PmxBone> list2 = new List<PmxBone>();
+            List<PmxBone> skirtBones = new List<PmxBone>();
+            List<PmxBone> hairBones = new List<PmxBone>();
             for (int i = 0; i < pmxFile.BoneList.Count; i++)
             {
                 if (pmxFile.BoneList[i].Name.Contains("yure") && pmxFile.BoneList[i].Name.Contains("Skirt"))
                 {
-                    list.Add(pmxFile.BoneList[i]);
+                    skirtBones.Add(pmxFile.BoneList[i]);
                 }
                 if (pmxFile.BoneList[i].Name.Contains("yure") && pmxFile.BoneList[i].Name.Contains("hair"))
                 {
-                    list2.Add(pmxFile.BoneList[i]);
+                    hairBones.Add(pmxFile.BoneList[i]);
                 }
             }
-            for (int i = 0; i < list2.Count; i++)
+            for (int i = 0; i < hairBones.Count; i++)
             {
-                if (list2[i].Parent != -1)
+                if (hairBones[i].Parent != -1)
                 {
-                    PmxBone pmxBone = pmxFile.BoneList[list2[i].Parent];
+                    PmxBone pmxBone = pmxFile.BoneList[hairBones[i].Parent];
                     PmxLib.Vector3 vector = default(PmxLib.Vector3);
-                    int num = FindChildIndex(list2[i].Name);
-                    vector = ((num == -1) ? (new PmxLib.Vector3(0f, -0.5f, 0f) + list2[i].Position) : pmxFile.BoneList[num].Position);
+                    int num = FindChildIndex(hairBones[i].Name);
+                    vector = ((num == -1) ? (new PmxLib.Vector3(0f, -0.5f, 0f) + hairBones[i].Position) : pmxFile.BoneList[num].Position);
                     PmxBody pmxBody = new PmxBody();
-                    pmxBody.Name = list2[i].Name;
-                    pmxBody.Bone = FindBoneIndex(list2[i].Name);
-                    pmxBody.Position = (list2[i].Position + vector) / 2f;
+                    pmxBody.Name = hairBones[i].Name;
+                    pmxBody.Bone = FindBoneIndex(hairBones[i].Name);
+                    pmxBody.Position = (hairBones[i].Position + vector) / 2f;
                     pmxBody.BoxType = PmxBody.BoxKind.Capsule;
                     pmxBody.Group = 2;
                     pmxBody.Mass = 1f;
@@ -1613,8 +1613,8 @@ namespace COM3D2.ModelExportMMD
                     {
                         pmxBody.Mode = PmxBody.ModeType.Static;
                     }
-                    pmxBody.BoxSize = new PmxLib.Vector3(0.2f, getDistance(list2[i].Position, vector) / 2f, 0f);
-                    pmxBody.Rotation = getDirection(list2[i].Position, vector);
+                    pmxBody.BoxSize = new PmxLib.Vector3(0.2f, getDistance(hairBones[i].Position, vector) / 2f, 0f);
+                    pmxBody.Rotation = getDirection(hairBones[i].Position, vector);
                     pmxFile.BodyList.Add(pmxBody);
                     if (FindBodyIndex(pmxBone.Name) == -1)
                     {
@@ -1623,8 +1623,8 @@ namespace COM3D2.ModelExportMMD
                     else if (!(pmxBone.Name == "Hair_F") && !(pmxBone.Name == "Hair_R"))
                     {
                         PmxJoint pmxJoint = new PmxJoint();
-                        pmxJoint.Name = list2[i].Name;
-                        pmxJoint.Position = list2[i].Position;
+                        pmxJoint.Name = hairBones[i].Name;
+                        pmxJoint.Position = hairBones[i].Position;
                         pmxJoint.Rotation = pmxBody.Rotation;
                         pmxJoint.BodyA = FindBodyIndex(pmxBone.Name);
                         pmxJoint.BodyB = FindBodyIndex(pmxBody.Name);
@@ -1634,16 +1634,16 @@ namespace COM3D2.ModelExportMMD
                     }
                 }
             }
-            for (int i = 0; i < list.Count; i++)
+            for (int i = 0; i < skirtBones.Count; i++)
             {
-                PmxBone pmxBone = pmxFile.BoneList[list[i].Parent];
+                PmxBone pmxBone = pmxFile.BoneList[skirtBones[i].Parent];
                 PmxLib.Vector3 vector = default(PmxLib.Vector3);
-                int num = FindChildIndex(list[i].Name);
-                vector = ((num == -1) ? (new PmxLib.Vector3(0f, -0.5f, 0f) + list[i].Position) : pmxFile.BoneList[num].Position);
+                int num = FindChildIndex(skirtBones[i].Name);
+                vector = ((num == -1) ? (new PmxLib.Vector3(0f, -0.5f, 0f) + skirtBones[i].Position) : pmxFile.BoneList[num].Position);
                 PmxBody pmxBody = new PmxBody();
-                pmxBody.Name = list[i].Name;
-                pmxBody.Bone = FindBoneIndex(list[i].Name);
-                pmxBody.Position = (list[i].Position + vector) / 2f;
+                pmxBody.Name = skirtBones[i].Name;
+                pmxBody.Bone = FindBoneIndex(skirtBones[i].Name);
+                pmxBody.Position = (skirtBones[i].Position + vector) / 2f;
                 pmxBody.BoxType = PmxBody.BoxKind.Capsule;
                 pmxBody.Group = 3;
                 pmxBody.Mass = 1f;
@@ -1657,14 +1657,14 @@ namespace COM3D2.ModelExportMMD
                 {
                     pmxBody.Mode = PmxBody.ModeType.Static;
                 }
-                pmxBody.BoxSize = new PmxLib.Vector3(0.2f, getDistance(list[i].Position, vector) / 2f, 0f);
-                pmxBody.Rotation = getDirection(list[i].Position, vector);
+                pmxBody.BoxSize = new PmxLib.Vector3(0.2f, getDistance(skirtBones[i].Position, vector) / 2f, 0f);
+                pmxBody.Rotation = getDirection(skirtBones[i].Position, vector);
                 pmxFile.BodyList.Add(pmxBody);
                 if (!(pmxBone.Name == "Skirt") && !(pmxBone.Name == "下半身"))
                 {
                     PmxJoint pmxJoint = new PmxJoint();
-                    pmxJoint.Name = list[i].Name;
-                    pmxJoint.Position = list[i].Position;
+                    pmxJoint.Name = skirtBones[i].Name;
+                    pmxJoint.Position = skirtBones[i].Position;
                     pmxJoint.Rotation = pmxBody.Rotation;
                     pmxJoint.BodyA = FindBodyIndex(pmxBone.Name);
                     pmxJoint.BodyB = FindBodyIndex(pmxBody.Name);
@@ -1674,38 +1674,38 @@ namespace COM3D2.ModelExportMMD
                 }
             }
             int num2 = 0;
-            for (int i = 0; i < list.Count; i++)
+            for (int i = 0; i < skirtBones.Count; i++)
             {
-                int num3 = int.Parse(string.Concat(list[i].Name[5], list[i].Name[6]));
+                int num3 = int.Parse(string.Concat(skirtBones[i].Name[5], skirtBones[i].Name[6]));
                 if (num2 < num3)
                 {
                     num2 = num3;
                 }
             }
-            for (int i = 0; i < list.Count; i++)
+            for (int i = 0; i < skirtBones.Count; i++)
             {
-                int num4 = int.Parse(string.Concat(list[i].Name[5], list[i].Name[6]));
-                char c = list[i].Name[8];
+                int num4 = int.Parse(string.Concat(skirtBones[i].Name[5], skirtBones[i].Name[6]));
+                char c = skirtBones[i].Name[8];
                 PmxBone pmxBone2 = null;
                 int num5 = 1;
                 if (num4 != num2)
                 {
                     num5 = num4 + 1;
                 }
-                for (int num3 = 0; num3 < list.Count; num3++)
+                for (int num3 = 0; num3 < skirtBones.Count; num3++)
                 {
-                    if (int.Parse(string.Concat(list[num3].Name[5], list[num3].Name[6])) == num5 && list[num3].Name[8] == c)
+                    if (int.Parse(string.Concat(skirtBones[num3].Name[5], skirtBones[num3].Name[6])) == num5 && skirtBones[num3].Name[8] == c)
                     {
-                        pmxBone2 = list[num3];
+                        pmxBone2 = skirtBones[num3];
                     }
                 }
                 if (pmxBone2 != null)
                 {
                     PmxJoint pmxJoint = new PmxJoint();
-                    pmxJoint.Name = list[i].Name + "[side]";
-                    pmxJoint.Position = list[i].Position;
-                    pmxJoint.Rotation = pmxFile.BodyList[FindBodyIndex(list[i].Name)].Rotation;
-                    pmxJoint.BodyA = FindBodyIndex(list[i].Name);
+                    pmxJoint.Name = skirtBones[i].Name + "[side]";
+                    pmxJoint.Position = skirtBones[i].Position;
+                    pmxJoint.Rotation = pmxFile.BodyList[FindBodyIndex(skirtBones[i].Name)].Rotation;
+                    pmxJoint.BodyA = FindBodyIndex(skirtBones[i].Name);
                     pmxJoint.BodyB = FindBodyIndex(pmxBone2.Name);
                     pmxJoint.Limit_MoveLow = new PmxLib.Vector3(0f, 0f, 0f);
                     pmxJoint.Limit_MoveHigh = new PmxLib.Vector3(0f, 0f, 0f);
