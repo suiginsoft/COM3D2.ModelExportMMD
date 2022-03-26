@@ -1554,6 +1554,8 @@ namespace COM3D2.ModelExportMMD
 
         public void SortMaterial()
         {
+            throw new Exception("Unused");
+            /*
             int num = 0;
             for (int i = 0; i < pmxFile.MaterialList.Count; i++)
             {
@@ -1568,6 +1570,7 @@ namespace COM3D2.ModelExportMMD
                 }
                 num += pmxMaterial.FaceCount * 3;
             }
+            */
         }
 
         public void AddPhysics()
