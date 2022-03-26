@@ -108,6 +108,7 @@ namespace COM3D2.ModelExportMMD
             catch (Exception e)
             {
                 Debug.LogError("Error converting bone weights");
+                Debug.LogError(e.Message);
                 string[] names =
                 {
                     bones[unityWeight.boneIndex0].name,
@@ -115,10 +116,24 @@ namespace COM3D2.ModelExportMMD
                     bones[unityWeight.boneIndex2].name,
                     bones[unityWeight.boneIndex3].name,
                 };
-                Debug.LogError($"0: {unityWeight.weight0} {unityWeight.boneIndex0} {names[0]} {bonesMap.ContainsKey(names[0])}");
-                Debug.LogError($"1: {unityWeight.weight1} {unityWeight.boneIndex1} {names[1]} {bonesMap.ContainsKey(names[1])}");
-                Debug.LogError($"2: {unityWeight.weight2} {unityWeight.boneIndex2} {names[2]} {bonesMap.ContainsKey(names[2])}");
-                Debug.LogError($"3: {unityWeight.weight3} {unityWeight.boneIndex3} {names[3]} {bonesMap.ContainsKey(names[3])}");
+                float[] weightsU =
+                {
+                    unityWeight.weight0,
+                    unityWeight.weight1,
+                    unityWeight.weight2,
+                    unityWeight.weight3,
+                };
+                int[] indices =
+                {
+                    unityWeight.boneIndex0,
+                    unityWeight.boneIndex1,
+                    unityWeight.boneIndex2,
+                    unityWeight.boneIndex3,
+                };
+                for (int i=0; i<4; i++)
+                {
+                    Debug.LogError($"{i}: weight={weightsU[i]} idx={indices[i]} name={names[i]} contains={bonesMap.ContainsKey(names[i])}");
+                }
                 throw;
             }
         }
@@ -224,9 +239,12 @@ namespace COM3D2.ModelExportMMD
                         }
                         if (!bonesMap.ContainsKey(bone.name))
                         {
+                            int idx = boneList.Count;
                             boneList.Add(bone);
                             boneParent.Add(-1);
                             bindposeList.Add(skinnedMesh.sharedMesh.bindposes[i]);
+                            bonesMap.Add(bone.name, idx);
+                            Debug.Log($"Added bone: {bone.name} with idx {idx}");
                         }
                     }
                 }
