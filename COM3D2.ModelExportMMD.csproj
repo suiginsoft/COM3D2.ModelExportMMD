@@ -28,15 +28,20 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DefineConstants>DEBUG</DefineConstants>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
       <HintPath>Dependencies\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="ExIni">
-      <HintPath>Dependencies\ExIni.dll</HintPath>
+    <Reference Include="BepInEx">
+      <HintPath>Dependencies\BepInEx.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.12.0.3\lib\net35\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -44,10 +49,6 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="UnityEngine">
       <HintPath>Dependencies\UnityEngine.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityInjector">
-      <HintPath>Dependencies\UnityInjector.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -58,10 +59,12 @@
     <Compile Include="COM3D2.ModelExportMMD\IExporter.cs" />
     <Compile Include="COM3D2.ModelExportMMD\MaidExtensions.cs" />
     <Compile Include="COM3D2.ModelExportMMD\ModelFormat.cs" />
+    <Compile Include="COM3D2.ModelExportMMD\PmxBuilder.cs" />
     <Compile Include="COM3D2.ModelExportMMD\TextureBuilder.cs" />
     <Compile Include="COM3D2.ModelExportMMD\ObjExporter.cs" />
     <Compile Include="COM3D2.ModelExportMMD\PmxExporter.cs" />
     <Compile Include="PmxLib\BitConverterAp.cs" />
+    <Compile Include="PmxLib\Bones.cs" />
     <Compile Include="PmxLib\BytesStringProc.cs" />
     <Compile Include="PmxLib\CExt.cs" />
     <Compile Include="PmxLib\CMath.cs" />
@@ -116,6 +119,7 @@
     <Compile Include="PmxLib\Vector2.cs" />
     <Compile Include="PmxLib\Vector3.cs" />
     <Compile Include="PmxLib\Vector4.cs" />
+    <Compile Include="PmxLib\Vers.cs" />
     <Compile Include="PmxLib\Vmd.cs" />
     <Compile Include="PmxLib\VmdCamera.cs" />
     <Compile Include="PmxLib\VmdCameraIPL.cs" />
@@ -134,6 +138,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\WindowBackground.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

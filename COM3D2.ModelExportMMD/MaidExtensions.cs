@@ -130,92 +130,49 @@ namespace COM3D2.ModelExportMMD.Extensions
         // armature to put her into a T-pose.
         public static void ApplyTPose(this Maid maid)
         {
-            maid.body0.m_Bones.GetComponent<Animation>().Stop();
-            maid.body0.Face.AnimationStop();
-            maid.EyeToReset();
-            maid.LockHeadAndEye(true);
-
-            Transform rootTransform = maid.body0.m_Bones.transform;
-
-            foreach (var boneName in TPoseBonesToReset)
+            Animation anim = maid.body0.m_Bones.GetComponent<Animation>();
+            if (anim.enabled)
             {
-                Transform transform = CMT.SearchObjName(rootTransform, boneName);
-                transform.localRotation = Quaternion.identity;
-            }
+                maid.body0.m_Bones.GetComponent<Animation>().enabled = false;
+                maid.body0.Face.AnimationStop();
+                maid.EyeToReset();
+                maid.LockHeadAndEye(true);
+                maid.boMabataki = false;
+                maid.body0.Face.morph.EyeMabataki = 0f;
+                maid.body0.Face.morph.FixBlendValues_Face();
 
-            foreach (var entry in TPoseBoneTransformRotations)
-            {
-                CMT.SearchObjName(rootTransform, entry.Key).localRotation *= entry.Value;
-            }
-        }
+                Transform rootTransform = maid.body0.m_Bones.transform;
 
-        // This is a workaround for the face textures being black-transparent
-        // on export. Most head mesh materials are composed of multiple layers,
-        // with each layer using the Multiply blending mode. For whatever
-        // reason these textures end up being black-transparent when the pixels
-        // are read from the final composite RenderTexture object. Changing the
-        // blending mode of the layers to Alpha appears to fix this problem.
-        // This function returns a list of layer states that can be passed to
-        // RestoreMaterialsAfterExport in order to restore the material layers
-        // to their previous states.
-        public static List<MaterialLayerState> PrepareMaterialsForExport(this Maid maid)
-        {
-            var layerStates = new List<MaterialLayerState>();
-
-            var fi = typeof(TBody).GetField("m_dicLaySlot", BindingFlags.NonPublic | BindingFlags.Instance);
-
-            if (fi != null)
-            {
-                var dicLaySlot = (Dictionary<string, TBody.TexLay.Mat>)fi.GetValue(maid.body0);
-                foreach (var mat in dicLaySlot)
+                foreach (var boneName in TPoseBonesToReset)
                 {
-                    foreach (var prop in mat.Value.dicPropInMat)
+                    Transform transform = CMT.SearchObjName(rootTransform, boneName);
+                    transform.localRotation = Quaternion.identity;
+                }
+
+                foreach (var entry in TPoseBoneTransformRotations)
+                {
+                    CMT.SearchObjName(rootTransform, entry.Key).localRotation *= entry.Value;
+                }
+
+                foreach (var dbone in maid.body0.m_Bones.GetComponentsInChildren<DynamicBone>())
+                {
+                    if (!dbone.enabled)
                     {
-                        foreach (var lay in prop.Value.dicLayInProp)
-                        {
-                            if (lay.Value.listLayer != null)
-                            {
-                                foreach (var tex in lay.Value.listLayer)
-                                {
-                                    if (mat.Key == "head" && prop.Key == 5 && tex.mode == GameUty.SystemMaterial.Multiply)
-                                    {
-                                        layerStates.Add(new MaterialLayerState() { Layer = tex, OriginalBlendMode = tex.mode });
-                                        tex.mode = GameUty.SystemMaterial.Alpha;
-                                    }
-                                }
-                            }
-                        }
+                        Debug.Log($"Dynamic Bone {dbone.name} is already disabled");
                     }
+                    dbone.enabled = false;
                 }
             }
-
-            foreach (var goItem in maid.body0.goSlot)
+            else
             {
-                goItem.TextureCache.Update();
-                goItem.ManColorUpdate();
+                maid.body0.m_Bones.GetComponent<Animation>().enabled = true;
+                maid.LockHeadAndEye(false);
+                maid.boMabataki = true;
+                foreach (var dbone in maid.body0.m_Bones.GetComponentsInChildren<DynamicBone>())
+                {
+                    dbone.enabled = true;
+                }
             }
-
-            maid.body0.MulTexProc();
-
-            return layerStates;
-        }
-
-        // Restores the original blend modes of modified composite materials.
-        // Should be passed the resulting list from PrepareMaterialsForExport.
-        public static void RestoreMaterialsAfterExport(this Maid maid, List<MaterialLayerState> layerStates)
-        {
-            foreach (var layerState in layerStates)
-            {
-                layerState.Layer.mode = layerState.OriginalBlendMode;
-            }
-
-            foreach (var goItem in maid.body0.goSlot)
-            {
-                goItem.TextureCache.Update();
-                goItem.ManColorUpdate();
-            }
-
-            maid.body0.MulTexProc();
         }
 
         #endregion

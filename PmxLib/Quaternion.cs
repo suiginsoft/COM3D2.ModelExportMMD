@@ -14,11 +14,11 @@ namespace PmxLib
 		{
 			get
 			{
-				return this.x;
+				return x;
 			}
 			set
 			{
-				this.x = value;
+				x = value;
 			}
 		}
 
@@ -26,11 +26,11 @@ namespace PmxLib
 		{
 			get
 			{
-				return this.y;
+				return y;
 			}
 			set
 			{
-				this.y = value;
+				y = value;
 			}
 		}
 
@@ -38,11 +38,11 @@ namespace PmxLib
 		{
 			get
 			{
-				return this.z;
+				return z;
 			}
 			set
 			{
-				this.z = value;
+				z = value;
 			}
 		}
 
@@ -50,11 +50,11 @@ namespace PmxLib
 		{
 			get
 			{
-				return this.w;
+				return w;
 			}
 			set
 			{
-				this.w = value;
+				w = value;
 			}
 		}
 
@@ -86,9 +86,9 @@ namespace PmxLib
 
 		public Quaternion(Vector3 value, float w)
 		{
-			this.x = value.X;
-			this.y = value.Y;
-			this.z = value.Z;
+			x = value.X;
+			y = value.Y;
+			z = value.Z;
 			this.w = w;
 		}
 
@@ -190,15 +190,15 @@ namespace PmxLib
 
 		public override string ToString()
 		{
-			return string.Format("X:{0} Y:{1} Z:{2} W:{3}", this.X.ToString(), this.Y.ToString(), this.Z.ToString(), this.W.ToString());
+			return string.Format("X:{0} Y:{1} Z:{2} W:{3}", X.ToString(), Y.ToString(), Z.ToString(), W.ToString());
 		}
 
 		public override int GetHashCode()
 		{
-			float num = this.X;
-			float num2 = this.Y;
-			float num3 = this.Z;
-			float num4 = this.W;
+			float num = X;
+			float num2 = Y;
+			float num3 = Z;
+			float num4 = W;
 			int num5 = num3.GetHashCode() + num4.GetHashCode() + num2.GetHashCode();
 			return num.GetHashCode() + num5;
 		}
@@ -211,13 +211,13 @@ namespace PmxLib
 
 		public bool Equals(Quaternion other)
 		{
-			int num = ((double)this.X == (double)other.X && (double)this.Y == (double)other.Y && (double)this.Z == (double)other.Z && (double)this.W == (double)other.W) ? 1 : 0;
+			int num = ((double)X == (double)other.X && (double)Y == (double)other.Y && (double)Z == (double)other.Z && (double)W == (double)other.W) ? 1 : 0;
 			return (byte)num != 0;
 		}
 
 		public override bool Equals(object obj)
 		{
-			return obj != null && obj.GetType() == ((object)this).GetType() && this.Equals((Quaternion)obj);
+			return obj != null && obj.GetType() == ((object)this).GetType() && Equals((Quaternion)obj);
 		}
 	}
 }

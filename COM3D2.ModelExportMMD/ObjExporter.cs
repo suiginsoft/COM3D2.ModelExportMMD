@@ -24,7 +24,7 @@ namespace COM3D2.ModelExportMMD
         public ModelFormat ExportFormat { get { return ModelFormat.Obj; } }
         public string ExportFolder { get; set; }
         public string ExportName { get; set; }
-        public bool SavePostion { get; set; } = true;
+        public bool SavePosition { get; set; } = true;
         public bool SaveTexture { get; set; } = true;
         public Split SplitMethod { get; set; } = Split.ByMesh;
 
@@ -86,7 +86,7 @@ namespace COM3D2.ModelExportMMD
 
                 if (material.mainTexture != null)
                 {
-                    Texture mainTex = this.GetMainTex(material);
+                    Texture mainTex = GetMainTex(material);
                     if (mainTex != null)
                     {
                         if (mainTex.wrapMode == TextureWrapMode.Clamp)
@@ -97,18 +97,18 @@ namespace COM3D2.ModelExportMMD
                         Vector2 textureScale = material.GetTextureScale("_MainTex");
                         matOutput.AppendLine("s " + textureScale.x + " " + textureScale.y);
                         matOutput.AppendLine("map_Kd " + matRef + "d.png");
-                        if (this.SaveTexture)
+                        if (SaveTexture)
                         {
-                            TextureBuilder.WriteTextureToFile(Path.Combine(this.ExportFolder, matRef + "d.png"), mainTex);
+                            TextureBuilder.WriteTextureToFile(Path.Combine(ExportFolder, matRef + "d.png"), mainTex);
                         }
 
-                        Texture2D shadowTex = this.GetShadowTex(material);
+                        Texture2D shadowTex = GetShadowTex(material);
                         if (shadowTex != null)
                         {
                             matOutput.AppendLine("map_Ka " + matRef + "a.png");
-                            if (this.SaveTexture)
+                            if (SaveTexture)
                             {
-                                TextureBuilder.WriteTextureToFile(Path.Combine(this.ExportFolder, matRef + "a.png"), shadowTex);
+                                TextureBuilder.WriteTextureToFile(Path.Combine(ExportFolder, matRef + "a.png"), shadowTex);
                             }
                         }
                     }
@@ -130,17 +130,17 @@ namespace COM3D2.ModelExportMMD
 
         public void Export(List<SkinnedMeshRenderer> meshesList)
         {
-            Directory.CreateDirectory(this.ExportFolder);
+            Directory.CreateDirectory(ExportFolder);
 
             StringBuilder objOutput = new StringBuilder();
-            objOutput.AppendLine("mtllib " + this.ExportName + ".mtl");
+            objOutput.AppendLine("mtllib " + ExportName + ".mtl");
 
             StringBuilder matOutput = new StringBuilder();
             var matNameCache = new List<string>();
 
             Debug.Log("SkinnedMeshRenderer number :" + meshesList.Count);
 
-            if (this.SplitMethod == Split.None)
+            if (SplitMethod == Split.None)
             {
                 objOutput.AppendLine("g default");
             }
@@ -153,7 +153,7 @@ namespace COM3D2.ModelExportMMD
                 var renderer = gameObject.GetComponent<Renderer>();
 
                 Mesh mesh = null;
-                if (this.SavePostion)
+                if (SavePosition)
                 {
                     mesh = new Mesh();
                     skinnedMesh.BakeMesh(mesh);
@@ -163,7 +163,7 @@ namespace COM3D2.ModelExportMMD
                     mesh = skinnedMesh.sharedMesh;
                 }
 
-                if (this.SplitMethod == Split.ByMesh)
+                if (SplitMethod == Split.ByMesh)
                 {
                     objOutput.AppendLine("g " + gameObject.name + "[" + gameObject.GetInstanceID() + "]");
                 }
@@ -190,7 +190,7 @@ namespace COM3D2.ModelExportMMD
 
                 for (int k = 0; k < mesh.subMeshCount; k++)
                 {
-                    if (this.SplitMethod == Split.BySubmesh)
+                    if (SplitMethod == Split.BySubmesh)
                     {
                         objOutput.AppendLine("g " + gameObject.name + "[" + gameObject.GetInstanceID() + ",SM" + k + "]");
                     }
@@ -198,7 +198,7 @@ namespace COM3D2.ModelExportMMD
                     if (renderer != null && k < renderer.materials.Length)
                     {
                         string matRef = GenerateMaterial(matOutput, matNameCache, renderer.materials[k]);
-                        if (this.SplitMethod == Split.ByMaterial)
+                        if (SplitMethod == Split.ByMaterial)
                         {
                             objOutput.AppendLine("g " + matRef);
                         }
@@ -218,8 +218,8 @@ namespace COM3D2.ModelExportMMD
                 meshVertexCount += mesh.vertices.Length;
             }
 
-            File.WriteAllText(Path.Combine(this.ExportFolder, this.ExportName + ".obj"), objOutput.ToString());
-            File.WriteAllText(Path.Combine(this.ExportFolder, this.ExportName + ".mtl"), matOutput.ToString());
+            File.WriteAllText(Path.Combine(ExportFolder, ExportName + ".obj"), objOutput.ToString());
+            File.WriteAllText(Path.Combine(ExportFolder, ExportName + ".mtl"), matOutput.ToString());
         }
 
         #endregion

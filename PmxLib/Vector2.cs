@@ -9,14 +9,14 @@ namespace PmxLib
 
 		public float X
 		{
-			get { return this.x; }
-			set { this.x = value; }
+			get { return x; }
+			set { x = value; }
 		}
 
 		public float Y
 		{
-			get { return this.y; }
-			set { this.y = value; }
+			get { return y; }
+			set { y = value; }
 		}
 
 		public static Vector2 Zero
@@ -32,8 +32,8 @@ namespace PmxLib
 
 		public Vector2(UnityEngine.Vector2 v)
 		{
-			this.x = v.x;
-			this.y = v.y;
+			x = v.x;
+			y = v.y;
 		}
 
 		public override bool Equals(object other)
@@ -43,7 +43,7 @@ namespace PmxLib
 				return false;
 			}
 			Vector2 vector = (Vector2)other;
-			return this.x.Equals(vector.x) && this.y.Equals(vector.y);
+			return x.Equals(vector.x) && y.Equals(vector.y);
 		}
 
 		public static Vector2 operator +(Vector2 a, Vector2 b)
@@ -105,14 +105,14 @@ namespace PmxLib
 		{
 			return string.Format("X:{0} Y:{1}", new object[2]
 			{
-				this.X.ToString(),
-				this.Y.ToString()
+				X.ToString(),
+				Y.ToString()
 			});
 		}
 
 		public override int GetHashCode()
 		{
-			return this.x.GetHashCode() ^ this.y.GetHashCode() << 2;
+			return x.GetHashCode() ^ y.GetHashCode() << 2;
 		}
 	}
 }
